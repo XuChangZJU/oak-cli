@@ -204,6 +204,29 @@ export function projectConfigContentWithWeChatMp(
 }`;
 }
 
+export function appJsonContentWithWeChatMp(isDev: boolean) {
+    const pages = [];
+    if (isDev) {
+        pages.push('oak#pages/address/list/index');
+        pages.push('oak#pages/address/upsert/index');
+        pages.push('oak#pages/pickers/area/index');
+    }
+    else {
+       pages.push('pages/index/index'); 
+    }
+    return `{
+  "pages":${JSON.stringify(pages, null, 4)},
+  "window":{
+    "backgroundTextStyle":"light",
+    "navigationBarBackgroundColor": "#fff",
+    "navigationBarTitleText": "Weixin",
+    "navigationBarTextStyle":"black"
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}`;
+}
+
 export function oakConfigContentWithWeChatMp() {
     return `{
     "theme": {

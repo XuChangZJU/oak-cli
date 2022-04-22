@@ -15,6 +15,7 @@ import {
 import {
     packageJsonContent,
     tsConfigJsonContent,
+    appJsonContentWithWeChatMp,
     projectConfigContentWithWeChatMp,
     oakConfigContentWithWeChatMp,
 } from './template';
@@ -118,6 +119,8 @@ export default async function create(dirName: string, env: string) {
     // 获取tsconfig.json内容
     const tsconfigJson = tsConfigJsonContent();
 
+    // 获取小程序项目app.json内容
+    const appJsonWithWeChatMp = appJsonContentWithWeChatMp(isDev);
     // 获取小程序项目project.config.json内容
     const projectConfigWithWeChatMp = projectConfigContentWithWeChatMp(
         USER_CONFIG_FILE_NAME,
@@ -136,6 +139,8 @@ export default async function create(dirName: string, env: string) {
     const webRootPath = `${rootPath}/web`;
     // 小程序项目根路径
     const weChatMpRootPath = `${rootPath}/wechatMp`;
+
+    const appJsonPathWithWeChatMp = `${weChatMpRootPath}/src/app.json`;
 
     // 小程序项目project.config.json路径
     const projectConfigPathWithWeChatMp = `${weChatMpRootPath}/src/project.config.json`;
@@ -168,6 +173,12 @@ export default async function create(dirName: string, env: string) {
             projectConfigWithWeChatMp,
             checkFileExistsAndCreateType.FILE
         );
+        // 创建小程序项目app.json
+        checkFileExistsAndCreate(
+            appJsonPathWithWeChatMp,
+            appJsonWithWeChatMp,
+            checkFileExistsAndCreateType.FILE
+        );
         // 创建小程序项目oak.config.json
         checkFileExistsAndCreate(
             oakConfigPathWithWeChatMp,
@@ -183,9 +194,6 @@ export default async function create(dirName: string, env: string) {
         shell.cd(dirName).exec('npm install');
 
         // checkFileExistsAndCreate(weChatMpRootPath + '/src/styles');
-        // //const data = readFile(
-        // //    `${rootPath}/node_modules/oak-frontend-boilerplate/src/platforms/wechatMp/styles/base.less`
-        // //);
         // const data = readFile(
         //     `${rootPath}/node_modules/oak-general-business/src/platforms/wechatMp/styles/base.less`
         // );
