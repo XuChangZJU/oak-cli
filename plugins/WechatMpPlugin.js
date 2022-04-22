@@ -16,7 +16,7 @@ const ensurePosix = require('ensure-posix-path');
 const requiredPath = require('required-path');
 
 const pluginName = 'OakWeChatMpPlugin';
-const oakPagePrefix = 'oak#';
+const oakPagePrefix = '@oak-general-business';
 const oakPagePath = 'node_modules/oak-general-business/src/platforms/wechatMp/';
 // const oakPagePathRegExp = /node_modules\/oak-general-business\/src\/platforms\/wechatMp\//;
 
@@ -197,9 +197,9 @@ class OakWeChatMpPlugin {
             let instance;
             let isOak = getIsOak(page);
             if (isOak) {
-                const oakPage = page.replace(
+                const oakPage = oakPagePath + page.replace(
                     new RegExp(oakPagePrefix),
-                    oakPagePath
+                    'pages'
                 );
                 instance = path.resolve(process.cwd(), oakPage);
                 if (!this.oakPages.has(oakPage)) {
@@ -270,7 +270,7 @@ class OakWeChatMpPlugin {
                         .resolve(instanceDir, c)
                         .replace(/\\/g, '/');
                     const component2 = component.replace(
-                        process.cwd() + '/',
+                        process.cwd().replace(/\\/g, '/') + '/',
                         ''
                     );
                     if (!this.oakComponents.has(component2)) {
@@ -519,7 +519,10 @@ class OakWeChatMpPlugin {
                         let isOak = getIsOak(page);
 
                         if (isOak) {
-                            page = page.replace(new RegExp(oakPagePrefix), '');
+                            page = page.replace(
+                                new RegExp(oakPagePrefix),
+                                'pages'
+                            );
                         }
                         pages.push(page);
                     }

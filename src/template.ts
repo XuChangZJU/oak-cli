@@ -207,9 +207,9 @@ export function projectConfigContentWithWeChatMp(
 export function appJsonContentWithWeChatMp(isDev: boolean) {
     const pages = [];
     if (isDev) {
-        pages.push('oak#pages/address/list/index');
-        pages.push('oak#pages/address/upsert/index');
-        pages.push('oak#pages/pickers/area/index');
+        pages.push('@oak-general-business/address/list/index');
+        pages.push('@oak-general-business/address/upsert/index');
+        pages.push('@oak-general-business/pickers/area/index');
     }
     else {
        pages.push('pages/index/index'); 
