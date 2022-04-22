@@ -1,1 +1,1 @@
-export default function create(dirName: string, env: string): Promise<void>;
+export default function create(dirName: string, cmd: any): Promise<void>;

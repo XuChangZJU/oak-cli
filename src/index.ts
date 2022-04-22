@@ -58,9 +58,9 @@ program
     .description('build we chat mp of build on demand')
     .action(build);
 program
-    .command('create <name> [env]')
+    .command('create <name>')
     .usage('<name>')
-    // .option('-e, --env <env>', 'A env')
+    .option('-d, --dev', 'dev')
     .description(`create a new project powered by ${CLI_NAME}`)
     .action(create);
 // output help information on unknown commands

@@ -90,7 +90,7 @@ async function getMiniVersion() {
     return versionsSort[0]['sdkVer'];
 }
 
-export default async function create(dirName: string, env: string) {
+export default async function create(dirName: string, cmd: any) {
     const nameOption = {
         type: 'input',
         name: 'name',
@@ -98,8 +98,7 @@ export default async function create(dirName: string, env: string) {
         default: dirName,
     };
     prompt.unshift(nameOption);
-
-    const isDev = env === 'dev' || env === 'development';
+    const isDev = cmd.dev ? true : false;
 
     const { name, version, description }: PromptInput = await inquirer.prompt(
         prompt
