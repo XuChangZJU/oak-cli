@@ -1,4 +1,4 @@
-import { EntityDict } from '../../app-domain';
+import { EntityDict } from 'oak-app-domain';
 import { Feature } from 'oak-frontend-base';
 import { AspectDict } from '../aspects';
 import { Cache } from 'oak-frontend-base';

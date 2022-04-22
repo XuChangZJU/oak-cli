@@ -52,11 +52,11 @@ const prompt = [
  * @name 检查项目名是否已存在
  * @param dirName
  */
-function checkProjectName(dirName: string) {
+function checkProjectName(dirName: string, exists?: true) {
     // 项目根路径
     const rootPath = process.cwd() + '/' + dirName;
     const isExists = checkFileExists(rootPath);
-    if (isExists) {
+    if (isExists && !exists) {
         console.error(
             error(
                 `Cannot create a project named ${success(
@@ -64,7 +64,17 @@ function checkProjectName(dirName: string) {
                 )} because a path with the same name exists.\n`
             ) + error('Please choose a different project name.')
         );
-        process.exit(1);
+        process.exit(-1);
+    }
+    else if (!isExists && exists) {
+        console.error(
+            error(
+                `${success(
+                    `"${dirName}"`
+                )} is not a valid project dir.\n`
+            ) + error('Please choose a different project name.')
+        );
+        process.exit(-1);
     }
 }
 
@@ -90,7 +100,49 @@ async function getMiniVersion() {
     return versionsSort[0]['sdkVer'];
 }
 
-export default async function create(dirName: string, env: string) {
+
+async function createWechatMpBoilplate(dir: string, isDev: boolean) {  
+    // 获取微信小程序稳定基础版本库
+    const miniVersion = await getMiniVersion();  
+    // 获取小程序项目app.json内容
+    const appJsonWithWeChatMp = appJsonContentWithWeChatMp(isDev);
+    // 获取小程序项目project.config.json内容
+    const projectConfigWithWeChatMp = projectConfigContentWithWeChatMp(
+        USER_CONFIG_FILE_NAME,
+        'wechatMp',
+        miniVersion
+    );
+    // 获取小程序项目oak.config.json内容
+    const oakConfigWithWeChatMp = oakConfigContentWithWeChatMp();
+
+    
+    const appJsonPathWithWeChatMp = join(dir, 'src', 'app.json');
+
+    // 小程序项目project.config.json路径
+    const projectConfigPathWithWeChatMp = join(dir, 'src', 'project.config.json');
+    // 小程序项目project.config.json路径
+    const oakConfigPathWithWeChatMp = join(dir, 'src', USER_CONFIG_FILE_NAME);
+    // 创建小程序项目project.config.json
+    checkFileExistsAndCreate(
+        projectConfigPathWithWeChatMp,
+        projectConfigWithWeChatMp,
+        checkFileExistsAndCreateType.FILE
+    );
+    // 创建小程序项目app.json
+    checkFileExistsAndCreate(
+        appJsonPathWithWeChatMp,
+        appJsonWithWeChatMp,
+        checkFileExistsAndCreateType.FILE
+    );
+    // 创建小程序项目oak.config.json
+    checkFileExistsAndCreate(
+        oakConfigPathWithWeChatMp,
+        oakConfigWithWeChatMp,
+        checkFileExistsAndCreateType.FILE
+    );
+}
+
+export async function create(dirName: string, env: string) {
     const nameOption = {
         type: 'input',
         name: 'name',
@@ -104,8 +156,6 @@ export default async function create(dirName: string, env: string) {
     const { name, version, description }: PromptInput = await inquirer.prompt(
         prompt
     );
-    // 获取微信小程序稳定基础版本库
-    const miniVersion = await getMiniVersion();
     // 获取package.json内容
     const packageJson = packageJsonContent({
         name,
@@ -119,16 +169,6 @@ export default async function create(dirName: string, env: string) {
     // 获取tsconfig.json内容
     const tsconfigJson = tsConfigJsonContent();
 
-    // 获取小程序项目app.json内容
-    const appJsonWithWeChatMp = appJsonContentWithWeChatMp(isDev);
-    // 获取小程序项目project.config.json内容
-    const projectConfigWithWeChatMp = projectConfigContentWithWeChatMp(
-        USER_CONFIG_FILE_NAME,
-        'wechatMp',
-        miniVersion
-    );
-    // 获取小程序项目oak.config.json内容
-    const oakConfigWithWeChatMp = oakConfigContentWithWeChatMp();
     // 项目根路径
     const rootPath = process.cwd() + '/' + dirName;
     // package.json路径
@@ -140,14 +180,8 @@ export default async function create(dirName: string, env: string) {
     // 小程序项目根路径
     const weChatMpRootPath = `${rootPath}/wechatMp`;
 
-    const appJsonPathWithWeChatMp = `${weChatMpRootPath}/src/app.json`;
-
-    // 小程序项目project.config.json路径
-    const projectConfigPathWithWeChatMp = `${weChatMpRootPath}/src/project.config.json`;
-    // 小程序项目project.config.json路径
-    const oakConfigPathWithWeChatMp = `${weChatMpRootPath}/src/${USER_CONFIG_FILE_NAME}`;
     // 被复制的文件夹路径
-    const currentPath = join(__dirname, '..') + '/template';
+    const currentPath = join(__dirname, '..', 'template');
     //检查项目名是否存在
     checkProjectName(dirName);
     try {
@@ -167,24 +201,8 @@ export default async function create(dirName: string, env: string) {
         );
         // 复制项目文件
         copyFolder(currentPath, rootPath);
-        // 创建小程序项目project.config.json
-        checkFileExistsAndCreate(
-            projectConfigPathWithWeChatMp,
-            projectConfigWithWeChatMp,
-            checkFileExistsAndCreateType.FILE
-        );
-        // 创建小程序项目app.json
-        checkFileExistsAndCreate(
-            appJsonPathWithWeChatMp,
-            appJsonWithWeChatMp,
-            checkFileExistsAndCreateType.FILE
-        );
-        // 创建小程序项目oak.config.json
-        checkFileExistsAndCreate(
-            oakConfigPathWithWeChatMp,
-            oakConfigWithWeChatMp,
-            checkFileExistsAndCreateType.FILE
-        );
+
+        await createWechatMpBoilplate(weChatMpRootPath, isDev);
         if (!shell.which('npm')) {
             Warn(warn('Sorry, this script requires npm! Please install npm!'));
             shell.exit(1);
@@ -214,4 +232,27 @@ export default async function create(dirName: string, env: string) {
         Error(error('create error'));
         Error(error(err));
     }
+}
+
+
+export async function update(dirName: string, subDirName: string, env: string) {
+    console.log(dirName, subDirName, env);
+    /* const isDev = env === 'dev' || env === 'development';
+
+    // 需要拷贝的路径
+    const destPath = join(process.cwd(), dirName, subDirName);
+
+    const templatePath = join(__dirname, '..', 'template');
+    //检查项目名是否存在
+    checkProjectName(dirName, true);
+
+    if (subDirName === 'src') {
+        const fromPath = join(templatePath, subDirName);
+        copyFolder(fromPath, destPath);
+    }
+    else if (subDirName.startsWith('wechatMp')) {
+        const fromPath = join(templatePath, 'wechatMp');
+        copyFolder(fromPath, destPath);
+
+    } */
 }

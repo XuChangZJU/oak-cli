@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import program from 'commander';
-import create from './create';
+import { create, update } from './create';
 import build from './build';
 import make from './make';
 import { CLI_VERSION, CLI_NAME } from './config';
@@ -63,6 +63,11 @@ program
     // .option('-e, --env <env>', 'A env')
     .description(`create a new project powered by ${CLI_NAME}`)
     .action(create);
+program
+    .command('update <name> [subDirName]')
+    .usage('<name>')
+    .description(`update project's template powered by ${CLI_NAME}`)
+    .action(update);
 // output help information on unknown commands
 program.arguments('<command>').action((cmd) => {
     program.outputHelp();
