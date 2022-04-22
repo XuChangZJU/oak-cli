@@ -1,10 +1,10 @@
 import { EntityDict } from 'oak-app-domain';
 import { BasicFeatures } from 'oak-frontend-base';
-import { RuntimeContext } from 'oak-general-business'
 import * as Sample from './Sample';
-import { AspectDict } from '../aspects';
+import { aspectDict } from '../aspects';
+import { RuntimeContext } from '../RunningContext';
 
-export function initialize(features: BasicFeatures<EntityDict, RuntimeContext<EntityDict>, AspectDict>) {
+export function initialize(features: BasicFeatures<EntityDict, RuntimeContext, typeof aspectDict>) {
     const { cache } = features;
 
     const sample = new Sample.Sample(cache);

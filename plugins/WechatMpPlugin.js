@@ -16,12 +16,12 @@ const ensurePosix = require('ensure-posix-path');
 const requiredPath = require('required-path');
 
 const pluginName = 'OakWeChatMpPlugin';
-const oakPagePrefix = '@oak-general-business';
-const oakPagePath = 'node_modules/oak-general-business/wechatMp/';
+const OakPagePrefix = '@oak-general-business';
+const OakPagePath = 'node_modules/oak-general-business/wechatMp/';
 // const oakPagePathRegExp = /node_modules\/oak-general-business\/src\/platforms\/wechatMp\//;
 
 function getIsOak(str) {
-    return str.indexOf(oakPagePrefix) === 0;
+    return str.indexOf(OakPagePrefix) === 0;
 }
 
 class OakWeChatMpPlugin {
@@ -197,8 +197,8 @@ class OakWeChatMpPlugin {
             let instance;
             let isOak = getIsOak(page);
             if (isOak) {
-                const oakPage = oakPagePath + page.replace(
-                    new RegExp(oakPagePrefix),
+                const oakPage = OakPagePath + page.replace(
+                    new RegExp(OakPagePrefix),
                     'pages'
                 );
                 instance = path.resolve(process.cwd(), oakPage);
@@ -317,13 +317,13 @@ class OakWeChatMpPlugin {
                     new EntryPlugin(
                         this.basePath,
                         path.join(process.cwd(), resource),
-                        resource.replace(new RegExp(oakPagePath), '')
+                        resource.replace(new RegExp(OakPagePath), '')
                     ).apply(compiler);
                 } else if (this.oakComponents.has(resource)) {
                     new EntryPlugin(
                         this.basePath,
                         path.join(process.cwd(), resource),
-                        resource.replace(new RegExp(oakPagePath), '')
+                        resource.replace(new RegExp(OakPagePath), '')
                     ).apply(compiler);
                 } else {
                     const fullPath = this.getFullScriptPath(resource);
@@ -520,7 +520,7 @@ class OakWeChatMpPlugin {
 
                         if (isOak) {
                             page = page.replace(
-                                new RegExp(oakPagePrefix),
+                                new RegExp(OakPagePrefix),
                                 'pages'
                             );
                         }
@@ -545,7 +545,7 @@ class OakWeChatMpPlugin {
             const toTmit = async () => {
                 const stat = await fsExtra.stat(assets);
                 const source = await fsExtra.readFile(assets);
-                compilation.assets[entry.replace(new RegExp(oakPagePath), '')] =
+                compilation.assets[entry.replace(new RegExp(OakPagePath), '')] =
                     {
                         size: () => stat.size,
                         source: () => source,
