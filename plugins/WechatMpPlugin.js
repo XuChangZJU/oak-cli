@@ -17,7 +17,7 @@ const requiredPath = require('required-path');
 
 const pluginName = 'OakWeChatMpPlugin';
 const oakPagePrefix = '@oak-general-business';
-const oakPagePath = 'node_modules/oak-general-business/src/platforms/wechatMp/';
+const oakPagePath = 'node_modules/oak-general-business/wechatMp/';
 // const oakPagePathRegExp = /node_modules\/oak-general-business\/src\/platforms\/wechatMp\//;
 
 function getIsOak(str) {
