@@ -13,7 +13,8 @@ const { OakComponent, OakPage } = InitializeWechatMp<EntityDict, RuntimeContext<
     checkers as any,
     aspectDict,
     data as any);
-export {
+
+Object.assign(global, {
     OakPage,
     OakComponent,
-};
+});
