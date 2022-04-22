@@ -45,7 +45,7 @@ export declare function readFile(path: string | PathLike, options?: {
  * @param {PathLike} currentDir
  * @param {PathLike} targetDir
  */
-export declare function copyFolder(currentDir: PathLike, targetDir: PathLike): void;
+export declare function copyFolder(currentDir: PathLike, targetDir: PathLike, overwrite?: boolean): void;
 /**
  * @name 检测文件/文件夹是否存在
  * @export
@@ -60,4 +60,4 @@ export declare function checkFileExists(path: PathLike | string): boolean;
  * @param {*} [data]
  * @param {checkFileExistsAndCreateType} [type=checkFileExistsAndCreateType.DIRECTORY]
  */
-export declare function checkFileExistsAndCreate(path: PathLike | string, data?: any, type?: checkFileExistsAndCreateType): void;
+export declare function checkFileExistsAndCreate(path: PathLike | string, data?: any, type?: checkFileExistsAndCreateType, overwrite?: boolean): void;

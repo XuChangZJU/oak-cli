@@ -1,1 +1,2 @@
-export default function create(dirName: string, env: string): Promise<void>;
+export declare function create(dirName: string, cmd: any): Promise<void>;
+export declare function update(dirName: string, subDirName: string, cmd: any): Promise<void>;

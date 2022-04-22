@@ -58,14 +58,15 @@ program
     .description('build we chat mp of build on demand')
     .action(build);
 program
-    .command('create <name> [env]')
+    .command('create <name>')
     .usage('<name>')
-    // .option('-e, --env <env>', 'A env')
+    .option('-d, --dev', 'dev')
     .description(`create a new project powered by ${CLI_NAME}`)
     .action(create);
 program
     .command('update <name> [subDirName]')
     .usage('<name>')
+    .option('-d, --dev', 'dev')
     .description(`update project's template powered by ${CLI_NAME}`)
     .action(update);
 // output help information on unknown commands

@@ -57,24 +57,12 @@ function checkProjectName(dirName: string, exists?: true) {
     const rootPath = process.cwd() + '/' + dirName;
     const isExists = checkFileExists(rootPath);
     if (isExists && !exists) {
-        console.error(
-            error(
-                `Cannot create a project named ${success(
-                    `"${dirName}"`
-                )} because a path with the same name exists.\n`
-            ) + error('Please choose a different project name.')
-        );
-        process.exit(-1);
+        throw new global.Error(`Cannot create a project named ${success(
+            `"${dirName}"`
+        )} because a path with the same name exists.\nPlease choose a different project name.`);
     }
     else if (!isExists && exists) {
-        console.error(
-            error(
-                `${success(
-                    `"${dirName}"`
-                )} is not a valid project dir.\n`
-            ) + error('Please choose a different project name.')
-        );
-        process.exit(-1);
+        throw new global.Error(`${success(dirName)} is not a valid project dir.\nPlease choose a different project name.`)
     }
 }
 
@@ -101,9 +89,9 @@ async function getMiniVersion() {
 }
 
 
-async function createWechatMpBoilplate(dir: string, isDev: boolean) {  
+async function createWechatMpBoilplate(dir: string, isDev: boolean, isUpdate?: boolean) {
     // 获取微信小程序稳定基础版本库
-    const miniVersion = await getMiniVersion();  
+    const miniVersion = await getMiniVersion();
     // 获取小程序项目app.json内容
     const appJsonWithWeChatMp = appJsonContentWithWeChatMp(isDev);
     // 获取小程序项目project.config.json内容
@@ -115,7 +103,6 @@ async function createWechatMpBoilplate(dir: string, isDev: boolean) {
     // 获取小程序项目oak.config.json内容
     const oakConfigWithWeChatMp = oakConfigContentWithWeChatMp();
 
-    
     const appJsonPathWithWeChatMp = join(dir, 'src', 'app.json');
 
     // 小程序项目project.config.json路径
@@ -126,23 +113,26 @@ async function createWechatMpBoilplate(dir: string, isDev: boolean) {
     checkFileExistsAndCreate(
         projectConfigPathWithWeChatMp,
         projectConfigWithWeChatMp,
-        checkFileExistsAndCreateType.FILE
+        checkFileExistsAndCreateType.FILE,
+        isUpdate
     );
     // 创建小程序项目app.json
     checkFileExistsAndCreate(
         appJsonPathWithWeChatMp,
         appJsonWithWeChatMp,
-        checkFileExistsAndCreateType.FILE
+        checkFileExistsAndCreateType.FILE,
+        isUpdate
     );
     // 创建小程序项目oak.config.json
     checkFileExistsAndCreate(
         oakConfigPathWithWeChatMp,
         oakConfigWithWeChatMp,
-        checkFileExistsAndCreateType.FILE
+        checkFileExistsAndCreateType.FILE,
+        isUpdate
     );
 }
 
-export async function create(dirName: string, env: string) {
+export async function create(dirName: string, cmd: any) {
     const nameOption = {
         type: 'input',
         name: 'name',
@@ -150,8 +140,7 @@ export async function create(dirName: string, env: string) {
         default: dirName,
     };
     prompt.unshift(nameOption);
-
-    const isDev = env === 'dev' || env === 'development';
+    const isDev = cmd.dev ? true : false;
 
     const { name, version, description }: PromptInput = await inquirer.prompt(
         prompt
@@ -235,24 +224,41 @@ export async function create(dirName: string, env: string) {
 }
 
 
-export async function update(dirName: string, subDirName: string, env: string) {
-    console.log(dirName, subDirName, env);
-    /* const isDev = env === 'dev' || env === 'development';
+export async function update(dirName: string, subDirName: string, cmd: any) {
+    const isDev = cmd.dev ? true : false;
 
-    // 需要拷贝的路径
-    const destPath = join(process.cwd(), dirName, subDirName);
+    try {
+        // 需要拷贝的路径
+        const destPath = join(process.cwd(), dirName, subDirName);
 
-    const templatePath = join(__dirname, '..', 'template');
-    //检查项目名是否存在
-    checkProjectName(dirName, true);
+        const templatePath = join(__dirname, '..', 'template');
+        //检查项目名是否存在
+        checkProjectName(dirName, true);
 
-    if (subDirName === 'src') {
-        const fromPath = join(templatePath, subDirName);
-        copyFolder(fromPath, destPath);
+        if (subDirName === 'src') {
+            const fromPath = join(templatePath, subDirName);
+            copyFolder(fromPath, destPath, true);
+        }
+        else if (subDirName.startsWith('wechatMp')) {
+            const fromPath = join(templatePath, 'wechatMp');
+            copyFolder(fromPath, destPath, true);
+
+            await createWechatMpBoilplate(destPath, isDev, true);
+        }
+        else {
+            throw new global.Error(`Cannot recoganize ${success(
+                `"${subDirName}"`
+            )} for update.\n Please choose src/wechatMp%.`);
+        }
+
+        Success(
+            `${success(
+                `Successfully update directory ${primary(subDirName)} for project ${primary(dirName)}}`
+            )}`
+        );
     }
-    else if (subDirName.startsWith('wechatMp')) {
-        const fromPath = join(templatePath, 'wechatMp');
-        copyFolder(fromPath, destPath);
+    catch (err) {
+        console.error(error((err as Error).message));
+    }
 
-    } */
 }

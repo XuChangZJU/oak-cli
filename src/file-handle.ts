@@ -119,7 +119,7 @@ export function readFile(
  * @param {PathLike} currentDir
  * @param {PathLike} targetDir
  */
-export function copyFolder(currentDir: PathLike, targetDir: PathLike) {
+export function copyFolder(currentDir: PathLike, targetDir: PathLike, overwrite?: boolean) {
 
     function handleFolder(currentDir: PathLike, targetDir: PathLike) {
         const files = readdirSync(currentDir, {
@@ -127,29 +127,34 @@ export function copyFolder(currentDir: PathLike, targetDir: PathLike) {
         })
         for (let file of files) {
             // 拼接文件绝对路径
-            const copyCurrentFileInfo = currentDir + '/' + file.name
-            const copyTargetFileInfo = targetDir + '/' + file.name
+            const copyCurrentFileInfo = currentDir + '/' + file.name;
+            const copyTargetFileInfo = targetDir + '/' + file.name;
             // 判断文件是否存在
-            const readCurrentFile = existsSync(copyCurrentFileInfo)
-            const readTargetFile = existsSync(copyTargetFileInfo)
-            if (readCurrentFile && !readTargetFile) {
+            const readCurrentFile = existsSync(copyCurrentFileInfo);
+            const readTargetFile = existsSync(copyTargetFileInfo);
+
+            if (!readCurrentFile) {
+                throw new global.Error(`操作失败，待拷贝的源路径${copyCurrentFileInfo}不存在`);
+            }
+            else if (file.isFile() && readTargetFile && !overwrite) {
+                throw new global.Error(`操作失败，待拷贝的目标文件${copyTargetFileInfo}已经存在`);
+            }
+            else {
                 // 判断是否为文件，如果为文件则复制，文件夹则递归
                 if (file.isFile()) {
-                    const readStream = createReadStream(copyCurrentFileInfo)
-                    const writeStream = createWriteStream(copyTargetFileInfo)
-                    readStream.pipe(writeStream)
+                    const readStream = createReadStream(copyCurrentFileInfo);
+                    const writeStream = createWriteStream(copyTargetFileInfo);
+                    readStream.pipe(writeStream);
                 } else {
                     try {
-                        accessSync(join(copyTargetFileInfo, '..'), constants.W_OK)
-                        copyFolder(copyCurrentFileInfo, copyTargetFileInfo)
+                        accessSync(join(copyTargetFileInfo, '..'), constants.W_OK);
+                        copyFolder(copyCurrentFileInfo, copyTargetFileInfo, overwrite);
                     } catch (error) {
-                        Warn('权限不足' + error)
+                        Warn('权限不足' + error);
+                        throw error;
                     }
                 }
-            } else {
-                Error(error('操作失败，target文件夹已存在或current文件夹不存在'))
             }
-
         }
     }
 
@@ -159,7 +164,7 @@ export function copyFolder(currentDir: PathLike, targetDir: PathLike) {
         }
         handleFolder(currentDir, targetDir)
     } else {
-        Warn(warn('需要copy的文件夹不存在:' + currentDir))
+        throw new global.Error('需要copy的文件夹不存在:' + currentDir);
     }
 }
 
@@ -180,8 +185,8 @@ export function checkFileExists(path: PathLike | string) {
  * @param {*} [data]
  * @param {checkFileExistsAndCreateType} [type=checkFileExistsAndCreateType.DIRECTORY]
  */
-export function checkFileExistsAndCreate(path: PathLike | string, data?: any, type: checkFileExistsAndCreateType = checkFileExistsAndCreateType.DIRECTORY): void {
-    if (!checkFileExists(path)) {
+export function checkFileExistsAndCreate(path: PathLike | string, data?: any, type: checkFileExistsAndCreateType = checkFileExistsAndCreateType.DIRECTORY, overwrite?: boolean): void {
+    if (!checkFileExists(path) || overwrite) {
         switch (type) {
             case checkFileExistsAndCreateType.DIRECTORY:
                 mkdirSync(path)
@@ -193,5 +198,8 @@ export function checkFileExistsAndCreate(path: PathLike | string, data?: any, ty
                 mkdirSync(path)
                 break;
         }
+    }
+    else {
+        throw new global.Error(`${path} already exists!`);
     }
 }
