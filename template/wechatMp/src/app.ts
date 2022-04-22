@@ -1,12 +1,10 @@
-import { OakPage, OakComponent } from './init'
+import './init';
 export interface IAppOption {
     globalData: {};
 }
 
 App<IAppOption>({
     globalData: {
-        OakPage,
-        OakComponent,
     },
     async onLaunch() {
         console.log('onLaunch');

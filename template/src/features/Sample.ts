@@ -1,7 +1,7 @@
 import { EntityDict } from 'oak-app-domain';
-import { Feature } from 'oak-frontend-base';
+import { Feature, BasicFeatures } from 'oak-frontend-base';
+import { RuntimeContext } from 'oak-general-business';
 import { AspectDict } from '../aspects';
-import { Cache } from 'oak-frontend-base';
 
 type DoSthAcion = {
     type: 'doSth',
@@ -10,16 +10,16 @@ type DoSthAcion = {
     }
 }
 
-export class Sample extends Feature<EntityDict, AspectDict> {
+export class Sample extends Feature<EntityDict, RuntimeContext<EntityDict>, AspectDict> {
     get(params: any) {
         throw new Error('Method not implemented.');
     }
     action(action: DoSthAcion) {
         throw new Error('Method not implemented.');
     }
-    cache: Cache<EntityDict, AspectDict>;
+    cache: BasicFeatures<EntityDict, RuntimeContext<EntityDict>, AspectDict>['cache'];
 
-    constructor(cache: Cache<EntityDict, AspectDict>) {
+    constructor(cache: BasicFeatures<EntityDict, RuntimeContext<EntityDict>, AspectDict>['cache']) {
         super();
         this.cache = cache;
     };
