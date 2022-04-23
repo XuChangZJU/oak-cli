@@ -460,8 +460,8 @@ class OakWeChatMpPlugin {
 
         new optimize.SplitChunksPlugin({
             hidePathInfo: false,
-            chunks: 'async',
-            minSize: 10000,
+            chunks: 'all',
+            minSize: 30000,
             minChunks: 1,
             maxAsyncRequests: Infinity,
             automaticNameDelimiter: '~',
@@ -476,6 +476,7 @@ class OakWeChatMpPlugin {
                     name: vendorChunkName,
                     minChunks: 0,
                 },
+
                 // 其他公用代码
                 common: {
                     chunks: 'all',

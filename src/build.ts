@@ -12,8 +12,8 @@ import spawn from 'cross-spawn';
 export default async function build(env: string) {
     Success(`${success(`build环境:${env}`)}`);
      const result = spawn.sync(
-         `"${process.execPath}"`,
-         [require.resolve('../scripts/' + 'webpack.js')].concat([env]),
+         `cross-env NODE_ENV=${env} "${process.execPath}"`,
+         [require.resolve('../scripts/' + 'webpack.js')],
          {
              stdio: 'inherit',
              shell: true,

@@ -1,7 +1,7 @@
 const path = require('path');
 
 /** 环境变量 */
-exports.NODE_ENV = process.argv.splice(2, 1)[0];
+exports.NODE_ENV = process.env.NODE_ENV || 'development';
 /** 项目路径 */
 exports.ROOT = path.join(process.cwd(), 'wechatMp');
 /** 源代码存放路径 */

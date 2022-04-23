@@ -17,7 +17,7 @@ const {
     PLATFORM_CONFIG,
     ENV_CONFIG,
 } = require('./env');
-const __DEV__ = NODE_ENV === 'development';
+const isDev = NODE_ENV === 'development';
 
 const relativeFileLoader = (ext = '[ext]') => {
     return {
@@ -49,7 +49,7 @@ const oakFileLoader = (ext = '[ext]') => {
 
 module.exports = {
     context: SOURCE,
-    devtool: __DEV__ ? 'source-map' : false,
+    devtool: isDev ? 'source-map' : false,
     mode: NODE_ENV,
     target: 'web',
     entry: {
@@ -181,9 +181,11 @@ module.exports = {
             exclude: ['*/weui-miniprogram/*'],
             include: ['project.config.json', 'sitemap.json'],
         }),
-        /* new webpack.DefinePlugin({
+        new webpack.DefinePlugin({
+            __DEV__: isDev,
+            __WECHAT__: true,
             ['process.env.NODE_ENV']: JSON.stringify(NODE_ENV),
-        }), */
+        }),
         // new MiniCssExtractPlugin({ filename: `[name]${PLATFORM_CONFIG[yamlConfig.platform].style}` }),
         new StylelintPlugin({
             fix: true,
