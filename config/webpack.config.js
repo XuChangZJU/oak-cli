@@ -30,7 +30,7 @@ const relativeFileLoader = (ext = '[ext]') => {
     };
 };
 
-const oakLoader = (ext = '[ext]') => {
+const oakFileLoader = (ext = '[ext]') => {
     return {
         loader: 'file-loader',
         options: {
@@ -38,7 +38,7 @@ const oakLoader = (ext = '[ext]') => {
             name: `[path][name].${ext}`,
             outputPath: (url, resourcePath, context) => {
                 const outputPath = url.split(
-                    'oak-general-business/src/platforms/wechatMp/'
+                    'oak-general-business/wechatMp/'
                 )[1];
                 return outputPath;
             },
@@ -66,11 +66,19 @@ module.exports = {
             '@': SOURCE,
             assert: require.resolve('assert'),
         },
-        extensions: ['.ts', '.js', 'json'],
+        extensions: ['.ts', '.js'],
         symlinks: true,
         fallback: {
             crypto: require.resolve('crypto-browserify'),
         },
+    },
+    resolveLoader: {
+        // 第一种使用别名的方式引入自定义的loader
+        alias: {
+            'wxml-loader': path.resolve(__dirname, 'loaders/wxml-loader.js'),
+        },
+        // 第二种方式选查找自己的loaders文件中有没有这个loader再查找node_modules文件
+        // modules: [path.resolve(__dirname, 'loaders'), 'node_modules'],
     },
     module: {
         rules: [
@@ -87,10 +95,16 @@ module.exports = {
             },
             {
                 test: /\.less$/,
-                include: /oak-general-business/,
+                include: /oak-general-business\/wechatMp/,
+                // include: [
+                //     path.resolve(
+                //         process.cwd(),
+                //         'node_modules/oak-general-business/wechatMp'
+                //     ),
+                // ],
                 type: 'javascript/auto',
                 use: [
-                    oakLoader('wxss'),
+                    oakFileLoader('wxss'),
                     {
                         loader: 'less-loader',
                         options: {
@@ -118,6 +132,7 @@ module.exports = {
             // {
             //     test: /\.json$/,
             //     include: /src/,
+            //     exclude: /node_modules/,
             //     type: 'asset/resource',
             //     generator: {
             //         filename: `[path][name].[ext]`,
@@ -128,11 +143,34 @@ module.exports = {
             {
                 test: /\.(xml|wxml)$/,
                 include: /src/,
-                type: 'asset/resource',
-                generator: {
-                    filename: `[path][name].[ext]`,
-                },
-                // use: [relativeFileLoader('wxml')],
+                // type: 'asset/resource',
+                // generator: {
+                //     filename: `[path][name].[ext]`,
+                // },
+                type: 'javascript/auto',
+                use: [
+                    relativeFileLoader('wxml'),
+                    {
+                        loader: 'wxml-loader',
+                    },
+                ],
+            },
+            {
+                test: /\.(xml|wxml)$/,
+                include: /oak-general-business\/wechatMp/,
+                // include: [
+                //     path.resolve(
+                //         process.cwd(),
+                //         'node_modules/oak-general-business/wechatMp'
+                //     ),
+                // ],
+                type: 'javascript/auto',
+                use: [
+                    oakFileLoader('wxml'),
+                    {
+                        loader: 'wxml-loader',
+                    },
+                ],
             },
         ],
     },

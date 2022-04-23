@@ -19,7 +19,7 @@ import {
     projectConfigContentWithWeChatMp,
     oakConfigContentWithWeChatMp,
 } from './template';
-import { PromptInput, OakInput } from './interface';
+import { PromptInput } from './interface';
 import { join } from 'path';
 import inquirer from 'inquirer';
 import axios from 'axios';

@@ -18,7 +18,6 @@ const requiredPath = require('required-path');
 const pluginName = 'OakWeChatMpPlugin';
 const OakPagePrefix = '@oak-general-business';
 const OakPagePath = 'node_modules/oak-general-business/wechatMp/';
-// const oakPagePathRegExp = /node_modules\/oak-general-business\/src\/platforms\/wechatMp\//;
 
 function getIsOak(str) {
     return str.indexOf(OakPagePrefix) === 0;
@@ -349,7 +348,7 @@ class OakWeChatMpPlugin {
         const entries = await globby(patterns, {
             cwd: this.basePath,
             nodir: true,
-            realpath: false,
+            realpath: true,
             ignore: [...extensions.map((ext) => `**/*${ext}`), ...exclude],
             dot: false,
         });
@@ -370,7 +369,7 @@ class OakWeChatMpPlugin {
             {
                 cwd: process.cwd(),
                 nodir: true,
-                realpath: false,
+                realpath: true,
                 ignore: [...extensions.map((ext) => `**/*${ext}`), ...exclude],
                 dot: false,
             }
@@ -382,7 +381,7 @@ class OakWeChatMpPlugin {
             {
                 cwd: process.cwd(),
                 nodir: true,
-                realpath: false,
+                realpath: true,
                 ignore: [...extensions.map((ext) => `**/*${ext}`), ...exclude],
                 dot: false,
             }
@@ -504,7 +503,7 @@ class OakWeChatMpPlugin {
         const emitAssets = [];
         for (let entry of this.assetsEntry) {
             const assets = path.resolve(this.basePath, entry);
-            if (/\.(sass|scss|css|less|styl)$/.test(assets)) {
+            if (/\.(sass|scss|css|less|styl|xml)$/.test(assets)) {
                 continue;
             }
             const toTmit = async () => {
@@ -539,7 +538,7 @@ class OakWeChatMpPlugin {
         }
         for (let entry of this.oakAssetsEntry) {
             const assets = path.resolve(process.cwd(), entry);
-            if (/\.(sass|scss|css|less|styl)$/.test(assets)) {
+            if (/\.(sass|scss|css|less|styl|xml)$/.test(assets)) {
                 continue;
             }
             const toTmit = async () => {

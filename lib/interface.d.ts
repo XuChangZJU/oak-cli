@@ -46,11 +46,3 @@ export interface PackOptionsIgnore {
     type: string;
     value: string;
 }
-/**
- * @name oak-cli需要输入的参数
- * @export
- * @interface OakInput
- */
-export interface OakInput {
-    mode: string;
-}

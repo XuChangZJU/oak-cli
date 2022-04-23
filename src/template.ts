@@ -115,7 +115,6 @@ export function tsConfigJsonContent() {
   },
   "include": [
     "./**/*.ts",
-    "scripts/webpack.js"
   ],
   "exclude": [
     "node_modules"
