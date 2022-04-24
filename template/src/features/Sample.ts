@@ -1,7 +1,7 @@
 import { EntityDict } from 'oak-app-domain';
 import { Feature, BasicFeatures } from 'oak-frontend-base';
 import { aspectDict } from '../aspects';
-import { RuntimeContext } from '../RunningContext';
+import { RuntimeContext } from '../RuntimeContext';
 
 type DoSthAcion = {
     type: 'doSth',
