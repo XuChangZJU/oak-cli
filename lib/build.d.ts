@@ -1,1 +1,1 @@
-export default function build(env: string): Promise<void>;
+export default function build(cmd: any): Promise<void>;

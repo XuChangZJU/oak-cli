@@ -9,21 +9,21 @@ import {
 } from './tip-style';
 import spawn from 'cross-spawn';
 
-export default async function build(env: string) {
-    Success(`${success(`build环境:${env}`)}`);
-     const result = spawn.sync(
-         `cross-env NODE_ENV=${env} "${process.execPath}"`,
-         [require.resolve('../scripts/' + 'webpack.js')],
-         {
-             stdio: 'inherit',
-             shell: true,
-         }
-     );
-     
+export default async function build(cmd: any) {
+    Success(`${success(`build ${cmd.target} environment: ${cmd.mode}`)}`);
+    const result = spawn.sync(
+        `cross-env NODE_ENV=${cmd.mode} "${process.execPath}"`,
+        [require.resolve('../scripts/' + 'webpack.js')],
+        {
+            stdio: 'inherit',
+            shell: true,
+        }
+    );
+
     // const result = spawn.sync('npm -v', [], { stdio: 'inherit', shell: true });
-     if (result.status === 0) {
-         Success(`${success(`执行完成`)}`);
-     } else {
-         Error(`${error(`执行失败`)}`);
-     }
+    if (result.status === 0) {
+        Success(`${success(`执行完成`)}`);
+    } else {
+        Error(`${error(`执行失败`)}`);
+    }
 }

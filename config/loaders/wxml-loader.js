@@ -15,7 +15,10 @@ function traverse(doc, callback) {
 }
 
 module.exports = function (content) {
-    //console.log(content);
+    const options = this.getOptions() || {}; //获取配置参数
+    // const callback = this.async();
+
+    // console.log(content, options);
     const doc = new DOMParser().parseFromString(content, 'text/xml');
     traverse(doc, (node) => {
         if (node.nodeType === node.ELEMENT_NODE) {
@@ -28,8 +31,7 @@ module.exports = function (content) {
 
                 if (node.hasAttribute('oak:forbidFocus')) {
                     node.removeAttribute('oak:forbidFocus');
-                }
-                else {
+                } else {
                     node.setAttribute('focus', `{{!!oakFocused.${oakValue}}}`);
                 }
             }

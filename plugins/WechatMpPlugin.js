@@ -504,7 +504,7 @@ class OakWeChatMpPlugin {
         const emitAssets = [];
         for (let entry of this.assetsEntry) {
             const assets = path.resolve(this.basePath, entry);
-            if (/\.(sass|scss|css|less|styl|xml)$/.test(assets)) {
+            if (/\.(sass|scss|css|less|styl|xml|wxml)$/.test(assets)) {
                 continue;
             }
             const toTmit = async () => {
@@ -539,7 +539,7 @@ class OakWeChatMpPlugin {
         }
         for (let entry of this.oakAssetsEntry) {
             const assets = path.resolve(process.cwd(), entry);
-            if (/\.(sass|scss|css|less|styl|xml)$/.test(assets)) {
+            if (/\.(sass|scss|css|less|styl|xml|wxml)$/.test(assets)) {
                 continue;
             }
             const toTmit = async () => {

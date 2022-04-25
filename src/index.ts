@@ -48,14 +48,16 @@ program
     .description('build oak app domain of make on demand')
     .action(make);
 program
-    .command('start <env>')
-    .usage('<env>')
-    .description('build we chat mp of start on demand')
+    .command('start')
+    .option('-t, --target <target>', 'target')
+    .option('-m, --mode <mode>', 'mode')
+    .description('build project of start on demand')
     .action(build);
 program
-    .command('build <env>')
-    .usage('<env>')
-    .description('build we chat mp of build on demand')
+    .command('build')
+    .option('-t, --target <target>', 'target')
+    .option('-m, --mode <mode>', 'mode')
+    .description('build project of build on demand')
     .action(build);
 program
     .command('create <name>')

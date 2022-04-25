@@ -29,8 +29,8 @@ export function packageJsonContent({
     "description": "${description}",
     "scripts": {
         "make:domain": "${cliname} make",
-        "start:mp": "${cliname} start development",
-        "build:mp": "${cliname} build production"
+        "start:mp": "${cliname} start --target mp --mode development",
+        "build:mp": "${cliname} build --target mp --mode production"
     },
     "keywords": [],
     "author": "",

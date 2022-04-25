@@ -95,7 +95,8 @@ module.exports = {
             },
             {
                 test: /\.less$/,
-                include: /oak-general-business\/wechatMp|oak-general-business\\wechatMp/,
+                include:
+                    /oak-general-business\/wechatMp|oak-general-business\\wechatMp/,
                 // include: [
                 //     path.resolve(
                 //         process.cwd(),
@@ -158,17 +159,12 @@ module.exports = {
             {
                 test: /\.(xml|wxml)$/,
                 include: /oak-general-business\/wechatMp|oak-general-business\\wechatMp/,
-                // include: [
-                //     path.resolve(
-                //         process.cwd(),
-                //         'node_modules/oak-general-business/wechatMp'
-                //     ),
-                // ],
                 type: 'javascript/auto',
                 use: [
                     oakFileLoader('wxml'),
                     {
                         loader: 'wxml-loader',
+                        options: {},
                     },
                 ],
             },
