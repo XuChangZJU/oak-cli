@@ -198,24 +198,23 @@ class OakWeChatMpPlugin {
         realPages.push('app');
         // resolve page components
         for (const page of pages) {
-            let instance;
             let isOak = getIsOak(page);
             if (isOak) {
                 const oakPage = OakPagePath + page.replace(
                     new RegExp(OakPagePrefix),
                     'pages'
                 );
-                instance = path.resolve(process.cwd(), oakPage);
+                const instance = path.resolve(process.cwd(), oakPage);
                 if (!this.oakPages.has(oakPage)) {
                     this.oakPages.add(oakPage);
                     realPages.push(oakPage);
                 }
+                await this.getComponents(components, instance, MODE.oak);           
             } else {
                 realPages.push(page);
-                instance = path.resolve(this.basePath, page);
+                const instance = path.resolve(this.basePath, page);
+                await this.getComponents(components, instance);
             }
-
-            await this.getComponents(components, instance, MODE.oak);
         }
 
         components = Array.from(components) || [];
