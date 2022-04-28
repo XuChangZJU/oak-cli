@@ -41,6 +41,7 @@ class OakWeChatMpPlugin {
                 commonsChunkName: 'commons',
                 vendorChunkName: 'vendor',
                 runtimeChunkName: 'runtime',
+                split: true,
             },
             options
         );
@@ -148,6 +149,7 @@ class OakWeChatMpPlugin {
     }
 
     async setAppEntries(compiler) {
+        const { split } = this.options;
         this.npmComponents = new Set();
         this.oakPages = new Set();
         this.oakComponents = new Set();
@@ -156,7 +158,9 @@ class OakWeChatMpPlugin {
             this.addScriptEntry(compiler),
             this.addAssetsEntries(compiler),
         ]);
-        this.applyPlugin(compiler);
+        if (split) {
+            this.applyPlugin(compiler);
+        }
     }
 
     // resolve tabbar page compoments

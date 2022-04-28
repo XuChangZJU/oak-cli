@@ -20,6 +20,8 @@ const {
 } = require('./env');
 const isDev = NODE_ENV === 'development';
 
+// process.env.OAK_PLATFORM: wechatMp | wechatPublic | web | node
+
 const relativeFileLoader = (ext = '[ext]') => {
     return {
         loader: 'file-loader',
@@ -107,7 +109,8 @@ module.exports = {
             },
             {
                 test: /\.less$/,
-                include: /oak-general-business\/wechatMp|oak-general-business\\wechatMp/,
+                include:
+                    /oak-general-business\/wechatMp|oak-general-business\\wechatMp/,
                 type: 'javascript/auto',
                 use: [
                     oakFileLoader('wxss'),
@@ -163,7 +166,8 @@ module.exports = {
             },
             {
                 test: /\.(xml|wxml)$/,
-                include: /oak-general-business\/wechatMp|oak-general-business\\wechatMp/,
+                include:
+                    /oak-general-business\/wechatMp|oak-general-business\\wechatMp/,
                 type: 'javascript/auto',
                 use: [
                     oakFileLoader('wxml'),
@@ -181,11 +185,13 @@ module.exports = {
         new OakWeChatMpPlugin({
             exclude: ['*/weui-miniprogram/*'],
             include: ['project.config.json', 'sitemap.json'],
+            split: !isDev,
         }),
         new webpack.DefinePlugin({
             __DEV__: isDev,
             __WECHAT__: true,
             ['process.env.NODE_ENV']: JSON.stringify(NODE_ENV),
+            ['process.env.OAK_PLATFORM']: 'wechatMp',
         }),
         // new MiniCssExtractPlugin({ filename: `[name]${PLATFORM_CONFIG[yamlConfig.platform].style}` }),
         new StylelintPlugin({
