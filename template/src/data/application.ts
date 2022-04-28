@@ -7,7 +7,7 @@ export const applications: Application[] = [
     {
         id: DEV_WECHATMP_APPLICATION_ID,
         name: Config.weChatMp.appName,
-        type: 'weChatMp',
+        type: 'wechatMp',
         systemId: DEV_SYSTEM_ID,
         config: {
             type: 'wechatMp',

@@ -38,7 +38,8 @@ export function packageJsonContent({
     "dependencies": {
         "@reduxjs/toolkit": "^1.7.2",
         "crypto-browserify": "^3.12.0",
-        "lodash": "^4.17.21"
+        "lodash": "^4.17.21",
+        "uuid": "^8.3.2"
     },
     "devDependencies": {
         "@babel/cli": "^7.12.13",
@@ -165,7 +166,7 @@ export function projectConfigContentWithWeChatMp(
     },
     "compileType": "miniprogram",
     "libVersion": "${miniVersion}",
-    "appid": "",
+    "appid": "wx2f8e15297d3e032c",
     "projectname": "${projectname}",
     "debugOptions": {
         "hidedInDevtools": []
