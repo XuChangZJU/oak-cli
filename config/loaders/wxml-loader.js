@@ -19,6 +19,9 @@ module.exports = function (content) {
     // const callback = this.async();
 
     // console.log(content, options);
+    /**
+     * domparser会自动给没有value的attribute赋上值，目前改不动
+     */
     const doc = new DOMParser().parseFromString(content, 'text/xml');
     traverse(doc, (node) => {
         if (node.nodeType === node.ELEMENT_NODE) {

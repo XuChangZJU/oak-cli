@@ -206,6 +206,7 @@ export function projectConfigContentWithWeChatMp(
 export function appJsonContentWithWeChatMp(isDev: boolean) {
     const pages = [];
     if (isDev) {
+        pages.push("@oak-general-business/token/login/index");
         pages.push('@oak-general-business/address/list/index');
         pages.push('@oak-general-business/address/upsert/index');
         pages.push('@oak-general-business/pickers/area/index');
@@ -219,7 +220,8 @@ export function appJsonContentWithWeChatMp(isDev: boolean) {
     "backgroundTextStyle":"light",
     "navigationBarBackgroundColor": "#fff",
     "navigationBarTitleText": "Weixin",
-    "navigationBarTextStyle":"black"
+    "navigationBarTextStyle":"black",    
+    "enablePullDownRefresh": true
   },
   "style": "v2",
   "sitemapLocation": "sitemap.json"
