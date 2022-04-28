@@ -6,6 +6,7 @@ const StylelintPlugin = require('stylelint-webpack-plugin');
 const ProgressBarPlugin = require('progress-bar-webpack-plugin');
 const UiExtractPlugin = require('ui-extract-webpack-plugin');
 const Dotenv = require('dotenv-webpack');
+// const TerserPlugin = require('terser-webpack-plugin');
 // const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const OakWeChatMpPlugin = require('../plugins/WechatMpPlugin');
 
@@ -66,7 +67,7 @@ module.exports = {
             '@': SOURCE,
             assert: require.resolve('assert'),
         },
-        extensions: ['.ts', '.js'],
+        extensions: ['.ts', '.js', 'json'],
         symlinks: true,
         fallback: {
             crypto: require.resolve('crypto-browserify'),
@@ -80,6 +81,17 @@ module.exports = {
         // 第二种方式选查找自己的loaders文件中有没有这个loader再查找node_modules文件
         // modules: [path.resolve(__dirname, 'loaders'), 'node_modules'],
     },
+    // optimization: {
+    //     // 标记未被使用的代码
+    //     usedExports: true,
+    //     // 删除 usedExports 标记的未使用的代码
+    //     minimize: true,
+    //     minimizer: [
+    //         new TerserPlugin({
+    //             extractComments: false,
+    //         }),
+    //     ],
+    // },
     module: {
         rules: [
             {
@@ -95,14 +107,7 @@ module.exports = {
             },
             {
                 test: /\.less$/,
-                include:
-                    /oak-general-business\/wechatMp|oak-general-business\\wechatMp/,
-                // include: [
-                //     path.resolve(
-                //         process.cwd(),
-                //         'node_modules/oak-general-business/wechatMp'
-                //     ),
-                // ],
+                include: /oak-general-business\/wechatMp|oak-general-business\\wechatMp/,
                 type: 'javascript/auto',
                 use: [
                     oakFileLoader('wxss'),

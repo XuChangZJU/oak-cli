@@ -19,6 +19,11 @@ const pluginName = 'OakWeChatMpPlugin';
 const OakPagePrefix = '@oak-general-business';
 const OakPagePath = 'node_modules/oak-general-business/wechatMp/';
 
+const MODE = {
+    oak: 'oak', // 引用oak公用库
+    external: 'external', // 引用node_modules里面的库
+};
+
 function getIsOak(str) {
     return str.indexOf(OakPagePrefix) === 0;
 }
@@ -193,24 +198,23 @@ class OakWeChatMpPlugin {
         realPages.push('app');
         // resolve page components
         for (const page of pages) {
-            let instance;
             let isOak = getIsOak(page);
             if (isOak) {
                 const oakPage = OakPagePath + page.replace(
                     new RegExp(OakPagePrefix),
                     'pages'
                 );
-                instance = path.resolve(process.cwd(), oakPage);
+                const instance = path.resolve(process.cwd(), oakPage);
                 if (!this.oakPages.has(oakPage)) {
                     this.oakPages.add(oakPage);
                     realPages.push(oakPage);
                 }
+                await this.getComponents(components, instance, MODE.oak);           
             } else {
                 realPages.push(page);
-                instance = path.resolve(this.basePath, page);
+                const instance = path.resolve(this.basePath, page);
+                await this.getComponents(components, instance);
             }
-
-            await this.getComponents(components, instance, isOak);
         }
 
         components = Array.from(components) || [];
@@ -239,7 +243,7 @@ class OakWeChatMpPlugin {
     }
 
     // parse components
-    async getComponents(components, instance, isOak) {
+    async getComponents(components, instance, mode) {
         try {
             const { usingComponents = {} } = fsExtra.readJSONSync(
                 `${instance}.json`
@@ -249,9 +253,9 @@ class OakWeChatMpPlugin {
                 if (c.indexOf('plugin://') === 0) {
                     break;
                 }
-                if (c.indexOf('/miniprogram_npm') === 0) {
+                if (c.indexOf('/npm_components') === 0) {
                     const component = c.replace(
-                        /\/miniprogram_npm/,
+                        /\/npm_components/,
                         'node_modules'
                     );
                     if (!this.npmComponents.has(component)) {
@@ -259,12 +263,13 @@ class OakWeChatMpPlugin {
                         components.add(component);
                         this.getComponents(
                             components,
-                            path.resolve(process.cwd(), component)
+                            path.resolve(process.cwd(), component),
+                            MODE.external
                         );
                     }
                     break;
                 }
-                if (isOak) {
+                if (mode === MODE.oak) {
                     const component = path
                         .resolve(instanceDir, c)
                         .replace(/\\/g, '/');
@@ -278,7 +283,24 @@ class OakWeChatMpPlugin {
                         await this.getComponents(
                             components,
                             path.resolve(process.cwd(), component2),
-                            isOak
+                            mode
+                        );
+                    }
+                } else if (mode === MODE.external) {
+                    const component = path
+                        .resolve(instanceDir, c)
+                        .replace(/\\/g, '/');
+                    const component2 = component.replace(
+                        process.cwd().replace(/\\/g, '/') + '/',
+                        ''
+                    );
+                    if (!this.npmComponents.has(component2)) {
+                        this.npmComponents.add(component2);
+                        components.add(component2);
+                        await this.getComponents(
+                            components,
+                            path.resolve(process.cwd(), component2),
+                            mode
                         );
                     }
                 } else {
@@ -310,7 +332,7 @@ class OakWeChatMpPlugin {
                     new EntryPlugin(
                         this.basePath,
                         path.join(process.cwd(), resource),
-                        resource.replace(/node_modules/, 'miniprogram_npm')
+                        resource.replace(/node_modules/, 'npm_components')
                     ).apply(compiler);
                 } else if (this.oakPages.has(resource)) {
                     new EntryPlugin(
@@ -421,7 +443,7 @@ class OakWeChatMpPlugin {
                             ),
                             to: resource.replace(
                                 /node_modules/,
-                                'miniprogram_npm'
+                                'npm_components'
                             ),
                             globOptions: {
                                 ignore: [
