@@ -68,6 +68,7 @@ export function packageJsonContent({
         "file-loader": "^6.2.0",
         "fs-extra": "^10.0.0",
         "globby": "^11.1.0",
+        "less": "^4.1.2",
         "less-loader": "^10.2.0",
         "mini-css-extract-plugin": "^2.5.3",
         "miniprogram-api-typings": "^3.4.5",
@@ -86,7 +87,6 @@ export function packageJsonContent({
         "typescript": "^4.5.2",
         "ui-extract-webpack-plugin": "^1.0.0",
         "webpack": "^5.69.1",
-        "webpack-dashboard": "^3.3.7"
     }
 }
 `;
