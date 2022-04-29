@@ -86,7 +86,7 @@ export function packageJsonContent({
         "ts-node": "^9.1.1",
         "typescript": "^4.5.2",
         "ui-extract-webpack-plugin": "^1.0.0",
-        "webpack": "^5.69.1",
+        "webpack": "^5.69.1"
     }
 }
 `;
