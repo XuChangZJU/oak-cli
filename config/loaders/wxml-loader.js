@@ -66,6 +66,9 @@ module.exports = function (content) {
     ) {
         return content;
     }
+    if (!/oak:value/.test(content)) {
+        return content;
+    }
 
     // console.log(content, options);
     /**
