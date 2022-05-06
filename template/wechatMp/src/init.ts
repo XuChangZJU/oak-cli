@@ -26,7 +26,7 @@ export const createFeatures = (basicFeatures: BasicFeatures<EntityDict, RuntimeC
 const { OakComponent, OakPage, features } = InitializeWechatMp<EntityDict, RuntimeContext, typeof aspectDict, ReturnType<typeof createFeatures>>(
     storageSchema,
     createFeatures,
-    (store) => new RuntimeContext(store, data.application[0].id, token.getToken()),
+    (store, scene) => new RuntimeContext(store, data.application[0].id, () => token.getToken(), scene),
     routers,
     triggers,
     checkers,

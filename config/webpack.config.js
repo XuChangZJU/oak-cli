@@ -73,6 +73,8 @@ module.exports = {
         symlinks: true,
         fallback: {
             crypto: require.resolve('crypto-browserify'),
+            buffer: require.resolve('safe-buffer'),
+            stream: require.resolve('stream-browserify'),
         },
     },
     resolveLoader: {
@@ -208,6 +210,9 @@ module.exports = {
                 ),
         }),
         new Dotenv({ path: ENV_CONFIG, silent: true }),
+        new webpack.ProvidePlugin({
+            Buffer: ['buffer', 'Buffer'],
+        })
     ],
     watch: true,
     watchOptions: {
