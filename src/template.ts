@@ -224,6 +224,9 @@ export function appJsonContentWithWeChatMp(isDev: boolean) {
     "navigationBarTextStyle":"black",    
     "enablePullDownRefresh": true
   },
+  "usingComponents": {
+    "message": "components/message/index"
+  },
   "style": "v2",
   "sitemapLocation": "sitemap.json"
 }`;

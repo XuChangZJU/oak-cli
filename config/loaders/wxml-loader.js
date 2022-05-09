@@ -66,8 +66,12 @@ module.exports = function (content) {
     ) {
         return content;
     }
-    if (!/oak:value/.test(content)) {
-        return content;
+    let source = content;
+    if (/pages/.test(context)) {
+        source = source + '<message show="{{!!oakError}}" content="{{oakError.msg}}" />';
+    }
+    if (!/oak:value/.test(source)) {
+        return source;
     }
 
     // console.log(content, options);
@@ -85,7 +89,7 @@ module.exports = function (content) {
                 }
             },
         },
-    }).parseFromString(content, 'text/xml');
+    }).parseFromString(source, 'text/xml');
     traverse(doc, (node) => {
         if (node.nodeType === node.ELEMENT_NODE) {
             // 处理oak:value声明的属性
@@ -93,7 +97,7 @@ module.exports = function (content) {
                 const oakValue = node.getAttribute('oak:value');
                 node.removeAttribute('oak:value');
                 node.setAttribute('value', `{{${oakValue}}}`);
-                node.setAttribute('data-path', oakValue);
+                node.setAttribute('data-attr', oakValue);
 
                 if (node.hasAttribute('oak:forbidFocus')) {
                     node.removeAttribute('oak:forbidFocus');
