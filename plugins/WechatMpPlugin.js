@@ -200,20 +200,21 @@ class OakWeChatMpPlugin {
 
         // add app.[ts/js]
         realPages.push('app');
+        // app.json 配置全局usingComponents
+        await this.getComponents(components, path.join(this.basePath, 'app'));
         // resolve page components
         for (const page of pages) {
             let isOak = getIsOak(page);
             if (isOak) {
-                const oakPage = OakPagePath + page.replace(
-                    new RegExp(OakPagePrefix),
-                    'pages'
-                );
+                const oakPage =
+                    OakPagePath +
+                    page.replace(new RegExp(OakPagePrefix), 'pages');
                 const instance = path.resolve(process.cwd(), oakPage);
                 if (!this.oakPages.has(oakPage)) {
                     this.oakPages.add(oakPage);
                     realPages.push(oakPage);
                 }
-                await this.getComponents(components, instance, MODE.oak);           
+                await this.getComponents(components, instance, MODE.oak);
             } else {
                 realPages.push(page);
                 const instance = path.resolve(this.basePath, page);
@@ -252,6 +253,7 @@ class OakWeChatMpPlugin {
             const { usingComponents = {} } = fsExtra.readJSONSync(
                 `${instance}.json`
             );
+            console.log(usingComponents);
             const instanceDir = path.parse(instance).dir;
             for (const c of Object.values(usingComponents)) {
                 if (c.indexOf('plugin://') === 0) {
