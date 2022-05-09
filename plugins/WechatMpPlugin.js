@@ -253,7 +253,6 @@ class OakWeChatMpPlugin {
             const { usingComponents = {} } = fsExtra.readJSONSync(
                 `${instance}.json`
             );
-            console.log(usingComponents);
             const instanceDir = path.parse(instance).dir;
             for (const c of Object.values(usingComponents)) {
                 if (c.indexOf('plugin://') === 0) {
