@@ -68,7 +68,7 @@ module.exports = function (content) {
     }
     let source = content;
     if (/pages/.test(context)) {
-        source = source + '<message show="{{!!oakError}}" content="{{oakError.msg}}" />';
+        source =source + '<message show="{{!!oakError}}" type="{{oakError.type}}" content="{{oakError.msg}}" />';
     }
     if (!/oak:value/.test(source)) {
         return source;
