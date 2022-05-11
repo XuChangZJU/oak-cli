@@ -193,7 +193,7 @@ module.exports = {
             __DEV__: isDev,
             __WECHAT__: true,
             ['process.env.NODE_ENV']: JSON.stringify(NODE_ENV),
-            ['process.env.OAK_PLATFORM']: 'wechatMp',
+            ['process.env.OAK_PLATFORM']: '"wechatMp"',
         }),
         // new MiniCssExtractPlugin({ filename: `[name]${PLATFORM_CONFIG[yamlConfig.platform].style}` }),
         new StylelintPlugin({
