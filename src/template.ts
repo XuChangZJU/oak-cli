@@ -87,7 +87,8 @@ export function packageJsonContent({
         "typescript": "^4.5.2",
         "ui-extract-webpack-plugin": "^1.0.0",
         "webpack": "^5.69.1"
-    }
+    },
+    "copyWebpack": []
 }
 `;
 }

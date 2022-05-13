@@ -7,9 +7,6 @@ const fsExtra = require('fs-extra');
 const globby = require('globby');
 const { optimize, sources } = require('webpack');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
-// const LoaderTargetPlugin = require('webpack/lib/LoaderTargetPlugin');
-// const NodeSourcePlugin = require('webpack/lib/node/NodeSourcePlugin');
-// const JsonpTemplatePlugin = require('webpack/lib/web/JsonpTemplatePlugin');
 const JavascriptModulesPlugin = require('webpack/lib/javascript/JavascriptModulesPlugin');
 const EntryPlugin = require('webpack/lib/EntryPlugin');
 const ensurePosix = require('ensure-posix-path');
@@ -586,21 +583,6 @@ class OakWeChatMpPlugin {
     setBasePath(compiler) {
         this.basePath = compiler.options.context;
     }
-
-    // async enforceTarget(compiler) {
-    //     const { options } = compiler;
-    //     // set jsonp obj motuned obj
-    //     options.output.globalObject = 'global';
-    //     options.node = {
-    //         ...(options.node || {}),
-    //         global: false,
-    //     };
-
-    //     // set target to web
-    //     new JsonpTemplatePlugin(options.output).apply(compiler);
-    //     new NodeSourcePlugin(options.node).apply(compiler);
-    //     new LoaderTargetPlugin('web').apply(compiler);
-    // }
 
     // script full path
     getFullScriptPath(script) {

@@ -6,6 +6,7 @@ const StylelintPlugin = require('stylelint-webpack-plugin');
 const ProgressBarPlugin = require('progress-bar-webpack-plugin');
 const UiExtractPlugin = require('ui-extract-webpack-plugin');
 const Dotenv = require('dotenv-webpack');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 // const TerserPlugin = require('terser-webpack-plugin');
 // const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const OakWeChatMpPlugin = require('../plugins/WechatMpPlugin');
@@ -19,6 +20,7 @@ const {
     ENV_CONFIG,
 } = require('./env');
 const isDev = NODE_ENV === 'development';
+const pkg = require(`${process.cwd()}/package.json`)
 
 // process.env.OAK_PLATFORM: wechatMp | wechatPublic | web | node
 
@@ -49,6 +51,17 @@ const oakFileLoader = (ext = '[ext]') => {
         },
     };
 };
+
+const copyPatterns = []
+    .concat(pkg.copyWebpack || [])
+    .map((pattern) =>
+        typeof pattern === 'string'
+            ? {
+                  from: path.resolve(SOURCE, pattern),
+                  to: path.resolve(DESTINATION, pattern),
+              }
+            : pattern
+    );
 
 module.exports = {
     context: SOURCE,
@@ -98,6 +111,12 @@ module.exports = {
     // },
     module: {
         rules: [
+            {
+                test: /\.(png|jpg|gif|svg)$/,
+                include: /src/,
+                type: 'javascript/auto',
+                use: relativeFileLoader(),
+            },
             {
                 test: /\.less$/,
                 include: /src/,
@@ -212,8 +231,12 @@ module.exports = {
         new Dotenv({ path: ENV_CONFIG, silent: true }),
         new webpack.ProvidePlugin({
             Buffer: ['buffer', 'Buffer'],
-        })
-    ],
+        }),
+    ].concat(copyPatterns.length > 0 ? [
+        new CopyWebpackPlugin({
+                patterns: copyPatterns,
+            })
+    ]: []),
     watch: true,
     watchOptions: {
         aggregateTimeout: 600,
