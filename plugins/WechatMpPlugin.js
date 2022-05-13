@@ -13,7 +13,7 @@ const ensurePosix = require('ensure-posix-path');
 const requiredPath = require('required-path');
 
 const pluginName = 'OakWeChatMpPlugin';
-const OakPagePrefix = '@oak-general-business';
+const OakPagePrefix = '@oak-general-business/';
 const OakPagePath = 'node_modules/oak-general-business/wechatMp/';
 
 const MODE = {
@@ -204,8 +204,7 @@ class OakWeChatMpPlugin {
             let isOak = getIsOak(page);
             if (isOak) {
                 const oakPage =
-                    OakPagePath +
-                    page.replace(new RegExp(OakPagePrefix), 'pages');
+                    OakPagePath + page.replace(new RegExp(OakPagePrefix), '');
                 const instance = path.resolve(process.cwd(), oakPage);
                 if (!this.oakPages.has(oakPage)) {
                     this.oakPages.add(oakPage);
@@ -270,6 +269,20 @@ class OakWeChatMpPlugin {
                         );
                     }
                     break;
+                }
+                if (getIsOak(c)) {
+                    const oakComponent =
+                        OakPagePath + c.replace(new RegExp(OakPagePrefix), '');
+                    if (!this.oakComponents.has(oakComponent)) {
+                        this.oakComponents.add(oakComponent);
+                        components.add(oakComponent);
+                        await this.getComponents(
+                            components,
+                            path.resolve(process.cwd(), oakComponent),
+                            MODE.oak
+                        );
+                    }
+                    return;
                 }
                 if (mode === MODE.oak) {
                     const component = path
@@ -539,19 +552,60 @@ class OakWeChatMpPlugin {
                     const appJson = JSON.parse(source.toString());
 
                     let pages = [];
-                    for (let page of appJson.pages) {
-                        let isOak = getIsOak(page);
-
-                        if (isOak) {
-                            page = page.replace(
-                                new RegExp(OakPagePrefix),
-                                'pages'
-                            );
+                    if (appJson.pages) {
+                        for (let page of appJson.pages) {
+                            let isOak = getIsOak(page);
+                            if (isOak) {
+                                page = page.replace(
+                                    new RegExp(OakPagePrefix),
+                                    ''
+                                );
+                            }
+                            pages.push(page);
                         }
-                        pages.push(page);
+                        appJson.pages = pages;
                     }
-                    appJson.pages = pages;
+
+                    let usingComponents = {};
+                    if (appJson.usingComponents) {
+                        for (let ck of Object.keys(appJson.usingComponents)) {
+                            let component = appJson.usingComponents[ck];
+                            let isOak = getIsOak(component);
+                            if (isOak) {
+                                component = component.replace(
+                                    new RegExp(OakPagePrefix),
+                                    ''
+                                );
+                            }
+                            usingComponents[ck] = component;
+                        }
+                        appJson.usingComponents = usingComponents;
+                    }
                     source = Buffer.from(JSON.stringify(appJson, null, 2));
+                    size = source.length;
+                } else if (/\.(json)$/.test(assets)) {
+                    const json = JSON.parse(source.toString());
+
+                    let usingComponents = {};
+                    if (json.usingComponents) {
+                        for (let ck of Object.keys(json.usingComponents)) {
+                            let component = json.usingComponents[ck];
+                            let isOak = getIsOak(component);
+                            if (isOak) {
+                                component = component.replace(
+                                    new RegExp(OakPagePrefix),
+                                    ''
+                                );
+                                component = path.relative(
+                                    assets.substring(0, assets.lastIndexOf('/')),
+                                    path.resolve(this.basePath, component)
+                                )
+                            }
+                            usingComponents[ck] = component;
+                        }
+                        json.usingComponents = usingComponents;
+                    }
+                    source = Buffer.from(JSON.stringify(json, null, 2));
                     size = source.length;
                 }
                 compilation.assets[entry] = {

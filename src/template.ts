@@ -208,10 +208,10 @@ export function projectConfigContentWithWeChatMp(
 export function appJsonContentWithWeChatMp(isDev: boolean) {
     const pages = [];
     if (isDev) {
-        pages.push("@oak-general-business/token/login/index");
-        pages.push('@oak-general-business/address/list/index');
-        pages.push('@oak-general-business/address/upsert/index');
-        pages.push('@oak-general-business/pickers/area/index');
+        pages.push("@oak-general-business/pages/token/login/index");
+        pages.push('@oak-general-business/pages/address/list/index');
+        pages.push('@oak-general-business/pages/address/upsert/index');
+        pages.push('@oak-general-business/pages/pickers/area/index');
     }
     else {
        pages.push('pages/index/index'); 
