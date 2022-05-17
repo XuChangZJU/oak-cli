@@ -271,14 +271,14 @@ class OakWeChatMpPlugin {
                     break;
                 }
                 if (getIsOak(c)) {
-                    const oakComponent =
-                        OakPagePath + c.replace(new RegExp(OakPagePrefix), '');
-                    if (!this.oakComponents.has(oakComponent)) {
-                        this.oakComponents.add(oakComponent);
-                        components.add(oakComponent);
+                    const oakComponent = OakPagePath + c.replace(new RegExp(OakPagePrefix), '');
+                    const component2 = oakComponent.replace(/\\/g, '/');
+                    if (!this.oakComponents.has(component2)) {
+                        this.oakComponents.add(component2);
+                        components.add(component2);
                         await this.getComponents(
                             components,
-                            path.resolve(process.cwd(), oakComponent),
+                            path.resolve(process.cwd(), component2),
                             MODE.oak
                         );
                     }
@@ -599,7 +599,7 @@ class OakWeChatMpPlugin {
                                 component = path.relative(
                                     assets.substring(0, assets.lastIndexOf('/')),
                                     path.resolve(this.basePath, component)
-                                )
+                                ).replace(/\\/g, '/')
                             }
                             usingComponents[ck] = component;
                         }
