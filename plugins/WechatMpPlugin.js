@@ -268,7 +268,7 @@ class OakWeChatMpPlugin {
                             MODE.external
                         );
                     }
-                    break;
+                    continue;
                 }
                 if (getIsOak(c)) {
                     const oakComponent = OakPagePath + c.replace(new RegExp(OakPagePrefix), '');
@@ -282,7 +282,7 @@ class OakWeChatMpPlugin {
                             MODE.oak
                         );
                     }
-                    return;
+                    continue;
                 }
                 if (mode === MODE.oak) {
                     const component = path
