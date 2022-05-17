@@ -98,6 +98,9 @@ module.exports = function (content) {
                 node.removeAttribute('oak:value');
                 node.setAttribute('value', `{{${oakValue}}}`);
                 node.setAttribute('data-attr', oakValue);
+                node.setAttribute('oakPath', oakValue);
+                node.setAttribute('oakValue', `{{${oakValue}}}`);
+                node.setAttribute('oakParent', `{{oakFullpath}}`);
 
                 if (node.hasAttribute('oak:forbidFocus')) {
                     node.removeAttribute('oak:forbidFocus');
