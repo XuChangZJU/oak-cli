@@ -540,7 +540,7 @@ class OakWeChatMpPlugin {
     async emitAssetsFile(compilation) {
         const emitAssets = [];
         for (let entry of this.assetsEntry) {
-            const assets = path.resolve(this.basePath, entry);
+            const assets = path.resolve(this.basePath, entry).replace(/\\/g, '/');
             if (/\.(sass|scss|css|less|styl|xml|wxml)$/.test(assets)) {
                 continue;
             }
