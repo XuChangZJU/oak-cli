@@ -1,27 +1,9 @@
-import './utils/polyfill';
-import { BasicFeatures, InitializeWechatMp, } from 'oak-frontend-base';
+import "./utils/polyfill";
+import { InitializeWechatMp, } from 'oak-frontend-base';
 import { EntityDict } from 'oak-app-domain';
 import { storageSchema, ActionDefDict } from 'oak-app-domain';
-import { aspectDict } from '../../src/aspects';
-import { initialize } from '../../src/features';
-import { checkers } from '../../src/checkers';
-import { triggers } from '../../src/triggers';
-import { data } from '../../src/data';
-import { routers } from '../../src/exceptionRouters';
-
-
-import { initializeFeatures as initializeGeneralFeatures } from 'oak-general-business';
 import { RuntimeContext } from '../../src/RuntimeContext';
-
-const { token } = initializeGeneralFeatures<EntityDict, RuntimeContext, typeof aspectDict>();
-
-export const createFeatures = (basicFeatures: BasicFeatures<EntityDict, RuntimeContext, typeof aspectDict>) => {
-    const features = initialize(basicFeatures);
-    const wholeFeatures = Object.assign({
-        token,
-    }, features);
-    return wholeFeatures;
-}
+import { aspectDict, createFeatures, routers, triggers, checkers, data, token } from '../../src/initialize';
 
 const { OakComponent, OakPage, features } = InitializeWechatMp<EntityDict, RuntimeContext, typeof aspectDict, ReturnType<typeof createFeatures>>(
     storageSchema,
@@ -33,6 +15,9 @@ const { OakComponent, OakPage, features } = InitializeWechatMp<EntityDict, Runti
     aspectDict,
     data as any,
     ActionDefDict);
+
+// 因为依赖的问题，token中的Cache暂时只能在这里注入。以后再修改
+token.setCache(features.cache);
 
 Object.assign(global, {
     OakPage,

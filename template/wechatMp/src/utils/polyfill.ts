@@ -1,24 +1,12 @@
-import '../../../src/utils/polyfill';
-// getRandomValues在wechatMp下的实现
-async function getRandomValues(length: number) {
-    if (length > 65536) {
-        throw new Error('Can only request a maximum of 65536 bytes')
-    }
-
-    const { randomValues } = await wx.getRandomValues({
-        length,
-    });
-    return new Uint8Array(randomValues);
-}
-
-/**
- * 封装wx环境下的fetch，注意有部分属性并非完全吻合，请谨慎使用
- * @param url 
- * @param options 
- * @returns 
- */
+// import '../../../src/utils/polyfill';
 
 Object.assign(global, {
+    /**
+     * 封装wx环境下的fetch，注意有部分属性并非完全吻合，请谨慎使用
+     * @param url 
+     * @param options 
+     * @returns 
+     */    
     fetch: async (url: string, options?: Parameters<typeof global.fetch>[1]) => {
         const params = Object.assign({
             method: 'GET',
@@ -73,5 +61,15 @@ Object.assign(global, {
             }
         );
     },
-    getRandomValues,
+    getRandomValues: async function getRandomValues(length: number) {
+        if (length > 65536) {
+            throw new Error('Can only request a maximum of 65536 bytes')
+        }
+    
+        const { randomValues } = await wx.getRandomValues({
+            length,
+        });
+        return new Uint8Array(randomValues);
+    }
+    ,
 });
