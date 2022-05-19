@@ -3,6 +3,9 @@
  * @param {*} content 文件信息
  */
 const { DOMParser, XMLSerializer } = require('@xmldom/xmldom');
+const { resolve } = require('path');
+const { isUrlRequest, urlToRequest } = require('loader-utils');
+
 const BOOLEAN_ATTRS = [
     'wx:else',
     'show-info',
@@ -30,12 +33,31 @@ const BOOLEAN_ATTRS = [
     'controls',
 ];
 
+const OPERATORS = {
+    '&lt;': '<',
+    '&lte;': '<=',
+    '&gt;': '>',
+    '&gte;': '>=',
+    '&amp;': '&',
+    '&quot;': "'",
+};
+
 // 替换xmldom生成的无值属性
 function replaceBooleanAttr(code) {
     let reg;
     BOOLEAN_ATTRS.forEach((v) => {
         reg = new RegExp(`${v}=['"]${v}['"]`, 'ig');
         code = code.replace(reg, v);
+    });
+    return code;
+}
+
+// 替换xmldom生成的运算符转义
+function replaceOperatorAttr(code) {
+    let reg;
+    Object.keys(OPERATORS).forEach((v) => {
+        reg = new RegExp(`${v}`, 'ig');
+        code = code.replace(reg, OPERATORS[v]);
     });
     return code;
 }
@@ -50,28 +72,27 @@ function traverse(doc, callback) {
     }
 }
 
-module.exports = function (content) {
+const isSrc = (name) => name === 'src';
+
+const isDynamicSrc = (src) => /\{\{/.test(src);
+
+module.exports = async function (content) {
+    // loader的缓存功能
+    // this.cacheable && this.cacheable();
+
     const options = this.getOptions() || {}; //获取配置参数
-    // const callback = this.async();
-    const { options: webpackLegacyOptions, _module = {}, resourcePath } = this;
+    const callback = this.async();
+    const { options: webpackLegacyOptions, _module = {}, _compilation = {}, resourcePath } = this;
     const { context, target } = webpackLegacyOptions || this;
     // console.log(context, target);
-
-    if (/miniprogram_npm/.test(context)) {
-        return content;
-    }
-    if (
-        /node_modules/.test(context) &&
-        !/oak-general-business\/wechatMp/.test(context)
-    ) {
-        return content;
-    }
+    const issuer = _compilation.moduleGraph.getIssuer(this._module);
+    const issuerContext = (issuer && issuer.context) || context;
+    const root = resolve(context, issuerContext);
     let source = content;
     if (/pages/.test(context)) {
-        source =source + '<message show="{{!!oakError}}" type="{{oakError.type}}" content="{{oakError.msg}}" />';
-    }
-    if (!/oak:value/.test(source)) {
-        return source;
+        source =
+            source +
+            '<message show="{{!!oakError}}" type="{{oakError.type}}" content="{{oakError.msg}}" />';
     }
 
     // console.log(content, options);
@@ -90,8 +111,22 @@ module.exports = function (content) {
             },
         },
     }).parseFromString(source, 'text/xml');
+    const requests = [];
     traverse(doc, (node) => {
         if (node.nodeType === node.ELEMENT_NODE) {
+            // xml存在src path路径
+            if (node.hasAttribute('src')) {
+                const value = node.getAttribute('src');
+                if (
+                    value &&
+                    !isDynamicSrc(value) &&
+                    isUrlRequest(value, root)
+                ) {
+                    const path = resolve(root, value)
+                    // const request = urlToRequest(value, root);
+                    requests.push(path);
+                }
+            }
             // 处理oak:value声明的属性
             if (node.hasAttribute('oak:value')) {
                 const oakValue = node.getAttribute('oak:value');
@@ -101,7 +136,6 @@ module.exports = function (content) {
                 node.setAttribute('oakPath', oakValue);
                 node.setAttribute('oakValue', `{{${oakValue}}}`);
                 node.setAttribute('oakParent', `{{oakFullpath}}`);
-
                 if (node.hasAttribute('oak:forbidFocus')) {
                     node.removeAttribute('oak:forbidFocus');
                 } else {
@@ -111,7 +145,28 @@ module.exports = function (content) {
         }
     });
 
-    const serialized = new XMLSerializer().serializeToString(doc);
-    const code = replaceBooleanAttr(serialized);
-    return code;
+    const loadModule = (request) =>
+        new Promise((resolve, reject) => {
+            this.addDependency(request);
+            this.loadModule(request, (err, src) => {
+                /* istanbul ignore if */
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(src);
+                }
+            });
+        });
+
+    try {
+        for (const req of requests) {
+            const module = await loadModule(req);
+        }
+        let code = new XMLSerializer().serializeToString(doc);
+        code = replaceBooleanAttr(code);
+        code = replaceOperatorAttr(code);
+        callback(null, code);
+    } catch (err) {
+        callback(err, content);
+    }
 };

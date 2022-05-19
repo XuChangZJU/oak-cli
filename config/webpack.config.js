@@ -112,10 +112,16 @@ module.exports = {
     module: {
         rules: [
             {
-                test: /\.(png|jpg|gif|svg)$/,
+                test: /\.(png|jpg|gif|svg|wxs)$/,
                 include: /src/,
                 type: 'javascript/auto',
                 use: relativeFileLoader(),
+            },
+            {
+                test: /\.(png|jpg|gif|svg|wxs)$/,
+                include: /oak-general-business\/wechatMp|oak-general-business\\wechatMp/,
+                type: 'javascript/auto',
+                use: oakFileLoader(),
             },
             {
                 test: /\.less$/,
@@ -232,11 +238,15 @@ module.exports = {
         new webpack.ProvidePlugin({
             Buffer: ['buffer', 'Buffer'],
         }),
-    ].concat(copyPatterns.length > 0 ? [
-        new CopyWebpackPlugin({
-                patterns: copyPatterns,
-            })
-    ]: []),
+    ].concat(
+        copyPatterns.length > 0
+            ? [
+                  new CopyWebpackPlugin({
+                      patterns: copyPatterns,
+                  }),
+              ]
+            : []
+    ),
     watch: true,
     watchOptions: {
         aggregateTimeout: 600,
