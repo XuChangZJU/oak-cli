@@ -10,7 +10,7 @@ import {
 import spawn from 'cross-spawn';
 
 export default async function make() {
-    Success(`${success(`build oak app domain`)}`);
+    Success(`${success(`build oak-app-domain`)}`);
     // ts-node scripts/build-app-domain & npm link ./app-domain
     const result = spawn.sync(
         'ts-node',
@@ -29,7 +29,7 @@ export default async function make() {
         process.exit(1);
     }
 
-    Success(`${success(`npm link oak app domain`)}`);
+    Success(`${success(`npm link oak-app-domain`)}`);
 
     const isMac = process.platform === 'darwin';
     const result2 = spawn.sync(
