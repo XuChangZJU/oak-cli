@@ -112,14 +112,28 @@ module.exports = {
     module: {
         rules: [
             {
-                test: /\.(png|jpg|gif|svg|wxs)$/,
+                test: /\.wxs$/,
+                include: /src/,
+                type: 'javascript/auto',
+                use: [relativeFileLoader(), 'babel-loader'],
+            },
+            {
+                test: /\.wxs$/,
+                include:
+                    /oak-general-business\/wechatMp|oak-general-business\\wechatMp/,
+                type: 'javascript/auto',
+                use: [relativeFileLoader(), 'babel-loader'],
+            },
+            {
+                test: /\.(png|jpg|gif|svg)$/,
                 include: /src/,
                 type: 'javascript/auto',
                 use: relativeFileLoader(),
             },
             {
-                test: /\.(png|jpg|gif|svg|wxs)$/,
-                include: /oak-general-business\/wechatMp|oak-general-business\\wechatMp/,
+                test: /\.(png|jpg|gif|svg)$/,
+                include:
+                    /oak-general-business\/wechatMp|oak-general-business\\wechatMp/,
                 type: 'javascript/auto',
                 use: oakFileLoader(),
             },
