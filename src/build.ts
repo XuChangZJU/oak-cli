@@ -12,8 +12,8 @@ import spawn from 'cross-spawn';
 export default async function build(cmd: any) {
     Success(`${success(`build ${cmd.target} environment: ${cmd.mode}`)}`);
     const result = spawn.sync(
-        `cross-env NODE_ENV=${cmd.mode} "${process.execPath}"`,
-        [require.resolve('../scripts/' + 'webpack.js')],
+        `cross-env NODE_ENV=${cmd.mode} NODE_TARGET=${cmd.target} "${process.execPath}"`,
+        [require.resolve('../scripts/webpack.js')],
         {
             stdio: 'inherit',
             shell: true,

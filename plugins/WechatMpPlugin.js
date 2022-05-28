@@ -1,7 +1,6 @@
 /**
  * 把目录下所有的.ts和.less文件加入entry
  */
-const fs = require('fs');
 const path = require('path');
 const fsExtra = require('fs-extra');
 const globby = require('globby');

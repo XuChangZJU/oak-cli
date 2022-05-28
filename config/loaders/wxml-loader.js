@@ -3,7 +3,7 @@
  * @param {*} content 文件信息
  */
 const { DOMParser, XMLSerializer } = require('@xmldom/xmldom');
-const { resolve } = require('path');
+const { resolve, relative } = require('path');
 const { isUrlRequest, urlToRequest } = require('loader-utils');
 
 const BOOLEAN_ATTRS = [
@@ -76,11 +76,38 @@ const isSrc = (name) => name === 'src';
 
 const isDynamicSrc = (src) => /\{\{/.test(src);
 
+const TranslationFunction = 't';
+
+const I18nModuleName = 'i18n';
+
+const CURRENT_LOCALE_KEY = '$_locale';
+const LOCALE_CHANGE_HANDLER_NAME = '$_localeChange';
+const COMMON_LOCALE_DATA = '$_common_translations';
+const CURRENT_LOCALE_DATA = '$_translations';
+const WXS_PATH = 'i18n/locales.wxs';
+
+function existsT(str) {
+    if (!str) return false;
+    // if (str.indexOf('t(') === -1) return false;
+    // console.log(str.substring(str.indexOf('t(') - 1, str.indexOf('t(')));
+    return (
+        str.indexOf('t(') !== -1 &&
+        !/^[A-Za-z0-9]*$/.test(
+            str.substring(str.indexOf('t(') - 1, str.indexOf('t('))
+        )
+    );
+}
+
+function replaceT(str) {
+    return str.replace(/t\(/g, 'i18n.t(');
+}
+
 module.exports = async function (content) {
     // loader的缓存功能
     // this.cacheable && this.cacheable();
 
     const options = this.getOptions() || {}; //获取配置参数
+    const { context: context2 } = options;
     const callback = this.async();
     const { options: webpackLegacyOptions, _module = {}, _compilation = {}, resourcePath } = this;
     const { context, target } = webpackLegacyOptions || this;
@@ -89,6 +116,10 @@ module.exports = async function (content) {
     const issuerContext = (issuer && issuer.context) || context;
     const root = resolve(context, issuerContext);
     let source = content;
+    if (existsT(source)) {
+        const relativePath = relative(context, context2 + '/' + WXS_PATH);
+        source = `<wxs src='${relativePath}' module='${I18nModuleName}'></wxs>` + source;
+    }
     if (/pages/.test(context)) {
         source =
             source +
@@ -141,6 +172,26 @@ module.exports = async function (content) {
                 } else {
                     node.setAttribute('focus', `{{!!oakFocused.${oakValue}}}`);
                 }
+            }
+            
+        }
+        if (node.nodeType === node.TEXT_NODE) {
+            // 处理i18n 把t()转成i18n.t()
+            if (existsT(node.nodeValue)) {
+                const val = replaceT(node.nodeValue);
+                const valArr = val.split('}}');
+                let newVal = '';
+                valArr.forEach((ele, index) => {
+                    if (existsT(ele)) {
+                        const head = ele.substring(0, ele.indexOf(')'));
+                        const end = ele.substring(ele.indexOf(')'));
+                        newVal += head + `,${CURRENT_LOCALE_KEY},${CURRENT_LOCALE_DATA} || ''` + end + '}}';
+                    } else if (ele) {
+                        newVal += ele + '}}';
+                    }
+                })
+                node.deleteData(0, node.nodeValue.length);
+                node.insertData(0, newVal);
             }
         }
     });

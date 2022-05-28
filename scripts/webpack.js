@@ -1,7 +1,12 @@
 const webpack = require('webpack');
 const chalk = require('chalk');
+const { TARGET, NODE_ENV } = require('../config/env');
 
-const webpackConfig = require('../config/webpack.config');
+let webpackConfig;
+if (TARGET === 'mp') {
+    webpackConfig = require('../config/webpack.config.mp');
+}
+
 
 webpack(webpackConfig, (err, stats) => {
   if (err) {

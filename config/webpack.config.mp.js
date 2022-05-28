@@ -19,10 +19,14 @@ const {
     PLATFORM_CONFIG,
     ENV_CONFIG,
 } = require('./env');
+// const localesLoader = require('../config/loaders/locales-loader');
+
 const isDev = NODE_ENV === 'development';
 const pkg = require(`${process.cwd()}/package.json`)
 
 // process.env.OAK_PLATFORM: wechatMp | wechatPublic | web | node
+
+// localesLoader();
 
 const relativeFileLoader = (ext = '[ext]') => {
     return {
@@ -62,6 +66,7 @@ const copyPatterns = []
               }
             : pattern
     );
+const oakReg = /oak-general-business\/wechatMp|oak-general-business\\wechatMp/;
 
 module.exports = {
     context: SOURCE,
@@ -115,14 +120,13 @@ module.exports = {
                 test: /\.wxs$/,
                 include: /src/,
                 type: 'javascript/auto',
-                use: [relativeFileLoader(), 'babel-loader'],
+                use: [relativeFileLoader()],
             },
             {
                 test: /\.wxs$/,
-                include:
-                    /oak-general-business\/wechatMp|oak-general-business\\wechatMp/,
+                include: oakReg,
                 type: 'javascript/auto',
-                use: [relativeFileLoader(), 'babel-loader'],
+                use: [relativeFileLoader()],
             },
             {
                 test: /\.(png|jpg|gif|svg)$/,
@@ -132,8 +136,7 @@ module.exports = {
             },
             {
                 test: /\.(png|jpg|gif|svg)$/,
-                include:
-                    /oak-general-business\/wechatMp|oak-general-business\\wechatMp/,
+                include: oakReg,
                 type: 'javascript/auto',
                 use: oakFileLoader(),
             },
@@ -150,8 +153,7 @@ module.exports = {
             },
             {
                 test: /\.less$/,
-                include:
-                    /oak-general-business\/wechatMp|oak-general-business\\wechatMp/,
+                include: oakReg,
                 type: 'javascript/auto',
                 use: [
                     oakFileLoader('wxss'),
@@ -202,19 +204,23 @@ module.exports = {
                     relativeFileLoader('wxml'),
                     {
                         loader: 'wxml-loader',
+                        options: {
+                            context: SOURCE,
+                        },
                     },
                 ],
             },
             {
                 test: /\.(xml|wxml)$/,
-                include:
-                    /oak-general-business\/wechatMp|oak-general-business\\wechatMp/,
+                include: oakReg,
                 type: 'javascript/auto',
                 use: [
                     oakFileLoader('wxml'),
                     {
                         loader: 'wxml-loader',
-                        options: {},
+                        options: {
+                            context: SOURCE,
+                        },
                     },
                 ],
             },
@@ -226,7 +232,7 @@ module.exports = {
         new OakWeChatMpPlugin({
             exclude: ['*/weui-miniprogram/*'],
             include: ['project.config.json', 'sitemap.json'],
-            split: !isDev,
+            split: true,
         }),
         new webpack.DefinePlugin({
             __DEV__: isDev,
