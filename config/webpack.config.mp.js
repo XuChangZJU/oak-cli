@@ -232,7 +232,7 @@ module.exports = {
         new OakWeChatMpPlugin({
             exclude: ['*/weui-miniprogram/*'],
             include: ['project.config.json', 'sitemap.json'],
-            split: true,
+            split: !isDev,
         }),
         new webpack.DefinePlugin({
             __DEV__: isDev,
