@@ -18,12 +18,13 @@ const WRITE_DIR = SOURCE + '/i18n';
 
 const DEFAULT_LOCALE = 'zh-CN';
 const DEFAULT_FALLBACK_LOCALE = 'zh-CN';
-const BASE_PATH = path.dirname(
-    require.resolve(
-        `${process.cwd()}/node_modules/oak-frontend-base/src/platforms/wechatMp/i18n/wxs/wxs.js`
-    )
-);
+
 function getWxsCode() {
+    const BASE_PATH = path.dirname(
+        require.resolve(
+            `${process.cwd()}/node_modules/oak-frontend-base/src/platforms/wechatMp/i18n/wxs/wxs.js`
+        )
+    );
     const code = fs.readFileSync(path.join(BASE_PATH, '/wxs.js'), 'utf-8');
     const runner = `module.exports = { \nt: Interpreter.getMessageInterpreter() \n}`;
     return [code, runner].join('\n');
