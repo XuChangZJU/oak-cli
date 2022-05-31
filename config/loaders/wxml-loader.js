@@ -75,11 +75,9 @@ function traverse(doc, callback) {
 const isSrc = (name) => name === 'src';
 
 const isDynamicSrc = (src) => /\{\{/.test(src);
-
+const WeChatMpDir = 'wechatMp'; //规定文件夹名
 const TranslationFunction = 't';
-
 const I18nModuleName = 'i18n';
-
 const CURRENT_LOCALE_KEY = '$_locale';
 const LOCALE_CHANGE_HANDLER_NAME = '$_localeChange';
 const COMMON_LOCALE_DATA = '$_common_translations';
@@ -107,19 +105,45 @@ module.exports = async function (content) {
     // this.cacheable && this.cacheable();
 
     const options = this.getOptions() || {}; //获取配置参数
-    const { context: context2 } = options;
+    const { context: projectContext } = options; // context 本项目路径
     const callback = this.async();
-    const { options: webpackLegacyOptions, _module = {}, _compilation = {}, resourcePath } = this;
+    const {
+        options: webpackLegacyOptions,
+        _module = {},
+        _compilation = {},
+        resourcePath,
+    } = this;
     const { context, target } = webpackLegacyOptions || this;
     // console.log(context, target);
     const issuer = _compilation.moduleGraph.getIssuer(this._module);
     const issuerContext = (issuer && issuer.context) || context;
     const root = resolve(context, issuerContext);
     let source = content;
+    let relativePath; // locales.wxs相对路径
+    //判断是否存在i18n的t函数
     if (existsT(source)) {
-        const relativePath = relative(context, context2 + '/' + WXS_PATH);
-        source = `<wxs src='${relativePath}' module='${I18nModuleName}'></wxs>` + source;
+        //判断加载的xml是否为本项目自身的文件
+        const isSelf = context.indexOf(projectContext) !== -1;
+        if (isSelf) {
+            //本项目xml
+            relativePath = relative(context, projectContext + '/' + WXS_PATH);
+        } else {
+            //第三方项目的xml
+            const index = context.lastIndexOf(WeChatMpDir);
+            if (index !== -1) {
+                const p = context.substring(index + WeChatMpDir.length);
+                relativePath = relative(
+                    projectContext + p,
+                    projectContext + '/' + WXS_PATH
+                );
+            }
+        }
+
+        source =
+            `<wxs src='${relativePath}' module='${I18nModuleName}'></wxs>` +
+            source;
     }
+    // 注入全局message组件
     if (/pages/.test(context)) {
         source =
             source +
@@ -127,9 +151,6 @@ module.exports = async function (content) {
     }
 
     // console.log(content, options);
-    /**
-     * domparser会自动给没有value的attribute赋上值，目前改不动
-     */
     const doc = new DOMParser({
         errorHandler: {
             warning(x) {
@@ -153,9 +174,15 @@ module.exports = async function (content) {
                     !isDynamicSrc(value) &&
                     isUrlRequest(value, root)
                 ) {
-                    const path = resolve(root, value)
-                    // const request = urlToRequest(value, root);
-                    requests.push(path);
+                    if (relativePath === value) {
+                        // 如果出现直接读取项目下i18n/locales.wxs
+                        const path = projectContext + '/' + WXS_PATH;
+                        requests.push(path);
+                    } else {
+                        const path = resolve(root, value);
+                        // const request = urlToRequest(value, root);
+                        requests.push(path);
+                    }
                 }
             }
             // 处理oak:value声明的属性
@@ -173,7 +200,6 @@ module.exports = async function (content) {
                     node.setAttribute('focus', `{{!!oakFocused.${oakValue}}}`);
                 }
             }
-            
         }
         if (node.nodeType === node.TEXT_NODE) {
             // 处理i18n 把t()转成i18n.t()
@@ -185,11 +211,15 @@ module.exports = async function (content) {
                     if (existsT(ele)) {
                         const head = ele.substring(0, ele.indexOf(')'));
                         const end = ele.substring(ele.indexOf(')'));
-                        newVal += head + `,${CURRENT_LOCALE_KEY},${CURRENT_LOCALE_DATA} || ''` + end + '}}';
+                        newVal +=
+                            head +
+                            `,${CURRENT_LOCALE_KEY},${CURRENT_LOCALE_DATA} || ''` +
+                            end +
+                            '}}';
                     } else if (ele) {
                         newVal += ele + '}}';
                     }
-                })
+                });
                 node.deleteData(0, node.nodeValue.length);
                 node.insertData(0, newVal);
             }

@@ -271,7 +271,7 @@ class OakWeChatMpPlugin {
                 }
                 if (getIsOak(c)) {
                     const oakComponent = OakPagePath + c.replace(new RegExp(OakPagePrefix), '');
-                    const component2 = oakComponent.replace(/\\/g, '/');
+                    const component2 = this.replaceDoubleSlash(oakComponent);
                     if (!this.oakComponents.has(component2)) {
                         this.oakComponents.add(component2);
                         components.add(component2);
@@ -284,11 +284,11 @@ class OakWeChatMpPlugin {
                     continue;
                 }
                 if (mode === MODE.oak) {
-                    const component = path
-                        .resolve(instanceDir, c)
-                        .replace(/\\/g, '/');
+                    const component = this.replaceDoubleSlash(
+                        path.resolve(instanceDir, c)
+                    );
                     const component2 = component.replace(
-                        process.cwd().replace(/\\/g, '/') + '/',
+                        this.replaceDoubleSlash(process.cwd()) + '/',
                         ''
                     );
                     if (!this.oakComponents.has(component2)) {
@@ -301,11 +301,11 @@ class OakWeChatMpPlugin {
                         );
                     }
                 } else if (mode === MODE.external) {
-                    const component = path
-                        .resolve(instanceDir, c)
-                        .replace(/\\/g, '/');
+                    const component = this.replaceDoubleSlash(
+                        path.resolve(instanceDir, c)
+                    );
                     const component2 = component.replace(
-                        process.cwd().replace(/\\/g, '/') + '/',
+                        this.replaceDoubleSlash(process.cwd()) + '/',
                         ''
                     );
                     if (!this.npmComponents.has(component2)) {
@@ -318,15 +318,13 @@ class OakWeChatMpPlugin {
                         );
                     }
                 } else {
-                    const component = path
-                        .resolve(instanceDir, c)
-                        .replace(/\\/g, '/');
+                    const component = this.replaceDoubleSlash(path.resolve(instanceDir, c));
                     if (!components.has(component)) {
                         //  components.add(path.relative(this.basePath, component));
                         //  await this.getComponents(components, component);
-                        const component2 = path
-                            .relative(this.basePath, component)
-                            .replace(/\\/g, '/');
+                        const component2 = this.replaceDoubleSlash(
+                            path.relative(this.basePath, component)
+                        );
                         if (!components.has(component2)) {
                             components.add(component2);
                             await this.getComponents(components, component);
@@ -452,7 +450,7 @@ class OakWeChatMpPlugin {
                     ...npmAssetsEntry.map((resource) => {
                         return {
                             from: path.resolve(
-                                process.cwd().replace(/\\/g, '/'),
+                                this.replaceDoubleSlash(process.cwd()),
                                 resource
                             ),
                             to: resource.replace(
@@ -539,7 +537,9 @@ class OakWeChatMpPlugin {
     async emitAssetsFile(compilation) {
         const emitAssets = [];
         for (let entry of this.assetsEntry) {
-            const assets = path.resolve(this.basePath, entry).replace(/\\/g, '/');
+            const assets = this.replaceDoubleSlash(
+                path.resolve(this.basePath, entry)
+            );
             if (/\.(sass|scss|css|less|styl|xml|wxml)$/.test(assets)) {
                 continue;
             }
@@ -595,10 +595,15 @@ class OakWeChatMpPlugin {
                                     new RegExp(OakPagePrefix),
                                     ''
                                 );
-                                component = path.relative(
-                                    assets.substring(0, assets.lastIndexOf('/')),
-                                    path.resolve(this.basePath, component)
-                                ).replace(/\\/g, '/')
+                                component = this.replaceDoubleSlash(
+                                    path.relative(
+                                        assets.substring(
+                                            0,
+                                            assets.lastIndexOf('/')
+                                        ),
+                                        path.resolve(this.basePath, component)
+                                    )
+                                );
                             }
                             usingComponents[ck] = component;
                         }
@@ -654,6 +659,10 @@ class OakWeChatMpPlugin {
     static async clearOutPut(compilation) {
         const { path } = compilation.options.output;
         await fsExtra.remove(path);
+    }
+
+    replaceDoubleSlash(str) {
+        return str.replace(/\\/g, '/');
     }
 }
 
