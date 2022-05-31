@@ -10,13 +10,18 @@ import { triggers } from './triggers';
 import { data } from './data';
 import { routers } from './exceptionRouters';
 
-const { token } = initializeGeneralFeatures<EntityDict, RuntimeContext, typeof aspectDict>();
+const { token, extraFile, application } = initializeGeneralFeatures<EntityDict, RuntimeContext, typeof aspectDict>();
 
 const createFeatures = (basicFeatures: BasicFeatures<EntityDict, RuntimeContext, typeof aspectDict>) => {
     const features = initialize(basicFeatures);
-    const wholeFeatures = Object.assign({
-        token,
-    }, features);
+    const wholeFeatures = Object.assign(
+        {
+            token,
+            extraFile,
+            application,
+        },
+        features
+    );
     return wholeFeatures;
 };
 
@@ -29,4 +34,5 @@ export {
     routers,
 
     token,
+    application,
 }
