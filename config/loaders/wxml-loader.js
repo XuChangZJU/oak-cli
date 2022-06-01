@@ -126,7 +126,10 @@ module.exports = async function (content) {
         const isSelf = context.indexOf(projectContext) !== -1;
         if (isSelf) {
             //本项目xml
-            relativePath = relative(context, projectContext + '/' + WXS_PATH);
+            relativePath = relative(
+                context,
+                projectContext + '/' + WXS_PATH
+            ).replace(/\\/g, '/');
         } else {
             //第三方项目的xml
             const index = context.lastIndexOf(WeChatMpDir);
@@ -135,7 +138,7 @@ module.exports = async function (content) {
                 relativePath = relative(
                     projectContext + p,
                     projectContext + '/' + WXS_PATH
-                );
+                ).replace(/\\/g, '/');
             }
         }
 
@@ -147,7 +150,7 @@ module.exports = async function (content) {
     if (/pages/.test(context)) {
         source =
             source +
-            '<message show="{{!!oakError}}" type="{{oakError.type}}" content="{{oakError.msg}}" />';
+            `<message show="{{!!oakError}}" type="{{oakError.type || ''}}" content="{{oakError.msg || ''}}" />`;
     }
 
     // console.log(content, options);
@@ -189,7 +192,7 @@ module.exports = async function (content) {
             if (node.hasAttribute('oak:value')) {
                 const oakValue = node.getAttribute('oak:value');
                 node.removeAttribute('oak:value');
-                node.setAttribute('value', `{{${oakValue}}}`);
+                node.setAttribute('value', `{{${oakValue} !== undefined ? ${oakValue} : ''}}`);
                 node.setAttribute('data-attr', oakValue);
                 node.setAttribute('oakPath', oakValue);
                 // node.setAttribute('oakValue', `{{${oakValue}}}`);
