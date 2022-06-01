@@ -2,8 +2,8 @@
 const {
     ROOT,
     SOURCE,
-    DESTINATION,
-    NODE_ENV,
+    MP_ROOT,
+    MP_SOURCE,
 } = require('./../env');
 const fs = require('fs');
 const path = require('path');
@@ -13,8 +13,8 @@ const { merge, set, get } = require('lodash');
 
 const DEFAULT_WXS_FILENAME = 'locales.wxs';
 const DEFAULT_JS_FILENAME = 'locales.ts';
-const READ_LOCALES_DIR = SOURCE + '/locales';
-const WRITE_DIR = SOURCE + '/i18n';
+const READ_LOCALES_DIR = SOURCE + '/locales'; //项目src下
+const WRITE_DIR = MP_SOURCE + '/i18n'; //项目wechatMp/src下
 
 const DEFAULT_LOCALE = 'zh-CN';
 const DEFAULT_FALLBACK_LOCALE = 'zh-CN';

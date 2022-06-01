@@ -12,11 +12,10 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
 const OakWeChatMpPlugin = require('../plugins/WechatMpPlugin');
 
 const {
-    ROOT,
-    SOURCE,
-    DESTINATION,
+    MP_ROOT,
+    MP_SOURCE,
+    MP_DESTINATION,
     NODE_ENV,
-    PLATFORM_CONFIG,
     ENV_CONFIG,
 } = require('./env');
 const localesLoader = require('../config/loaders/locales-loader');
@@ -34,7 +33,7 @@ const relativeFileLoader = (ext = '[ext]') => {
         options: {
             useRelativePath: true,
             name: `[path][name].${ext}`,
-            context: SOURCE,
+            context: MP_SOURCE,
         },
     };
 };
@@ -51,25 +50,23 @@ const oakFileLoader = (ext = '[ext]') => {
                 )[1];
                 return outputPath;
             },
-            context: SOURCE,
+            context: MP_SOURCE,
         },
     };
 };
 
-const copyPatterns = []
-    .concat(pkg.copyWebpack || [])
-    .map((pattern) =>
-        typeof pattern === 'string'
-            ? {
-                  from: path.resolve(SOURCE, pattern),
-                  to: path.resolve(DESTINATION, pattern),
-              }
-            : pattern
-    );
+const copyPatterns = [].concat(pkg.copyWebpack || []).map((pattern) =>
+    typeof pattern === 'string'
+        ? {
+              from: path.resolve(MP_SOURCE, pattern),
+              to: path.resolve(MP_DESTINATION, pattern),
+          }
+        : pattern
+);
 const oakReg = /oak-general-business\/wechatMp|oak-general-business\\wechatMp/;
 
 module.exports = {
-    context: SOURCE,
+    context: MP_SOURCE,
     devtool: isDev ? 'source-map' : false,
     mode: NODE_ENV,
     target: 'web',
@@ -78,13 +75,13 @@ module.exports = {
     },
     output: {
         filename: '[name].js',
-        path: DESTINATION,
+        path: MP_DESTINATION,
         publicPath: '/',
         globalObject: 'global',
     },
     resolve: {
         alias: {
-            '@': SOURCE,
+            '@': MP_SOURCE,
             assert: require.resolve('assert'),
         },
         extensions: ['.ts', '.js', 'json'],
@@ -161,7 +158,7 @@ module.exports = {
                         loader: 'less-loader',
                         options: {
                             lessOptions: () => {
-                                const oakConfigJson = require(`${SOURCE}/oak.config.json`);
+                                const oakConfigJson = require(`${MP_SOURCE}/oak.config.json`);
                                 return {
                                     javascriptEnabled: true,
                                     modifyVars: oakConfigJson.theme,
@@ -205,7 +202,7 @@ module.exports = {
                     {
                         loader: 'wxml-loader',
                         options: {
-                            context: SOURCE,
+                            context: MP_SOURCE,
                         },
                     },
                 ],
@@ -219,7 +216,7 @@ module.exports = {
                     {
                         loader: 'wxml-loader',
                         options: {
-                            context: SOURCE,
+                            context: MP_SOURCE,
                         },
                     },
                 ],
@@ -228,7 +225,7 @@ module.exports = {
     },
     plugins: [
         // new CleanWebpackPlugin(),
-        new UiExtractPlugin({ context: SOURCE }),
+        new UiExtractPlugin({ context: MP_SOURCE }),
         new OakWeChatMpPlugin({
             exclude: ['*/weui-miniprogram/*'],
             include: ['project.config.json', 'sitemap.json'],
