@@ -216,8 +216,11 @@ module.exports = async function (content) {
                             `,${CURRENT_LOCALE_KEY},${CURRENT_LOCALE_DATA} || ''` +
                             end +
                             '}}';
-                    } else if (ele) {
+                    } else if (ele && ele.indexOf("{{") !== -1) {
                         newVal += ele + '}}';
+                    }
+                    else {
+                        newVal += ele;
                     }
                 });
                 node.deleteData(0, node.nodeValue.length);
