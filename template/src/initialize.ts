@@ -6,6 +6,7 @@ import { RuntimeContext } from './RuntimeContext';
 import { aspectDict } from './aspects';
 import { initialize } from './features';
 import { checkers } from './checkers';
+import { watchers } from './watchers';
 import { triggers } from './triggers';
 import { data } from './data';
 import { routers } from './exceptionRouters';
@@ -30,6 +31,7 @@ export {
     aspectDict,
     triggers,
     checkers,
+    watchers,
     data,
     routers,
 

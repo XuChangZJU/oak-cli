@@ -1,9 +1,10 @@
 import "./utils/polyfill";
-import { InitializeWechatMp } from 'oak-frontend-base';
+import { InitializeWechatMp, initI18n } from 'oak-frontend-base';
 import { EntityDict } from 'oak-app-domain';
 import { storageSchema, ActionDefDict } from 'oak-app-domain';
 import { RuntimeContext } from '../../src/RuntimeContext';
-import { aspectDict, createFeatures, routers, triggers, checkers, data, token, application } from '../../src/initialize';
+import { aspectDict, createFeatures, routers, triggers, checkers,
+    watchers, data, token, application } from '../../src/initialize';
 
 // 每个应用都要初始化applicationId（generalbusiness的要求）
 const applicationId = data.application[0].id;
@@ -14,6 +15,7 @@ const { OakComponent, OakPage, features } = InitializeWechatMp<EntityDict, Runti
     routers,
     triggers,
     checkers,
+    watchers,
     aspectDict,
     data as any,
     ActionDefDict);
@@ -22,7 +24,6 @@ const { OakComponent, OakPage, features } = InitializeWechatMp<EntityDict, Runti
 token.setCache(features.cache);
 application.setCache(features.cache);
 application.setApplicationId(applicationId);
-
 
 Object.assign(global, {
     OakPage,
