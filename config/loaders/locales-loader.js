@@ -16,8 +16,8 @@ const DEFAULT_JS_FILENAME = 'locales.ts';
 const READ_LOCALES_DIR = SOURCE + '/locales'; //项目src下
 const WRITE_DIR = MP_SOURCE + '/i18n'; //项目wechatMp/src下
 
-const DEFAULT_LOCALE = 'zh-CN';
-const DEFAULT_FALLBACK_LOCALE = 'zh-CN';
+const DEFAULT_LOCALE = 'zh_CN';
+const DEFAULT_FALLBACK_LOCALE = 'zh_CN';
 
 function getWxsCode() {
     const BASE_PATH = path.dirname(
@@ -59,11 +59,11 @@ function getTranslations(source) {
             const arr = d.split('/');
             const localeName = arr[1];
             const fileName = arr[2];
-            const entityName = fileName.substring(0, fileName.lastIndexOf('.'));
+            const namespace = fileName.substring(0, fileName.lastIndexOf('.'));
             const json = readJsonSync(p);
             set(
                 translations,
-                `${localeName}.${entityName}`,
+                `${localeName}.${namespace}`,
                 parseTranslations(json)
             );
         }

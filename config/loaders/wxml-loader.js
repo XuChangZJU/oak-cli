@@ -159,7 +159,8 @@ module.exports = async function (content) {
             warning(x) {
                 if (
                     x.indexOf('missed value!!') === -1 &&
-                    x.indexOf('missed quot(")!') === -1
+                    x.indexOf('missed quot(")!') === -1 &&
+                    x.indexOf('unclosed xml attribute') == -1
                 ) {
                     console.log(x);
                 }
@@ -192,7 +193,10 @@ module.exports = async function (content) {
             if (node.hasAttribute('oak:value')) {
                 const oakValue = node.getAttribute('oak:value');
                 node.removeAttribute('oak:value');
-                node.setAttribute('value', `{{${oakValue} !== undefined ? ${oakValue} : ''}}`);
+                node.setAttribute(
+                    'value',
+                    `{{${oakValue} !== undefined && ${oakValue} !== null ? ${oakValue} : ''}}`
+                );
                 node.setAttribute('data-attr', oakValue);
                 node.setAttribute('oakPath', oakValue);
                 // node.setAttribute('oakValue', `{{${oakValue}}}`);
