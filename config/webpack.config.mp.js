@@ -18,14 +18,11 @@ const {
     NODE_ENV,
     ENV_CONFIG,
 } = require('./env');
-const localesLoader = require('../config/loaders/locales-loader');
 
 const isDev = NODE_ENV === 'development';
 const pkg = require(`${process.cwd()}/package.json`)
 
 // process.env.OAK_PLATFORM: wechatMp | wechatPublic | web | node
-
-localesLoader();
 
 const relativeFileLoader = (ext = '[ext]') => {
     return {
