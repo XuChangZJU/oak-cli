@@ -12,6 +12,7 @@ export function packageJsonContent({
         oakPackageStr = `"${cliname}": "file:../${cliname}",
         "oak-domain": "file:../oak-domain",
         "oak-frontend-base": "file:../oak-frontend-base",
+        "oak_external-sdk": "file:../oak-external-sdk",
         "oak-general-business": "file:../oak-general-business",
         "oak-memory-tree-store": "file:../oak-memory-tree-store",`;
     }
@@ -20,6 +21,7 @@ export function packageJsonContent({
         "oak-domain": "^1.0.0",
         "oak-frontend-base": "^1.0.0",
         "oak-general-business": "^1.0.0",
+        "oak_external-sdk": "^1.0.0",
         "oak-memory-tree-store": "^1.0.0",`;
     }
 
@@ -39,6 +41,7 @@ export function packageJsonContent({
         "@reduxjs/toolkit": "^1.7.2",
         "crypto-browserify": "^3.12.0",
         "lodash": "^4.17.21",
+        ${oakPackageStr}
         "uuid": "^8.3.2"
     },
     "devDependencies": {
@@ -73,7 +76,6 @@ export function packageJsonContent({
         "mini-css-extract-plugin": "^2.5.3",
         "miniprogram-api-typings": "^3.4.5",
         "mocha": "^8.2.1",
-        ${oakPackageStr}
         "postcss-less": "^6.0.0",
         "progress": "^2.0.3",
         "progress-bar-webpack-plugin": "^2.1.0",
