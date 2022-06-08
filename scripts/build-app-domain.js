@@ -6,4 +6,4 @@ const {
 
 analyzeEntities(`${process.cwd()}/node_modules/oak-general-business/src/entities`);
 analyzeEntities(`${process.cwd()}/src/entities`);
-buildSchema(`${process.cwd()}/oak-app-domain`);
+buildSchema(`${process.cwd()}/src/oak-app-domain`);

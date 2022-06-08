@@ -31,10 +31,17 @@ export default async function make() {
 
     Success(`${success(`npm link oak-app-domain`)}`);
 
-    const isMac = process.platform === 'darwin';
-    const result2 = spawn.sync(
-        `${isMac ? 'sudo' : ''} npm`,
-        [`link ${process.cwd()}/oak-app-domain`],
+    const isWin = process.platform === 'win32';
+    const result2 = !isWin ? spawn.sync(
+        'sudo',
+        [`npm link ${process.cwd()}/src/oak-app-domain`],
+        {
+            stdio: 'inherit',
+            shell: true,
+        }
+    ) : spawn.sync(
+        'npm',
+        [`link ${process.cwd()}/src/oak-app-domain`],
         {
             stdio: 'inherit',
             shell: true,
