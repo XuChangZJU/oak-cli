@@ -86,8 +86,6 @@ const WXS_PATH = 'i18n/locales.wxs';
 
 function existsT(str) {
     if (!str) return false;
-    // if (str.indexOf('t(') === -1) return false;
-    // console.log(str.substring(str.indexOf('t(') - 1, str.indexOf('t(')));
     return (
         str.indexOf('t(') !== -1 &&
         !/^[A-Za-z0-9]*$/.test(
@@ -114,7 +112,6 @@ module.exports = async function (content) {
         resourcePath,
     } = this;
     const { context, target } = webpackLegacyOptions || this;
-    // console.log(context, target);
     const issuer = _compilation.moduleGraph.getIssuer(this._module);
     const issuerContext = (issuer && issuer.context) || context;
     const root = resolve(context, issuerContext);
@@ -153,7 +150,6 @@ module.exports = async function (content) {
             `<message show="{{!!oakError}}" type="{{oakError.type || ''}}" content="{{oakError.msg || ''}}" />`;
     }
 
-    // console.log(content, options);
     const doc = new DOMParser({
         errorHandler: {
             warning(x) {

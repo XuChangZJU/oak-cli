@@ -200,16 +200,6 @@ export async function create(dirName: string, cmd: any) {
         Success(`${success(`Dependencies are now being installed`)}`);
         shell.cd(dirName).exec('npm install');
 
-        // checkFileExistsAndCreate(weChatMpRootPath + '/src/styles');
-        // const data = readFile(
-        //     `${rootPath}/node_modules/oak-general-business/src/platforms/wechatMp/styles/base.less`
-        // );
-        // checkFileExistsAndCreate(
-        //     weChatMpRootPath + '/src/styles/base.less',
-        //     data,
-        //     checkFileExistsAndCreateType.FILE
-        // );
-
         Success(
             `${success(
                 `Successfully created project ${primary(
