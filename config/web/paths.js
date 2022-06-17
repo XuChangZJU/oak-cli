@@ -71,6 +71,7 @@ module.exports = {
     appTsBuildInfoFile: resolveRoot('node_modules/.cache/tsconfig.tsbuildinfo'),
     swSrc: resolveModule(resolveApp, 'src/service-worker'),
     publicUrlOrPath,
+    appOutSrc: resolveRoot('src'),
 };
 
 

@@ -335,17 +335,23 @@ module.exports = function (webpackEnv) {
               // To fix this, we prevent you from importing files out of src/ -- if you'd like to,
               // please link the files into your node_modules/ and let module-resolution kick in.
               // Make sure your source files are compiled, as they will not be processed in any way.
-              new ModuleScopePlugin(paths.appSrc, [
-                  paths.appPackageJson,
-                  reactRefreshRuntimeEntry,
-                  reactRefreshWebpackPluginRuntimeEntry,
-                  babelRuntimeEntry,
-                  babelRuntimeEntryHelpers,
-                  babelRuntimeRegenerator,
-              ]),
+              // new ModuleScopePlugin(paths.appSrc, [
+              //     paths.appPackageJson,
+              //     reactRefreshRuntimeEntry,
+              //     reactRefreshWebpackPluginRuntimeEntry,
+              //     babelRuntimeEntry,
+              //     babelRuntimeEntryHelpers,
+              //     babelRuntimeRegenerator,
+              // ]),
           ],
       },
       module: {
+          parser: {
+              javascript: {
+                  reexportExportsPresence: false,
+                //   exportsPresence: 'error',
+              },
+          },
           strictExportPresence: true,
           rules: [
               // Handle node_modules packages that contain sourcemaps
@@ -414,7 +420,15 @@ module.exports = function (webpackEnv) {
                       // The preset includes JSX, Flow, TypeScript, and some ESnext features.
                       {
                           test: /\.(js|mjs|jsx|ts|tsx)$/,
-                          include: paths.appSrc,
+                          include: [
+                              paths.appOutSrc,
+                              paths.appSrc,
+                              /oak-domain/,
+                              /oak-external-sdk/,
+                              /oak-frontend-base/,
+                              /oak-general-business/,
+                              /oak-memory-tree-store/,
+                          ],
                           loader: require.resolve('babel-loader'),
                           options: {
                               customize: require.resolve(
@@ -693,53 +707,53 @@ module.exports = function (webpackEnv) {
                   maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
               }),
           // TypeScript type checking
-          useTypeScript &&
-              new ForkTsCheckerWebpackPlugin({
-                  async: isEnvDevelopment,
-                  typescript: {
-                      typescriptPath: resolve.sync('typescript', {
-                          basedir: paths.appNodeModules,
-                      }),
-                      configOverwrite: {
-                          compilerOptions: {
-                              sourceMap: isEnvProduction
-                                  ? shouldUseSourceMap
-                                  : isEnvDevelopment,
-                              skipLibCheck: true,
-                              inlineSourceMap: false,
-                              declarationMap: false,
-                              noEmit: true,
-                              incremental: true,
-                              tsBuildInfoFile: paths.appTsBuildInfoFile,
-                          },
-                      },
-                      context: paths.appPath,
-                      diagnosticOptions: {
-                          syntactic: true,
-                      },
-                      mode: 'write-references',
-                      // profile: true,
-                  },
-                  issue: {
-                      // This one is specifically to match during CI tests,
-                      // as micromatch doesn't match
-                      // '../cra-template-typescript/template/src/App.tsx'
-                      // otherwise.
-                      include: [
-                          { file: '../**/src/**/*.{ts,tsx}' },
-                          { file: '**/src/**/*.{ts,tsx}' },
-                      ],
-                      exclude: [
-                          { file: '**/src/**/__tests__/**' },
-                          { file: '**/src/**/?(*.){spec|test}.*' },
-                          { file: '**/src/setupProxy.*' },
-                          { file: '**/src/setupTests.*' },
-                      ],
-                  },
-                  logger: {
-                      infrastructure: 'silent',
-                  },
-              }),
+          //   useTypeScript &&
+          //       new ForkTsCheckerWebpackPlugin({
+          //           async: isEnvDevelopment,
+          //           typescript: {
+          //               typescriptPath: resolve.sync('typescript', {
+          //                   basedir: paths.appNodeModules,
+          //               }),
+          //               configOverwrite: {
+          //                   compilerOptions: {
+          //                       sourceMap: isEnvProduction
+          //                           ? shouldUseSourceMap
+          //                           : isEnvDevelopment,
+          //                       skipLibCheck: true,
+          //                       inlineSourceMap: false,
+          //                       declarationMap: false,
+          //                       noEmit: true,
+          //                       incremental: true,
+          //                       tsBuildInfoFile: paths.appTsBuildInfoFile,
+          //                   },
+          //               },
+          //               context: paths.appPath,
+          //               diagnosticOptions: {
+          //                   syntactic: true,
+          //               },
+          //               mode: 'write-references',
+          //               // profile: true,
+          //           },
+          //           issue: {
+          //               // This one is specifically to match during CI tests,
+          //               // as micromatch doesn't match
+          //               // '../cra-template-typescript/template/src/App.tsx'
+          //               // otherwise.
+          //               include: [
+          //                   { file: '../**/src/**/*.{ts,tsx}' },
+          //                   { file: '**/src/**/*.{ts,tsx}' },
+          //               ],
+          //               exclude: [
+          //                   { file: '**/src/**/__tests__/**' },
+          //                   { file: '**/src/**/?(*.){spec|test}.*' },
+          //                   { file: '**/src/setupProxy.*' },
+          //                   { file: '**/src/setupTests.*' },
+          //               ],
+          //           },
+          //           logger: {
+          //               infrastructure: 'silent',
+          //           },
+          //       }),
           !disableESLintPlugin &&
               new ESLintPlugin({
                   // Plugin options

@@ -47,6 +47,7 @@ module.exports = {
     appWebpackCache: resolveRoot('node_modules/.cache'),
     appTsBuildInfoFile: resolveRoot('node_modules/.cache/tsconfig.tsbuildinfo'),
     publicUrlOrPath: '/',
+    appOutSrc: resolveRoot('src'),
 };
 
 
