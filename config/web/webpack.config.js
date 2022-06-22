@@ -349,7 +349,7 @@ module.exports = function (webpackEnv) {
           parser: {
               javascript: {
                   reexportExportsPresence: false,
-                //   exportsPresence: 'error',
+                  //   exportsPresence: 'error',
               },
           },
           strictExportPresence: true,
@@ -428,6 +428,7 @@ module.exports = function (webpackEnv) {
                               /oak-frontend-base/,
                               /oak-general-business/,
                               /oak-memory-tree-store/,
+                              /oak-common-aspect/,
                           ],
                           loader: require.resolve('babel-loader'),
                           options: {
