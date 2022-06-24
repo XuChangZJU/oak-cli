@@ -185,8 +185,8 @@ module.exports = async function (content) {
                     }
                 }
             }
-            // 处理oak:value声明的属性
             if (node.hasAttribute('oak:value')) {
+                // oak:value声明的属性加上value、focus和data-attr
                 const oakValue = node.getAttribute('oak:value');
                 node.removeAttribute('oak:value');
                 node.setAttribute(
@@ -194,14 +194,18 @@ module.exports = async function (content) {
                     `{{${oakValue} !== undefined && ${oakValue} !== null ? ${oakValue} : ''}}`
                 );
                 node.setAttribute('data-attr', oakValue);
-                node.setAttribute('oakPath', oakValue);
-                // node.setAttribute('oakValue', `{{${oakValue}}}`);
-                node.setAttribute('oakParent', `{{oakFullpath}}`);
                 if (node.hasAttribute('oak:forbidFocus')) {
                     node.removeAttribute('oak:forbidFocus');
                 } else {
                     node.setAttribute('focus', `{{!!oakFocused.${oakValue}}}`);
                 }
+            }
+            else if (node.hasAttribute('oak:path')) {
+                // oak:path声明的属性加上oakPath和oakParent
+                const oakValue = node.getAttribute('oak:path');
+                node.removeAttribute('oak:path');
+                node.setAttribute('oakPath', oakValue);
+                node.setAttribute('oakParent', `{{oakFullpath}}`);
             }
         }
         if (node.nodeType === node.TEXT_NODE) {
