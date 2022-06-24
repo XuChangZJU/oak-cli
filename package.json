@@ -45,6 +45,7 @@
         "loader-utils": "^3.2.0",
         "lodash": "^4.17.21",
         "mini-css-extract-plugin": "^2.5.3",
+        "oak-backend-base": "file:../oak-backend-base",
         "postcss-less": "^6.0.0",
         "progress-bar-webpack-plugin": "^2.1.0",
         "required-path": "^1.0.1",

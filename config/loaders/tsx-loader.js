@@ -1,7 +1,7 @@
 const { resolve, relative } = require('path');
 
 module.exports = function (content) {
-    const options = this.getOptions() || {}; //获取配置参数
+    /* const options = this.getOptions() || {}; //获取配置参数
     const { context: projectContext } = options; // context 本项目路径
     const {
         options: webpackLegacyOptions,
@@ -17,7 +17,7 @@ module.exports = function (content) {
     if (/.tsx|.jsx/.test(resourcePath)) {
         // console.log(content);
 
-    }
+    } */
 
     return content;
 };

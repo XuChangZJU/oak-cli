@@ -3,6 +3,7 @@ import program from 'commander';
 import { create, update } from './create';
 import build from './build';
 import make from './make';
+import run from './run';
 import { CLI_VERSION, CLI_NAME } from './config';
 import { error, warn } from './tip-style';
 
@@ -71,6 +72,11 @@ program
     .option('-d, --dev', 'dev')
     .description(`update project's template powered by ${CLI_NAME}`)
     .action(update);
+program
+    .command('run')
+    .option('-i, --initialize', 'true')
+    .description(`run backend server by ${CLI_NAME}`)
+    .action(run);
 // output help information on unknown commands
 program.arguments('<command>').action((cmd) => {
     program.outputHelp();
