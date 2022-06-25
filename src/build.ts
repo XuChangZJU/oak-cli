@@ -12,15 +12,25 @@ import spawn from 'cross-spawn';
 export default async function build(cmd: any) {
     if (!cmd.target) {
         Error(
-            `${error(`Please add --target web or --target mp to he command`)}`
+            `${error(
+                `Please add --target web or --target mp or --target wechatMp to he command`
+            )}`
         );
         return;
     }
     Success(`${success(`build ${cmd.target} environment: ${cmd.mode}`)}`);
-    if (cmd.target === 'mp') {
+    if (cmd.target === 'mp' || cmd.target === 'wechatMp') {
         const result = spawn.sync(
             `cross-env NODE_ENV=${cmd.mode} NODE_TARGET=${cmd.target} "${process.execPath}"`,
-            [require.resolve('../scripts/build-mp.js')],
+             [
+                require.resolve(
+                    `../scripts/${
+                        cmd.mode === 'production'
+                            ? 'build-mp.js'
+                            : 'start-mp.js'
+                    }`
+                ),
+            ],
             {
                 stdio: 'inherit',
                 shell: true,

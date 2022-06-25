@@ -5,6 +5,8 @@
 const { DOMParser, XMLSerializer } = require('@xmldom/xmldom');
 const { resolve, relative } = require('path');
 const { isUrlRequest, urlToRequest } = require('loader-utils');
+const fs = require('fs');
+const path = require('path');
 
 const BOOLEAN_ATTRS = [
     'wx:else',
@@ -82,7 +84,9 @@ const CURRENT_LOCALE_KEY = '$_locale';
 const LOCALE_CHANGE_HANDLER_NAME = '$_localeChange';
 const COMMON_LOCALE_DATA = '$_common_translations';
 const CURRENT_LOCALE_DATA = '$_translations';
-const WXS_PATH = 'i18n/locales.wxs';
+
+const DEFAULT_WXS_FILENAME = 'locales.wxs';
+const WXS_PATH = 'i18n' + '/' +DEFAULT_WXS_FILENAME;
 
 function existsT(str) {
     if (!str) return false;
@@ -94,8 +98,23 @@ function existsT(str) {
     );
 }
 
+function replaceDoubleSlash(str) {
+    return str.replace(/\\/g, '/');
+}
+
 function replaceT(str) {
     return str.replace(/t\(/g, 'i18n.t(');
+}
+
+function getWxsCode() {
+    const BASE_PATH = path.dirname(
+        require.resolve(
+            `${process.cwd()}/node_modules/oak-frontend-base/src/platforms/wechatMp/i18n/wxs/wxs.js`
+        )
+    );
+    const code = fs.readFileSync(path.join(BASE_PATH, '/wxs.js'), 'utf-8');
+    const runner = `module.exports = { \nt: Interpreter.getMessageInterpreter() \n}`;
+    return [code, runner].join('\n');
 }
 
 module.exports = async function (content) {
@@ -109,21 +128,24 @@ module.exports = async function (content) {
         options: webpackLegacyOptions,
         _module = {},
         _compilation = {},
+        _compiler = {},
         resourcePath,
     } = this;
+    const { output } = _compiler.options;
+    const { path: outputPath } = output;
     const { context, target } = webpackLegacyOptions || this;
     const issuer = _compilation.moduleGraph.getIssuer(this._module);
     const issuerContext = (issuer && issuer.context) || context;
     const root = resolve(context, issuerContext);
     let source = content;
-    let relativePath; // locales.wxs相对路径
+    let wxsRelativePath; // locales.wxs相对路径
     //判断是否存在i18n的t函数
     if (existsT(source)) {
         //判断加载的xml是否为本项目自身的文件
         const isSelf = context.indexOf(projectContext) !== -1;
         if (isSelf) {
             //本项目xml
-            relativePath = relative(
+            wxsRelativePath = relative(
                 context,
                 projectContext + '/' + WXS_PATH
             ).replace(/\\/g, '/');
@@ -132,7 +154,7 @@ module.exports = async function (content) {
             const index = context.lastIndexOf(WeChatMpDir);
             if (index !== -1) {
                 const p = context.substring(index + WeChatMpDir.length);
-                relativePath = relative(
+                wxsRelativePath = relative(
                     projectContext + p,
                     projectContext + '/' + WXS_PATH
                 ).replace(/\\/g, '/');
@@ -140,7 +162,7 @@ module.exports = async function (content) {
         }
 
         source =
-            `<wxs src='${relativePath}' module='${I18nModuleName}'></wxs>` +
+            `<wxs src='${wxsRelativePath}' module='${I18nModuleName}'></wxs>` +
             source;
     }
     // 注入全局message组件
@@ -174,10 +196,13 @@ module.exports = async function (content) {
                     !isDynamicSrc(value) &&
                     isUrlRequest(value, root)
                 ) {
-                    if (relativePath === value) {
-                        // 如果出现直接读取项目下i18n/locales.wxs
-                        const path = projectContext + '/' + WXS_PATH;
-                        requests.push(path);
+                    if (wxsRelativePath === value) {
+                        // dist目录下生成一个i18n/locales.wxs文件
+                        const path = resolve(outputPath, WXS_PATH);
+                        if (!fs.existsSync(replaceDoubleSlash(path))) {
+                            const wxsContent = `${getWxsCode()}`;
+                            this.emitFile(WXS_PATH, wxsContent);
+                        }
                     } else {
                         const path = resolve(root, value);
                         // const request = urlToRequest(value, root);

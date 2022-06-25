@@ -3,7 +3,7 @@ require('../config/mp/env');
 const webpack = require('webpack');
 const chalk = require('chalk');
 const configFactory = require('../config/mp/webpack.config');
-const config = configFactory('production');
+const config = configFactory('development');
 
 const paths = require('../config/mp/paths');
 const getClientEnvironment = require('../config/mp/env');

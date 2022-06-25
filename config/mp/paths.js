@@ -37,6 +37,7 @@ module.exports = {
     dotenv: resolveApp('.env'),
     appPath: resolveApp('.'),
     appBuild: resolveApp(buildPath),
+    appIndexDevJs: resolveModule(resolveApp, 'src/app.dev'),
     appIndexJs: resolveModule(resolveApp, 'src/app'),
     appPackageJson: resolveRoot('package.json'),
     appSrc: resolveApp('src'),
@@ -48,6 +49,7 @@ module.exports = {
     appTsBuildInfoFile: resolveRoot('node_modules/.cache/tsconfig.tsbuildinfo'),
     publicUrlOrPath: '/',
     appOutSrc: resolveRoot('src'),
+    oakConfigJson: resolveApp('src/oak.config.json'),
 };
 
 
