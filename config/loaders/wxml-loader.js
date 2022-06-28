@@ -77,7 +77,8 @@ function traverse(doc, callback) {
 const isSrc = (name) => name === 'src';
 
 const isDynamicSrc = (src) => /\{\{/.test(src);
-const WeChatMpDir = 'wechatMp'; //规定文件夹名
+const oakRegex = /(\/*[a-zA-Z0-9_-])*\/wechatMp\/|(\\*[a-zA-Z0-9_-])*\\wechatMp\\/;
+const localRegex = /(\/*[a-zA-Z0-9_-])*\/src+\/|(\\*[a-zA-Z0-9_-])*\\src+\\/;
 const TranslationFunction = 't';
 const I18nModuleName = 'i18n';
 const CURRENT_LOCALE_KEY = '$_locale';
@@ -151,19 +152,27 @@ module.exports = async function (content) {
             ).replace(/\\/g, '/');
         } else {
             //第三方项目的xml
-            const index = context.lastIndexOf(WeChatMpDir);
-            if (index !== -1) {
-                const p = context.substring(index + WeChatMpDir.length);
+            if (oakRegex.test(context)) {
+                const p = context.replace(oakRegex, '');
                 wxsRelativePath = relative(
-                    projectContext + p,
+                    projectContext + '/' + p,
+                    projectContext + '/' + WXS_PATH
+                ).replace(/\\/g, '/');
+            } else if (localRegex.test(context)) {
+                const p2 = context.replace(localRegex, '');
+                wxsRelativePath = relative(
+                    projectContext + '/' + p2,
                     projectContext + '/' + WXS_PATH
                 ).replace(/\\/g, '/');
             }
         }
 
-        source =
-            `<wxs src='${wxsRelativePath}' module='${I18nModuleName}'></wxs>` +
-            source;
+        if (wxsRelativePath) {
+            source =
+                `<wxs src='${wxsRelativePath}' module='${I18nModuleName}'></wxs>` +
+                source;
+        }
+
     }
     // 注入全局message组件
     if (/pages/.test(context)) {
