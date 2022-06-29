@@ -762,9 +762,9 @@ class OakWeChatMpPlugin {
                             } else if (getIsLocal(component)) {
                                 component2 = replaceLocalPrefix(component);
                             } else {
-                                component2 = replaceDoubleSlash(
-                                    path.relative(
-                                        this.basePath,
+                                // 如果component是外层src下路径就不处理了
+                                if (
+                                    replaceDoubleSlash(
                                         path.resolve(
                                             assets.substring(
                                                 0,
@@ -772,8 +772,25 @@ class OakWeChatMpPlugin {
                                             ),
                                             component
                                         )
-                                    )
-                                );
+                                    ).indexOf(
+                                        replaceDoubleSlash(
+                                            path.resolve(process.cwd(), 'src')
+                                        )
+                                    ) < 0
+                                ) {
+                                    component2 = replaceDoubleSlash(
+                                        path.relative(
+                                            this.basePath,
+                                            path.resolve(
+                                                assets.substring(
+                                                    0,
+                                                    assets.lastIndexOf('/')
+                                                ),
+                                                component
+                                            )
+                                        )
+                                    );
+                                }
                             }
                             
                             break;
