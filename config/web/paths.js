@@ -73,6 +73,7 @@ module.exports = {
     swSrc: resolveModule(resolveApp, 'src/service-worker'),
     publicUrlOrPath,
     appOutSrc: resolveRoot('src'),
+    // oakConfigJson: resolveApp('src/oak.config.json'),
 };
 
 

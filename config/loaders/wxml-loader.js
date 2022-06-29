@@ -77,13 +77,12 @@ function traverse(doc, callback) {
 const isSrc = (name) => name === 'src';
 
 const isDynamicSrc = (src) => /\{\{/.test(src);
-const oakRegex = /(\/*[a-zA-Z0-9_-])*\/wechatMp\/|(\\*[a-zA-Z0-9_-])*\\wechatMp\\/;
+const oakRegex = /(\/*[a-zA-Z0-9_-])*\/app\/|(\\*[a-zA-Z0-9_-])*\\app\\/;
 const localRegex = /(\/*[a-zA-Z0-9_-])*\/src+\/|(\\*[a-zA-Z0-9_-])*\\src+\\/;
 const TranslationFunction = 't';
 const I18nModuleName = 'i18n';
 const CURRENT_LOCALE_KEY = '$_locale';
 const LOCALE_CHANGE_HANDLER_NAME = '$_localeChange';
-const COMMON_LOCALE_DATA = '$_common_translations';
 const CURRENT_LOCALE_DATA = '$_translations';
 
 const DEFAULT_WXS_FILENAME = 'locales.wxs';

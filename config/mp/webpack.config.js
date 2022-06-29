@@ -7,7 +7,6 @@ const ProgressBarPlugin = require('progress-bar-webpack-plugin');
 const UiExtractPlugin = require('ui-extract-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
-// const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const OakWeChatMpPlugin = require('../../plugins/WechatMpPlugin');
 
 const getClientEnvironment = require('./env');
@@ -26,7 +25,8 @@ const copyPatterns = [].concat(pkg.copyWebpack || []).map((pattern) =>
           }
         : pattern
 );
-const oakRegex = /oak-general-business\/wechatMp|oak-general-business\\wechatMp/;
+const oakRegex = /(\/*[a-zA-Z0-9_-])*\/app\/|(\\*[a-zA-Z0-9_-])*\\app\\/;
+const localRegex = /(\/*[a-zA-Z0-9_-])*\/src+\/|(\\*[a-zA-Z0-9_-])*\\src+\\/;
 
 module.exports = function (webpackEnv) {
     const isEnvDevelopment = webpackEnv === 'development';
@@ -50,9 +50,22 @@ module.exports = function (webpackEnv) {
                 useRelativePath: true,
                 name: `[path][name].${ext}`,
                 outputPath: (url, resourcePath, context) => {
-                    const outputPath = url.split(
-                        'oak-general-business/wechatMp/'
-                    )[1];
+                    const outputPath = url.replace(oakRegex, '');
+                    return outputPath;
+                },
+                context: paths.appSrc,
+            },
+        };
+    };
+
+    const localFileLoader = (ext = '[ext]') => {
+        return {
+            loader: 'file-loader',
+            options: {
+                useRelativePath: true,
+                name: `[path][name].${ext}`,
+                outputPath: (url, resourcePath, context) => {
+                    const outputPath = url.replace(localRegex, '');
                     return outputPath;
                 },
                 context: paths.appSrc,
@@ -115,31 +128,45 @@ module.exports = function (webpackEnv) {
             rules: [
                 {
                     test: /\.wxs$/,
-                    include: /src/,
+                    include: paths.appSrc,
                     type: 'javascript/auto',
                     use: [relativeFileLoader()],
                 },
                 {
                     test: /\.wxs$/,
                     include: oakRegex,
+                    exclude: paths.appSrc,
                     type: 'javascript/auto',
-                    use: [relativeFileLoader()],
+                    use: [oakFileLoader('wxs')],
+                },
+                {
+                    test: /\.wxs$/,
+                    include: paths.appOutSrc,
+                    type: 'javascript/auto',
+                    use: [oakFileLoader('wxs')],
                 },
                 {
                     test: /\.(png|jpg|gif|svg)$/,
-                    include: /src/,
+                    include: paths.appSrc,
                     type: 'javascript/auto',
                     use: relativeFileLoader(),
                 },
                 {
                     test: /\.(png|jpg|gif|svg)$/,
                     include: oakRegex,
+                    exclude: paths.appSrc,
                     type: 'javascript/auto',
                     use: oakFileLoader(),
                 },
                 {
+                    test: /\.(png|jpg|gif|svg)$/,
+                    include: paths.appOutSrc,
+                    type: 'javascript/auto',
+                    use: localFileLoader(),
+                },
+                {
                     test: /\.less$/,
-                    include: /src/,
+                    include: paths.appSrc,
                     exclude: /node_modules/,
                     use: [
                         relativeFileLoader('wxss'),
@@ -151,9 +178,30 @@ module.exports = function (webpackEnv) {
                 {
                     test: /\.less$/,
                     include: oakRegex,
+                    exclude: paths.appSrc,
                     type: 'javascript/auto',
                     use: [
                         oakFileLoader('wxss'),
+                        {
+                            loader: 'less-loader',
+                            options: {
+                                lessOptions: () => {
+                                    const oakConfigJson = require(paths.oakConfigJson);
+                                    return {
+                                        javascriptEnabled: true,
+                                        modifyVars: oakConfigJson.theme,
+                                    };
+                                },
+                            },
+                        },
+                    ],
+                },
+                {
+                    test: /\.less$/,
+                    include: paths.appOutSrc,
+                    type: 'javascript/auto',
+                    use: [
+                        localFileLoader('wxss'),
                         {
                             loader: 'less-loader',
                             options: {
@@ -191,7 +239,8 @@ module.exports = function (webpackEnv) {
                 // },
                 {
                     test: /\.(xml|wxml)$/,
-                    include: /src/,
+                    include: paths.appSrc,
+                    exclude: /node_modules/,
                     type: 'javascript/auto',
                     use: [
                         relativeFileLoader('wxml'),
@@ -206,9 +255,24 @@ module.exports = function (webpackEnv) {
                 {
                     test: /\.(xml|wxml)$/,
                     include: oakRegex,
+                    exclude: paths.appSrc,
                     type: 'javascript/auto',
                     use: [
                         oakFileLoader('wxml'),
+                        {
+                            loader: 'wxml-loader',
+                            options: {
+                                context: paths.appSrc,
+                            },
+                        },
+                    ],
+                },
+                {
+                    test: /\.(xml|wxml)$/,
+                    include: paths.appOutSrc,
+                    type: 'javascript/auto',
+                    use: [
+                        localFileLoader('wxml'),
                         {
                             loader: 'wxml-loader',
                             options: {
@@ -222,6 +286,7 @@ module.exports = function (webpackEnv) {
         plugins: [
             new UiExtractPlugin({ context: paths.appSrc }),
             new OakWeChatMpPlugin({
+                extensions: paths.moduleFileExtensions.map((ext) => `.${ext}`),
                 exclude: ['*/weui-miniprogram/*'],
                 include: ['project.config.json', 'sitemap.json'],
                 split: !isEnvDevelopment,

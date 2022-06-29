@@ -12,16 +12,55 @@ const ensurePosix = require('ensure-posix-path');
 const requiredPath = require('required-path');
 
 const pluginName = 'OakWeChatMpPlugin';
-const OakPagePrefix = '@oak-general-business/';
-const OakPagePath = 'node_modules/oak-general-business/wechatMp/';
+const oakRegex = /(^@)(?!project)([a-zA-Z0-9_-])+\/{1}/i;
+const oakPageRegex = /node_modules\/[a-zA-Z0-9_-]+\/app\//;
+const localRegex = /^@project\/{1}/i;
+const localPageRegex = /[a-zA-Z0-9_-]*src\//;
 
 const MODE = {
+    local: 'local', // 引用根目录src的pages
     oak: 'oak', // 引用oak公用库
     external: 'external', // 引用node_modules里面的库
 };
 
 function getIsOak(str) {
-    return str.indexOf(OakPagePrefix) === 0;
+    return oakRegex.test(str);
+}
+
+function replaceOakPrefix(str) {
+    return str.replace(oakRegex, '');
+}
+
+function getOakPrefix(str) {
+    return str.match(oakRegex)[0];
+}
+
+function getProjectName(str) {
+    const prefix = getOakPrefix(str);
+    return prefix.match(/[a-zA-Z0-9_-]+/)[0];
+}
+
+function getOakPage(page) {
+    const name = getProjectName(page); //截取项目名
+    const oakPage = `node_modules/${name}/app/` + replaceOakPrefix(page);
+    return oakPage;
+}
+
+function getIsLocal(str) {
+    return localRegex.test(str);
+}
+
+function replaceLocalPrefix(str) {
+    return str.replace(localRegex, '');
+}
+
+function getLocalPage(page) {
+    const localPage = 'src/' + replaceLocalPrefix(page);
+    return localPage;
+}
+
+function replaceDoubleSlash(str) {
+    return str.replace(/\\/g, '/');
 }
 
 class OakWeChatMpPlugin {
@@ -149,6 +188,8 @@ class OakWeChatMpPlugin {
         this.npmComponents = new Set();
         this.oakPages = new Set();
         this.oakComponents = new Set();
+        this.localPages = new Set();
+        this.localComponents = new Set();
         this.appEntries = await this.resolveAppEntries(compiler);
         await Promise.all([
             this.addScriptEntry(compiler),
@@ -171,7 +212,7 @@ class OakWeChatMpPlugin {
         let components = new Set();
         let subPageRoots = [];
         let independentPageRoots = [];
-        let realPages = [];
+        let realPages = []; //真正页面
         this.subpackRoot = [];
 
         for (const { iconPath, selectedIconPath } of tabBar.list || []) {
@@ -200,16 +241,22 @@ class OakWeChatMpPlugin {
         await this.getComponents(components, path.join(this.basePath, 'app'));
         // resolve page components
         for (const page of pages) {
-            let isOak = getIsOak(page);
-            if (isOak) {
-                const oakPage =
-                    OakPagePath + page.replace(new RegExp(OakPagePrefix), '');
+            if (getIsOak(page)) {
+                const oakPage = getOakPage(page);
                 const instance = path.resolve(process.cwd(), oakPage);
                 if (!this.oakPages.has(oakPage)) {
                     this.oakPages.add(oakPage);
                     realPages.push(oakPage);
                 }
                 await this.getComponents(components, instance, MODE.oak);
+            } else if (getIsLocal(page)) {
+                const localPage = getLocalPage(page);
+                const instance = path.resolve(process.cwd(), localPage);
+                if (!this.localPages.has(localPage)) {
+                    this.localPages.add(localPage);
+                    realPages.push(localPage);
+                }
+                await this.getComponents(components, instance, MODE.local);
             } else {
                 realPages.push(page);
                 const instance = path.resolve(this.basePath, page);
@@ -249,9 +296,45 @@ class OakWeChatMpPlugin {
                 `${instance}.json`
             );
             const instanceDir = path.parse(instance).dir;
+
+            const getModeComponents = async (
+                instance,
+                c,
+                thisComponents,
+                mode
+            ) => {
+                const component = replaceDoubleSlash(path.resolve(instance, c));
+                if (component.indexOf(this.basePath) !== -1) {
+                    // wechatMp项目下
+                    if (!components.has(component)) {
+                        const component2 = replaceDoubleSlash(
+                            path.relative(this.basePath, component)
+                        );
+                        if (!components.has(component2)) {
+                            components.add(component2);
+                            await this.getComponents(components, component);
+                        }
+                    }
+                } else {
+                    const component2 = component.replace(
+                        replaceDoubleSlash(process.cwd()) + '/',
+                        ''
+                    );
+                    if (!thisComponents.has(component2)) {
+                        thisComponents.add(component2);
+                        components.add(component2);
+                        await this.getComponents(
+                            components,
+                            path.resolve(process.cwd(), component2),
+                            mode
+                        );
+                    }
+                }
+            };
+
             for (const c of Object.values(usingComponents)) {
                 if (c.indexOf('plugin://') === 0) {
-                    break;
+                    continue;
                 }
                 if (c.indexOf('/npm_components') === 0) {
                     const component = c.replace(
@@ -270,8 +353,8 @@ class OakWeChatMpPlugin {
                     continue;
                 }
                 if (getIsOak(c)) {
-                    const oakComponent = OakPagePath + c.replace(new RegExp(OakPagePrefix), '');
-                    const component2 = this.replaceDoubleSlash(oakComponent);
+                    const component = getOakPage(c);
+                    const component2 = replaceDoubleSlash(component);
                     if (!this.oakComponents.has(component2)) {
                         this.oakComponents.add(component2);
                         components.add(component2);
@@ -283,46 +366,50 @@ class OakWeChatMpPlugin {
                     }
                     continue;
                 }
+                if (getIsLocal(c)) {
+                    const component = getLocalPage(c);
+                    const component2 = replaceDoubleSlash(component);
+                    if (!this.localComponents.has(component2)) {
+                        this.localComponents.add(component2);
+                        components.add(component2);
+                        await this.getComponents(
+                            components,
+                            path.resolve(process.cwd(), component2),
+                            MODE.local
+                        );
+                    }
+                    continue;
+                }
                 if (mode === MODE.oak) {
-                    const component = this.replaceDoubleSlash(
-                        path.resolve(instanceDir, c)
+                    await getModeComponents(
+                        instanceDir,
+                        c,
+                        this.oakComponents,
+                        mode
                     );
-                    const component2 = component.replace(
-                        this.replaceDoubleSlash(process.cwd()) + '/',
-                        ''
-                    );
-                    if (!this.oakComponents.has(component2)) {
-                        this.oakComponents.add(component2);
-                        components.add(component2);
-                        await this.getComponents(
-                            components,
-                            path.resolve(process.cwd(), component2),
-                            mode
-                        );
-                    }
                 } else if (mode === MODE.external) {
-                    const component = this.replaceDoubleSlash(
+                    await getModeComponents(
+                        instanceDir,
+                        c,
+                        this.npmComponents,
+                        mode
+                    );
+                } else if (mode === MODE.local) {
+                    await getModeComponents(
+                        instanceDir,
+                        c,
+                        this.localComponents,
+                        mode
+                    );
+                } else {
+                    // wechatMp项目下
+                    const component = replaceDoubleSlash(
                         path.resolve(instanceDir, c)
                     );
-                    const component2 = component.replace(
-                        this.replaceDoubleSlash(process.cwd()) + '/',
-                        ''
-                    );
-                    if (!this.npmComponents.has(component2)) {
-                        this.npmComponents.add(component2);
-                        components.add(component2);
-                        await this.getComponents(
-                            components,
-                            path.resolve(process.cwd(), component2),
-                            mode
-                        );
-                    }
-                } else {
-                    const component = this.replaceDoubleSlash(path.resolve(instanceDir, c));
                     if (!components.has(component)) {
                         //  components.add(path.relative(this.basePath, component));
                         //  await this.getComponents(components, component);
-                        const component2 = this.replaceDoubleSlash(
+                        const component2 = replaceDoubleSlash(
                             path.relative(this.basePath, component)
                         );
                         if (!components.has(component2)) {
@@ -350,13 +437,25 @@ class OakWeChatMpPlugin {
                     new EntryPlugin(
                         this.basePath,
                         path.join(process.cwd(), resource),
-                        resource.replace(new RegExp(OakPagePath), '')
+                        resource.replace(oakPageRegex, '')
                     ).apply(compiler);
                 } else if (this.oakComponents.has(resource)) {
                     new EntryPlugin(
                         this.basePath,
                         path.join(process.cwd(), resource),
-                        resource.replace(new RegExp(OakPagePath), '')
+                        resource.replace(oakPageRegex, '')
+                    ).apply(compiler);
+                } else if (this.localPages.has(resource)) {
+                    new EntryPlugin(
+                        this.basePath,
+                        path.join(process.cwd(), resource),
+                        resource.replace(localPageRegex, '')
+                    ).apply(compiler);
+                } else if (this.localComponents.has(resource)) {
+                    new EntryPlugin(
+                        this.basePath,
+                        path.join(process.cwd(), resource),
+                        resource.replace(localPageRegex, '')
                     ).apply(compiler);
                 } else {
                     const fullPath = this.getFullScriptPath(resource);
@@ -383,7 +482,7 @@ class OakWeChatMpPlugin {
             cwd: this.basePath,
             nodir: true,
             realpath: true,
-            ignore: [...extensions.map((ext) => `**/*${ext}`), ...exclude],
+            ignore: this.getIgnoreExt(),
             dot: false,
         });
 
@@ -397,26 +496,26 @@ class OakWeChatMpPlugin {
         });
 
         const oakPageAssetsEntry = await globby(
-            [...this.oakPages]
-                .map((resource) => `${path.parse(resource).dir}/**/*.*`)
-                .concat(include),
+            [...this.oakPages].map(
+                (resource) => `${path.parse(resource).dir}/**/*.*`
+            ),
             {
                 cwd: process.cwd(),
                 nodir: true,
                 realpath: true,
-                ignore: [...extensions.map((ext) => `**/*${ext}`), ...exclude],
+                ignore: this.getIgnoreExt(),
                 dot: false,
             }
         );
         const oakComponentAssetsEntry = await globby(
-            [...this.oakComponents]
-                .map((resource) => `${path.parse(resource).dir}/**/*.*`)
-                .concat(include),
+            [...this.oakComponents].map(
+                (resource) => `${path.parse(resource).dir}/**/*.*`
+            ),
             {
                 cwd: process.cwd(),
                 nodir: true,
                 realpath: true,
-                ignore: [...extensions.map((ext) => `**/*${ext}`), ...exclude],
+                ignore: this.getIgnoreExt(),
                 dot: false,
             }
         );
@@ -432,6 +531,42 @@ class OakWeChatMpPlugin {
             ).apply(compiler);
         });
 
+        const localPageAssetsEntry = await globby(
+            [...this.localPages].map(
+                (resource) => `${path.parse(resource).dir}/**/*.*`
+            ),
+            {
+                cwd: process.cwd(),
+                nodir: true,
+                realpath: true,
+                ignore: this.getIgnoreExt(),
+                dot: false,
+            }
+        );
+        const localComponentAssetsEntry = await globby(
+            [...this.localComponents].map(
+                (resource) => `${path.parse(resource).dir}/**/*.*`
+            ),
+            {
+                cwd: process.cwd(),
+                nodir: true,
+                realpath: true,
+                ignore: this.getIgnoreExt(),
+                dot: false,
+            }
+        );
+        this.localAssetsEntry = [
+            ...localPageAssetsEntry,
+            ...localComponentAssetsEntry,
+        ];
+        this.localAssetsEntry.forEach((resource) => {
+            new EntryPlugin(
+                this.basePath,
+                path.resolve(process.cwd(), resource),
+                assetsChunkName
+            ).apply(compiler);
+        });
+
         const npmAssetsEntry = await globby(
             [...this.npmComponents]
                 .map((resource) => `${path.parse(resource).dir}/**/*.*`)
@@ -440,7 +575,7 @@ class OakWeChatMpPlugin {
                 cwd: process.cwd(),
                 nodir: true,
                 realpath: false,
-                ignore: [...extensions.map((ext) => `**/*${ext}`), ...exclude],
+                ignore: this.getIgnoreExt(),
                 dot: false,
             }
         );
@@ -450,7 +585,7 @@ class OakWeChatMpPlugin {
                     ...npmAssetsEntry.map((resource) => {
                         return {
                             from: path.resolve(
-                                this.replaceDoubleSlash(process.cwd()),
+                                replaceDoubleSlash(process.cwd()),
                                 resource
                             ),
                             to: resource.replace(
@@ -458,10 +593,7 @@ class OakWeChatMpPlugin {
                                 'npm_components'
                             ),
                             globOptions: {
-                                ignore: [
-                                    ...extensions.map((ext) => `**/*${ext}`),
-                                    ...exclude,
-                                ],
+                                ignore: this.getIgnoreExt(),
                             },
                         };
                     }),
@@ -537,109 +669,156 @@ class OakWeChatMpPlugin {
     async emitAssetsFile(compilation) {
         const emitAssets = [];
         for (let entry of this.assetsEntry) {
-            const assets = this.replaceDoubleSlash(
+            const assets = replaceDoubleSlash(
                 path.resolve(this.basePath, entry)
             );
             if (/\.(sass|scss|css|less|styl|xml|wxml)$/.test(assets)) {
                 continue;
             }
-            const toTmit = async () => {
-                const stat = await fsExtra.stat(assets);
-                let size = stat.size;
-                let source = await fsExtra.readFile(assets);
-                if (entry === 'app.json') {
-                    const appJson = JSON.parse(source.toString());
-
-                    let pages = [];
-                    if (appJson.pages) {
-                        for (let page of appJson.pages) {
-                            let isOak = getIsOak(page);
-                            if (isOak) {
-                                page = page.replace(
-                                    new RegExp(OakPagePrefix),
-                                    ''
-                                );
-                            }
-                            pages.push(page);
-                        }
-                        appJson.pages = pages;
-                    }
-
-                    let usingComponents = {};
-                    if (appJson.usingComponents) {
-                        for (let ck of Object.keys(appJson.usingComponents)) {
-                            let component = appJson.usingComponents[ck];
-                            let isOak = getIsOak(component);
-                            if (isOak) {
-                                component = component.replace(
-                                    new RegExp(OakPagePrefix),
-                                    ''
-                                );
-                            }
-                            usingComponents[ck] = component;
-                        }
-                        appJson.usingComponents = usingComponents;
-                    }
-                    source = Buffer.from(JSON.stringify(appJson, null, 2));
-                    size = source.length;
-                } else if (/\.(json)$/.test(assets)) {
-                    const json = JSON.parse(source.toString());
-
-                    let usingComponents = {};
-                    if (json.usingComponents) {
-                        for (let ck of Object.keys(json.usingComponents)) {
-                            let component = json.usingComponents[ck];
-                            let isOak = getIsOak(component);
-                            if (isOak) {
-                                component = component.replace(
-                                    new RegExp(OakPagePrefix),
-                                    ''
-                                );
-                                component = this.replaceDoubleSlash(
-                                    path.relative(
-                                        assets.substring(
-                                            0,
-                                            assets.lastIndexOf('/')
-                                        ),
-                                        path.resolve(this.basePath, component)
-                                    )
-                                );
-                            }
-                            usingComponents[ck] = component;
-                        }
-                        json.usingComponents = usingComponents;
-                    }
-                    source = Buffer.from(JSON.stringify(json, null, 2));
-                    size = source.length;
-                }
-                compilation.assets[entry] = {
-                    size: () => size,
-                    source: () => source,
-                };
-            };
-            emitAssets.push(toTmit());
+            if (!compilation.assets[entry]) {
+                emitAssets.push(this.toTmit(compilation, assets, entry));
+            }
         }
         for (let entry of this.oakAssetsEntry) {
-            const assets = path.resolve(process.cwd(), entry);
+            const assets = replaceDoubleSlash(
+                path.resolve(process.cwd(), entry)
+            );
             if (/\.(sass|scss|css|less|styl|xml|wxml)$/.test(assets)) {
                 continue;
             }
-            const toTmit = async () => {
-                const stat = await fsExtra.stat(assets);
-                const source = await fsExtra.readFile(assets);
-                compilation.assets[entry.replace(new RegExp(OakPagePath), '')] =
-                    {
-                        size: () => stat.size,
-                        source: () => source,
-                    };
-            };
-            emitAssets.push(toTmit());
+            const entry2 = entry.replace(oakPageRegex, '');
+            if (!compilation.assets[entry2]) {
+                emitAssets.push(
+                    this.toTmit(compilation, assets, entry2, MODE.oak)
+                );
+            }
+        }
+        for (let entry of this.localAssetsEntry) {
+            const assets = replaceDoubleSlash(
+                path.resolve(process.cwd(), entry)
+            );
+            if (/\.(sass|scss|css|less|styl|xml|wxml)$/.test(assets)) {
+                continue;
+            }
+            const entry2 = entry.replace(localPageRegex, '');
+            if (!compilation.assets[entry2]) {
+                emitAssets.push(
+                    this.toTmit(compilation, assets, entry2, MODE.local)
+                );
+            }
         }
         await Promise.all(emitAssets);
     }
 
+    async toTmit(compilation, assets, entry, mode) {
+        const stat = await fsExtra.stat(assets);
+        let size = stat.size;
+        let source = await fsExtra.readFile(assets);
+        if (entry === 'app.json') {
+            const appJson = JSON.parse(source.toString());
+
+            let pages = [];
+            if (appJson.pages) {
+                for (let page of appJson.pages) {
+                    if (getIsOak(page)) {
+                        page = replaceOakPrefix(page);
+                    } else if (getIsLocal(page)) {
+                        page = replaceLocalPrefix(page);
+                    }
+                    pages.push(page);
+                }
+                appJson.pages = pages;
+            }
+
+            let usingComponents = {};
+            if (appJson.usingComponents) {
+                for (let ck of Object.keys(appJson.usingComponents)) {
+                    let component = appJson.usingComponents[ck];
+                    if (getIsOak(component)) {
+                        component = replaceOakPrefix(component);
+                    } else if (getIsLocal(component)) {
+                        component = replaceLocalPrefix(component);
+                    }
+                    usingComponents[ck] = component;
+                }
+                appJson.usingComponents = usingComponents;
+            }
+            source = Buffer.from(JSON.stringify(appJson, null, 2));
+            size = source.length;
+        } else if (/\.(json)$/.test(assets)) {
+            const json = JSON.parse(source.toString());
+
+            let usingComponents = {};
+            if (json.usingComponents) {
+                for (let ck of Object.keys(json.usingComponents)) {
+                    let component = json.usingComponents[ck];
+                    let assets2 = assets;
+                    let component2;
+                    switch (mode) {
+                        case MODE.local: {
+                            assets2 = path.resolve(this.basePath, entry);
+                            if (getIsOak(component)) {
+                                component2 = replaceOakPrefix(component);
+                            } else if (getIsLocal(component)) {
+                                component2 = replaceLocalPrefix(component);
+                            } else {
+                                component2 = replaceDoubleSlash(
+                                    path.relative(
+                                        this.basePath,
+                                        path.resolve(
+                                            assets.substring(
+                                                0,
+                                                assets.lastIndexOf('/')
+                                            ),
+                                            component
+                                        )
+                                    )
+                                );
+                            }
+                            
+                            break;
+                        }
+                        case MODE.oak: {
+                            assets2 = path.resolve(this.basePath, entry);
+                            if (getIsOak(component)) {
+                                component2 = replaceOakPrefix(component);
+                            } else if (getIsLocal(component)) {
+                                component2 = replaceLocalPrefix(component);                               
+                            }
+                            break;
+                        }
+                        default: {
+                            if (getIsOak(component)) {
+                                component2 = replaceOakPrefix(component);
+                            } else if (getIsLocal(component)) {
+                                component2 = replaceLocalPrefix(component);
+                            }
+                            break;
+                        }
+                    } 
+                    if (component2) {
+                        component = replaceDoubleSlash(
+                            path.relative(
+                                assets2.substring(0, assets2.lastIndexOf('/')),
+                                path.resolve(this.basePath, component2)
+                            )
+                        );
+                    } 
+                    usingComponents[ck] = component;
+                }
+                json.usingComponents = usingComponents;
+            }
+            source = Buffer.from(JSON.stringify(json, null, 2));
+            size = source.length;
+        }
+        compilation.assets[entry] = {
+            size: () => size,
+            source: () => source,
+        };
+    }
+
     setBasePath(compiler) {
-        this.basePath = compiler.options.context;
+        this.basePath = replaceDoubleSlash(compiler.options.context);
     }
 
     // script full path
@@ -656,13 +835,22 @@ class OakWeChatMpPlugin {
         }
     }
 
+    getIgnoreExt() {
+        const {
+            options: { extensions, exclude },
+        } = this;
+        return [
+            '**/*.tsx',
+            ...extensions
+                .filter((ext) => ['.js', '.ts'].includes(ext))
+                .map((ext) => `**/*${ext}`),
+            ...exclude,
+        ];
+    }
+
     static async clearOutPut(compilation) {
         const { path } = compilation.options.output;
         await fsExtra.remove(path);
-    }
-
-    replaceDoubleSlash(str) {
-        return str.replace(/\\/g, '/');
     }
 }
 

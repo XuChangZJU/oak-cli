@@ -2,12 +2,15 @@ require('../config/mp/env');
 
 const webpack = require('webpack');
 const chalk = require('chalk');
+const fs = require('fs-extra');
 const configFactory = require('../config/mp/webpack.config');
 const config = configFactory('production');
 
 const paths = require('../config/mp/paths');
 const getClientEnvironment = require('../config/mp/env');
 const env = getClientEnvironment();
+
+fs.emptyDirSync(paths.appBuild);
 
 webpack(config, (err, stats) => {
     if (err) {
