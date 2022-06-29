@@ -29,6 +29,7 @@ const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin'
 const createEnvironmentHash = require('./webpack/persistentCache/createEnvironmentHash');
 
 const oakPathTsxPlugin = require('../babel-plugin/oakPath');
+const oakRenderTsxPlugin = require('../babel-plugin/oakRender');
 
 // Source maps are resource heavy and can cause out of memory issue for large source files.
 const shouldUseSourceMap = process.env.GENERATE_SOURCEMAP !== 'false';
@@ -472,6 +473,7 @@ module.exports = function (webpackEnv) {
                                                     'react-refresh/babel'
                                                 ),
                                             oakPathTsxPlugin,
+                                            oakRenderTsxPlugin,
                                         ],
                                         // This is a feature of `babel-loader` for webpack (not Babel itself).
                                         // It enables caching results in ./node_modules/.cache/babel-loader/

@@ -22,93 +22,105 @@ module.exports = (babel) => {
                     const { attributes } = path.parent;
 
                     const parentAttr = attributes.find(
-                        (ele) => t.isJSXIdentifier(ele.name) && ele.name.name === 'oakParent'
+                        (ele) =>
+                            t.isJSXIdentifier(ele.name) &&
+                            ele.name.name === 'oakParent'
                     );
                     if (parentAttr) {
-                        console.warn(`「${state.filename}」有JSX元素同时定义了oak:path和oakParent，请确保oakParent等于{this.state.oakFullpath}`);
-                    }
-                    else {
+                        console.warn(
+                            `「${state.filename}」有JSX元素同时定义了oak:path和oakParent，请确保oakParent等于{this.state.oakFullpath}`
+                        );
+                    } else {
                         attributes.push(
                             t.jsxAttribute(
-                                t.jsxIdentifier("oakParent"),
+                                t.jsxIdentifier('oakParent'),
                                 t.jsxExpressionContainer(
                                     t.memberExpression(
                                         t.memberExpression(
                                             t.thisExpression(),
-                                            t.identifier("state")
+                                            t.identifier('state')
                                         ),
-                                        t.identifier("oakFullpath")
+                                        t.identifier('oakFullpath')
                                     )
                                 )
                             )
-                        )
+                        );
                     }
 
                     const pathAttr = attributes.find(
-                        (ele) => t.isJSXIdentifier(ele.name) && ele.name.name === 'oakPath'
+                        (ele) =>
+                            t.isJSXIdentifier(ele.name) &&
+                            ele.name.name === 'oakPath'
                     );
 
                     if (pathAttr) {
-                        console.warn(`「${state.filename}」有JSX元素同时定义了oak:path和oakPath，请确保两者相等`);
-                    }
-                    else {
+                        console.warn(
+                            `「${state.filename}」有JSX元素同时定义了oak:path和oakPath，请确保两者相等`
+                        );
+                    } else {
                         attributes.push(
                             t.jsxAttribute(
-                                t.jsxIdentifier("oakPath"),
+                                t.jsxIdentifier('oakPath'),
                                 node.value
                             )
                         );
                     }
                     path.remove();
-                }
-                else if (isOakNamespaceIdentifier(node.name, 'value')) {
+                } else if (isOakNamespaceIdentifier(node.name, 'value')) {
                     // 如果是oak:value，增加value和data-attr属性
                     assert(t.isJSXOpeningElement(path.parent));
                     assert(t.isStringLiteral(node.value));
                     const { attributes } = path.parent;
 
                     const valueAttr = attributes.find(
-                        (ele) => t.isJSXIdentifier(ele.name) && ele.name.name === 'value'
+                        (ele) =>
+                            t.isJSXIdentifier(ele.name) &&
+                            ele.name.name === 'value'
                     );
                     if (valueAttr) {
-                        console.warn(`「${state.filename}」有JSX元素同时定义了oak:value和value，请确保value等于{this.state["oak:value"]}`);
-                    }
-                    else {
+                        console.warn(
+                            `「${state.filename}」有JSX元素同时定义了oak:value和value，请确保value等于{this.state["oak:value"]}`
+                        );
+                    } else {
                         attributes.push(
                             t.jsxAttribute(
-                                t.jsxIdentifier("value"),
+                                t.jsxIdentifier('value'),
                                 t.jsxExpressionContainer(
                                     t.memberExpression(
                                         t.memberExpression(
                                             t.thisExpression(),
-                                            t.identifier("state")
+                                            t.identifier('state')
                                         ),
                                         t.identifier(node.value.value)
                                     )
                                 )
                             )
-                        )
+                        );
                     }
 
                     const dataAttrAttr = attributes.find(
-                        (ele) => t.isJSXIdentifier(ele.name) && ele.name.name === 'data-attr'
+                        (ele) =>
+                            t.isJSXIdentifier(ele.name) &&
+                            ele.name.name === 'data-attr'
                     );
 
                     if (dataAttrAttr) {
-                        assert(t.isStringLiteral(dataAttrAttr.value) && dataAttrAttr.value.value === node.value.value, `「${state.filename}」中有JSX元素同时定义了oak:value和data-attr，且两者的值不相等`);
-                    }
-                    else {
+                        assert(
+                            t.isStringLiteral(dataAttrAttr.value) &&
+                                dataAttrAttr.value.value === node.value.value,
+                            `「${state.filename}」中有JSX元素同时定义了oak:value和data-attr，且两者的值不相等`
+                        );
+                    } else {
                         attributes.push(
                             t.jsxAttribute(
-                                t.jsxIdentifier("data-attr"),
+                                t.jsxIdentifier('data-attr'),
                                 node.value
                             )
                         );
                     }
                     path.remove();
                 }
-                
-            }
-        }
-    }
+            },
+        },
+    };
 };
