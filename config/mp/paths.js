@@ -49,7 +49,7 @@ module.exports = {
     appTsBuildInfoFile: resolveRoot('node_modules/.cache/tsconfig.tsbuildinfo'),
     publicUrlOrPath: '/',
     appOutSrc: resolveRoot('src'),
-    oakConfigJson: resolveApp('src/oak.config.json'),
+    oakConfigJson: resolveRoot('oak.config.json'),
 };
 
 
