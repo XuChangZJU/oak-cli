@@ -814,6 +814,8 @@ module.exports = function (webpackEnv) {
                         // '../cra-template-typescript/template/src/App.tsx'
                         // otherwise.
                         include: [
+                            { file: '../**/app/**/*.{ts,tsx}' },
+                            { file: '**/app/**/*.{ts,tsx}' },
                             { file: '../**/src/**/*.{ts,tsx}' },
                             { file: '**/src/**/*.{ts,tsx}' },
                         ],

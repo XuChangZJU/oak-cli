@@ -378,6 +378,8 @@ module.exports = function (webpackEnv) {
                         // as micromatch doesn't match
                         // otherwise.
                         include: [
+                            { file: '../**/app/**/*.{ts,tsx}' },
+                            { file: '**/app/**/*.{ts,tsx}' },
                             { file: '../**/src/**/*.ts' },
                             { file: '**/src/**/*.ts' },
                         ],
