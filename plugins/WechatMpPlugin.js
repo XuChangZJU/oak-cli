@@ -68,6 +68,7 @@ class OakWeChatMpPlugin {
         this.options = Object.assign(
             {},
             {
+                context: path.resolve(process.cwd(), 'src'),
                 clear: true,
                 extensions: ['.js', '.ts'], // script ext
                 include: [], // include assets file
@@ -756,7 +757,9 @@ class OakWeChatMpPlugin {
                     let component2;
                     switch (mode) {
                         case MODE.local: {
-                            assets2 = path.resolve(this.basePath, entry);
+                            assets2 = replaceDoubleSlash(
+                                path.resolve(this.basePath, entry)
+                            );
                             if (getIsOak(component)) {
                                 component2 = replaceOakPrefix(component);
                             } else if (getIsLocal(component)) {
@@ -796,7 +799,9 @@ class OakWeChatMpPlugin {
                             break;
                         }
                         case MODE.oak: {
-                            assets2 = path.resolve(this.basePath, entry);
+                            assets2 = replaceDoubleSlash(
+                                path.resolve(this.basePath, entry)
+                            );
                             if (getIsOak(component)) {
                                 component2 = replaceOakPrefix(component);
                             } else if (getIsLocal(component)) {
@@ -835,7 +840,7 @@ class OakWeChatMpPlugin {
     }
 
     setBasePath(compiler) {
-        this.basePath = replaceDoubleSlash(compiler.options.context);
+        this.basePath = replaceDoubleSlash(this.options.context);
     }
 
     // script full path

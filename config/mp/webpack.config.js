@@ -1,12 +1,15 @@
 const webpack = require('webpack');
 const chalk = require('chalk');
 const path = require('path');
+const fs = require('fs');
+const resolve = require('resolve');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const StylelintPlugin = require('stylelint-webpack-plugin');
 const ProgressBarPlugin = require('progress-bar-webpack-plugin');
 const UiExtractPlugin = require('ui-extract-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
+const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 const OakWeChatMpPlugin = require('../../plugins/WechatMpPlugin');
 
 const getClientEnvironment = require('./env');
@@ -15,7 +18,9 @@ const paths = require('./paths');
 const env = getClientEnvironment();
 const pkg = require(paths.appPackageJson);
 
-// process.env.OAK_PLATFORM: wechatMp | wechatPublic | web | node
+// Check if TypeScript is setup
+const useTypeScript = fs.existsSync(paths.appTsConfig);
+const shouldUseSourceMap = process.env.GENERATE_SOURCEMAP !== 'false';
 
 const copyPatterns = [].concat(pkg.copyWebpack || []).map((pattern) =>
     typeof pattern === 'string'
@@ -87,12 +92,19 @@ module.exports = function (webpackEnv) {
     };
 
     return {
-        context: paths.appSrc,
-        devtool: isEnvDevelopment ? 'source-map' : false,
+        target: ['web'],
+        // Webpack noise constrained to errors and warnings
+        stats: 'errors-warnings',
         mode: isEnvProduction
             ? 'production'
             : isEnvDevelopment && 'development',
-        target: 'web',
+        // Stop compilation early in production
+        bail: isEnvProduction,
+        devtool: isEnvProduction
+            ? shouldUseSourceMap
+                ? 'source-map'
+                : false
+            : isEnvDevelopment && 'cheap-module-source-map',
         entry: {
             app: isEnvProduction ? paths.appIndexJs : paths.appIndexDevJs,
         },
@@ -247,6 +259,7 @@ module.exports = function (webpackEnv) {
                     options: {
                         configFile: paths.appTsConfig,
                         context: paths.appOutPath,
+                        transpileOnly: true,
                     },
                 },
                 // {
@@ -309,6 +322,7 @@ module.exports = function (webpackEnv) {
         plugins: [
             new UiExtractPlugin({ context: paths.appSrc }),
             new OakWeChatMpPlugin({
+                context: paths.appSrc,
                 extensions: paths.moduleFileExtensions.map((ext) => `.${ext}`),
                 exclude: ['*/weui-miniprogram/*'],
                 include: ['project.config.json', 'sitemap.json'],
@@ -318,6 +332,7 @@ module.exports = function (webpackEnv) {
             new StylelintPlugin({
                 fix: true,
                 files: '**/*.(sa|sc|le|wx|c)ss',
+                context: paths.appSrc,
             }),
             new ProgressBarPlugin({
                 summary: false,
@@ -328,6 +343,55 @@ module.exports = function (webpackEnv) {
                         chalk.green(`Compiled successfully!(${buildTime})\n`)
                     ),
             }),
+            // TypeScript type checking
+            useTypeScript &&
+                new ForkTsCheckerWebpackPlugin({
+                    async: isEnvDevelopment,
+                    typescript: {
+                        typescriptPath: resolve.sync('typescript', {
+                            basedir: paths.appNodeModules,
+                        }),
+                        // configOverwrite: {
+                        //     compilerOptions: {
+                        //         sourceMap: isEnvProduction
+                        //             ? shouldUseSourceMap
+                        //             : isEnvDevelopment,
+                        //         skipLibCheck: true,
+                        //         inlineSourceMap: false,
+                        //         declarationMap: false,
+                        //         noEmit: true,
+                        //         incremental: true,
+                        //         tsBuildInfoFile: paths.appTsBuildInfoFile,
+                        //     },
+                        // },
+                        configFile: paths.appTsConfig,
+                        context: paths.appOutPath,
+                        diagnosticOptions: {
+                            // semantic: true,
+                            syntactic: true,
+                        },
+                        mode: 'write-references',
+                        // profile: true,
+                    },
+                    issue: {
+                        // This one is specifically to match during CI tests,
+                        // as micromatch doesn't match
+                        // otherwise.
+                        include: [
+                            { file: '../**/src/**/*.ts' },
+                            { file: '**/src/**/*.ts' },
+                        ],
+                        exclude: [
+                            { file: '**/src/**/__tests__/**' },
+                            { file: '**/src/**/?(*.){spec|test}.*' },
+                            { file: '**/src/setupProxy.*' },
+                            { file: '**/src/setupTests.*' },
+                        ],
+                    },
+                    logger: {
+                        infrastructure: 'silent',
+                    },
+                }),
             new webpack.ProvidePlugin({
                 Buffer: ['buffer', 'Buffer'],
             }),

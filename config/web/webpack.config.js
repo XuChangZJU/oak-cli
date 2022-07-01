@@ -139,36 +139,38 @@ module.exports = function (webpackEnv) {
                         config: false,
                         plugins: !useTailwind
                             ? [
-                                'postcss-flexbugs-fixes',
-                                [
-                                    'postcss-preset-env',
-                                    {
-                                        autoprefixer: {
-                                            flexbox: 'no-2009',
-                                        },
-                                        stage: 3,
-                                    },
-                                ],
-                                // Adds PostCSS Normalize as the reset css with default options,
-                                // so that it honors browserslist config in package.json
-                                // which in turn let's users customize the target behavior as per their needs.
-                                'postcss-normalize',
-                            ]
+                                  'postcss-flexbugs-fixes',
+                                  [
+                                      'postcss-preset-env',
+                                      {
+                                          autoprefixer: {
+                                              flexbox: 'no-2009',
+                                          },
+                                          stage: 3,
+                                      },
+                                  ],
+                                  // Adds PostCSS Normalize as the reset css with default options,
+                                  // so that it honors browserslist config in package.json
+                                  // which in turn let's users customize the target behavior as per their needs.
+                                  'postcss-normalize',
+                              ]
                             : [
-                                'tailwindcss',
-                                'postcss-flexbugs-fixes',
-                                [
-                                    'postcss-preset-env',
-                                    {
-                                        autoprefixer: {
-                                            flexbox: 'no-2009',
-                                        },
-                                        stage: 3,
-                                    },
-                                ],
-                            ],
+                                  'tailwindcss',
+                                  'postcss-flexbugs-fixes',
+                                  [
+                                      'postcss-preset-env',
+                                      {
+                                          autoprefixer: {
+                                              flexbox: 'no-2009',
+                                          },
+                                          stage: 3,
+                                      },
+                                  ],
+                              ],
                     },
-                    sourceMap: isEnvProduction ? shouldUseSourceMap : isEnvDevelopment,
+                    sourceMap: isEnvProduction
+                        ? shouldUseSourceMap
+                        : isEnvDevelopment,
                 },
             },
         ].filter(Boolean);
@@ -177,7 +179,9 @@ module.exports = function (webpackEnv) {
                 {
                     loader: require.resolve('resolve-url-loader'),
                     options: {
-                        sourceMap: isEnvProduction ? shouldUseSourceMap : isEnvDevelopment,
+                        sourceMap: isEnvProduction
+                            ? shouldUseSourceMap
+                            : isEnvDevelopment,
                         root: paths.appSrc,
                     },
                 },
@@ -190,6 +194,19 @@ module.exports = function (webpackEnv) {
             );
         }
         return loaders;
+    };
+
+    const getOakInclude = () => {
+        return isEnvProduction
+            ? [/oak-general-business/]
+            : [
+                  /oak-domain/,
+                  /oak-external-sdk/,
+                  /oak-frontend-base/,
+                  /oak-general-business/,
+                  /oak-memory-tree-store/,
+                  /oak-common-aspect/,
+              ];
     };
 
     return {
@@ -436,16 +453,9 @@ module.exports = function (webpackEnv) {
                         // The preset includes JSX, Flow, TypeScript, and some ESnext features.
                         {
                             test: /\.(js|mjs|jsx|ts|tsx)$/,
-                            include: [
-                                paths.appOutSrc,
-                                paths.appSrc,
-                                /oak-domain/,
-                                /oak-external-sdk/,
-                                /oak-frontend-base/,
-                                /oak-general-business/,
-                                /oak-memory-tree-store/,
-                                /oak-common-aspect/,
-                            ],
+                            include: [paths.appOutSrc, paths.appSrc].concat(
+                                getOakInclude()
+                            ),
                             use: [
                                 {
                                     loader: require.resolve('babel-loader'),
@@ -770,53 +780,54 @@ module.exports = function (webpackEnv) {
                     maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
                 }),
             // TypeScript type checking
-            //   useTypeScript &&
-            //       new ForkTsCheckerWebpackPlugin({
-            //           async: isEnvDevelopment,
-            //           typescript: {
-            //               typescriptPath: resolve.sync('typescript', {
-            //                   basedir: paths.appNodeModules,
-            //               }),
-            //               configOverwrite: {
-            //                   compilerOptions: {
-            //                       sourceMap: isEnvProduction
-            //                           ? shouldUseSourceMap
-            //                           : isEnvDevelopment,
-            //                       skipLibCheck: true,
-            //                       inlineSourceMap: false,
-            //                       declarationMap: false,
-            //                       noEmit: true,
-            //                       incremental: true,
-            //                       tsBuildInfoFile: paths.appTsBuildInfoFile,
-            //                   },
-            //               },
-            //               context: paths.appPath,
-            //               diagnosticOptions: {
-            //                   syntactic: true,
-            //               },
-            //               mode: 'write-references',
-            //               // profile: true,
-            //           },
-            //           issue: {
-            //               // This one is specifically to match during CI tests,
-            //               // as micromatch doesn't match
-            //               // '../cra-template-typescript/template/src/App.tsx'
-            //               // otherwise.
-            //               include: [
-            //                   { file: '../**/src/**/*.{ts,tsx}' },
-            //                   { file: '**/src/**/*.{ts,tsx}' },
-            //               ],
-            //               exclude: [
-            //                   { file: '**/src/**/__tests__/**' },
-            //                   { file: '**/src/**/?(*.){spec|test}.*' },
-            //                   { file: '**/src/setupProxy.*' },
-            //                   { file: '**/src/setupTests.*' },
-            //               ],
-            //           },
-            //           logger: {
-            //               infrastructure: 'silent',
-            //           },
-            //       }),
+            useTypeScript &&
+                new ForkTsCheckerWebpackPlugin({
+                    async: isEnvDevelopment,
+                    typescript: {
+                        typescriptPath: resolve.sync('typescript', {
+                            basedir: paths.appNodeModules,
+                        }),
+                        // configOverwrite: {
+                        //     compilerOptions: {
+                        //         sourceMap: isEnvProduction
+                        //             ? shouldUseSourceMap
+                        //             : isEnvDevelopment,
+                        //         skipLibCheck: true,
+                        //         inlineSourceMap: false,
+                        //         declarationMap: false,
+                        //         noEmit: true,
+                        //         incremental: true,
+                        //         tsBuildInfoFile: paths.appTsBuildInfoFile,
+                        //     },
+                        // },
+                        configFile: paths.appTsConfig,
+                        context: paths.appOutPath,
+                        diagnosticOptions: {
+                            syntactic: true,
+                        },
+                        mode: 'write-references',
+                        // profile: true,
+                    },
+                    issue: {
+                        // This one is specifically to match during CI tests,
+                        // as micromatch doesn't match
+                        // '../cra-template-typescript/template/src/App.tsx'
+                        // otherwise.
+                        include: [
+                            { file: '../**/src/**/*.{ts,tsx}' },
+                            { file: '**/src/**/*.{ts,tsx}' },
+                        ],
+                        exclude: [
+                            { file: '**/src/**/__tests__/**' },
+                            { file: '**/src/**/?(*.){spec|test}.*' },
+                            { file: '**/src/setupProxy.*' },
+                            { file: '**/src/setupTests.*' },
+                        ],
+                    },
+                    logger: {
+                        infrastructure: 'silent',
+                    },
+                }),
             !disableESLintPlugin &&
                 new ESLintPlugin({
                     // Plugin options
