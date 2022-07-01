@@ -62,7 +62,7 @@ module.exports = {
     appIndexJs: resolveModule(resolveApp, 'src/index'),
     appPackageJson: resolveRoot('package.json'),
     appSrc: resolveApp('src'),
-    appTsConfig: resolveRoot('tsconfig.json'),
+    appTsConfig: resolveRoot('tsconfig.web.json'),
     appJsConfig: resolveRoot('jsconfig.json'),
     yarnLockFile: resolveRoot('yarn.lock'),
     testsSetup: resolveModule(resolveApp, 'src/setupTests'),
@@ -73,6 +73,7 @@ module.exports = {
     swSrc: resolveModule(resolveApp, 'src/service-worker'),
     publicUrlOrPath,
     appOutSrc: resolveRoot('src'),
+    appOutPath: resolveRoot('.'),
     oakConfigJson: resolveRoot('oak.config.json'),
 };
 

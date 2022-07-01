@@ -41,7 +41,7 @@ module.exports = {
     appIndexJs: resolveModule(resolveApp, 'src/app'),
     appPackageJson: resolveRoot('package.json'),
     appSrc: resolveApp('src'),
-    appTsConfig: resolveRoot('tsconfig.json'),
+    appTsConfig: resolveRoot('tsconfig.mp.json'),
     appJsConfig: resolveRoot('jsconfig.json'),
     yarnLockFile: resolveRoot('yarn.lock'),
     appNodeModules: resolveRoot('node_modules'),
@@ -49,6 +49,7 @@ module.exports = {
     appTsBuildInfoFile: resolveRoot('node_modules/.cache/tsconfig.tsbuildinfo'),
     publicUrlOrPath: '/',
     appOutSrc: resolveRoot('src'),
+    appOutPath: resolveRoot('.'),
     oakConfigJson: resolveRoot('oak.config.json'),
 };
 

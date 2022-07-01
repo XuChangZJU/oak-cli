@@ -73,6 +73,19 @@ module.exports = function (webpackEnv) {
         };
     };
 
+    const getOakInclude = () => {
+        return isEnvProduction
+            ? [/oak-general-business/]
+            : [
+                  /oak-domain/,
+                  /oak-external-sdk/,
+                  /oak-frontend-base/,
+                  /oak-general-business/,
+                  /oak-memory-tree-store/,
+                  /oak-common-aspect/,
+              ];
+    };
+
     return {
         context: paths.appSrc,
         devtool: isEnvDevelopment ? 'source-map' : false,
@@ -218,17 +231,27 @@ module.exports = function (webpackEnv) {
                 },
                 {
                     test: /\.js$/,
+                    include: [paths.appSrc, paths.appOutSrc].concat(
+                        getOakInclude()
+                    ),
                     exclude: /node_modules/,
                     loader: 'babel-loader',
                 },
                 {
-                    test: /\.ts$/,
+                    test: /\.((?!tsx)ts)$/,
+                    include: [paths.appSrc, paths.appOutSrc].concat(
+                        getOakInclude()
+                    ),
                     exclude: /node_modules/,
                     loader: 'ts-loader',
+                    options: {
+                        configFile: paths.appTsConfig,
+                        context: paths.appOutPath,
+                    },
                 },
                 // {
                 //     test: /\.json$/,
-                //     include: /src/,
+                //     include: paths.appSrc,
                 //     exclude: /node_modules/,
                 //     type: 'asset/resource',
                 //     generator: {
