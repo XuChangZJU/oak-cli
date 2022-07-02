@@ -72,9 +72,12 @@ module.exports = {
     appTsBuildInfoFile: resolveRoot('node_modules/.cache/tsconfig.tsbuildinfo'),
     swSrc: resolveModule(resolveApp, 'src/service-worker'),
     publicUrlOrPath,
-    appOutSrc: resolveRoot('src'),
-    appOutPath: resolveRoot('.'),
+    appRootSrc: resolveRoot('src'),
+    appRootPath: resolveRoot('.'),
     oakConfigJson: resolveRoot('oak.config.json'),
+    oakGeneralBusinessAppPath: resolveRoot(
+        'node_modules/oak-general-business/app'
+    ),
 };
 
 

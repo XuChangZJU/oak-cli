@@ -113,11 +113,7 @@ class OakWeChatMpPlugin {
         compiler.hooks.emit.tapPromise(
             pluginName,
             catchError(async (compilation) => {
-                const { clear } = this.options;
-                if (clear && !this.firstClean) {
-                    this.firstClean = true;
-                    await OakWeChatMpPlugin.clearOutPut(compilation);
-                }
+                // 输出outpath前
             })
         );
     }
@@ -868,11 +864,6 @@ class OakWeChatMpPlugin {
                 .map((ext) => `**/*${ext}`),
             ...exclude,
         ];
-    }
-
-    static async clearOutPut(compilation) {
-        const { path } = compilation.options.output;
-        await fsExtra.remove(path);
     }
 }
 

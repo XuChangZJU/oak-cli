@@ -352,6 +352,9 @@ module.exports = function (webpackEnv) {
                     'scheduler/tracing': 'scheduler/tracing-profiling',
                 }),
                 ...(modules.webpackAliases || {}),
+                '@': paths.appSrc,
+                '@project': paths.appRootSrc,
+                '@oak-general-business': paths.oakGeneralBusinessAppPath,
             },
             plugins: [
                 // Prevents users from importing files from outside of src/ (or node_modules/).
@@ -453,7 +456,7 @@ module.exports = function (webpackEnv) {
                         // The preset includes JSX, Flow, TypeScript, and some ESnext features.
                         {
                             test: /\.(js|mjs|jsx|ts|tsx)$/,
-                            include: [paths.appOutSrc, paths.appSrc].concat(
+                            include: [paths.appRootSrc, paths.appSrc].concat(
                                 getOakInclude()
                             ),
                             use: [
@@ -801,7 +804,7 @@ module.exports = function (webpackEnv) {
                         //     },
                         // },
                         configFile: paths.appTsConfig,
-                        context: paths.appOutPath,
+                        context: paths.appRootPath,
                         diagnosticOptions: {
                             syntactic: true,
                         },

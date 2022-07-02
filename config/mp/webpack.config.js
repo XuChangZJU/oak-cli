@@ -20,6 +20,7 @@ const pkg = require(paths.appPackageJson);
 
 // Check if TypeScript is setup
 const useTypeScript = fs.existsSync(paths.appTsConfig);
+const createEnvironmentHash = require('./webpack/persistentCache/createEnvironmentHash');
 const shouldUseSourceMap = process.env.GENERATE_SOURCEMAP !== 'false';
 
 const copyPatterns = [].concat(pkg.copyWebpack || []).map((pattern) =>
@@ -116,8 +117,10 @@ module.exports = function (webpackEnv) {
         },
         resolve: {
             alias: {
-                '@': paths.appSrc,
                 assert: require.resolve('assert'),
+                '@': paths.appSrc,
+                '@project': paths.appRootSrc,
+                '@oak-general-business': paths.oakGeneralBusinessAppPath,
             },
             extensions: paths.moduleFileExtensions.map((ext) => `.${ext}`),
             symlinks: true,
@@ -137,6 +140,22 @@ module.exports = function (webpackEnv) {
             },
             // 第二种方式选查找自己的loaders文件中有没有这个loader再查找node_modules文件
             // modules: [path.resolve(__dirname, 'loaders'), 'node_modules'],
+        },
+        cache: {
+            type: 'filesystem',
+            version: createEnvironmentHash(env.raw),
+            cacheDirectory: paths.appWebpackCache,
+            store: 'pack',
+            buildDependencies: {
+                defaultWebpack: ['webpack/lib/'],
+                config: [__filename],
+                tsconfig: [paths.appTsConfig, paths.appJsConfig].filter((f) =>
+                    fs.existsSync(f)
+                ),
+            },
+        },
+        infrastructureLogging: {
+            level: 'none',
         },
         optimization: {
             // 标记未被使用的代码
@@ -166,7 +185,7 @@ module.exports = function (webpackEnv) {
                 },
                 {
                     test: /\.wxs$/,
-                    include: paths.appOutSrc,
+                    include: paths.appRootSrc,
                     type: 'javascript/auto',
                     use: [oakFileLoader('wxs')],
                 },
@@ -185,7 +204,7 @@ module.exports = function (webpackEnv) {
                 },
                 {
                     test: /\.(png|jpg|gif|svg)$/,
-                    include: paths.appOutSrc,
+                    include: paths.appRootSrc,
                     type: 'javascript/auto',
                     use: localFileLoader(),
                 },
@@ -223,7 +242,7 @@ module.exports = function (webpackEnv) {
                 },
                 {
                     test: /\.less$/,
-                    include: paths.appOutSrc,
+                    include: paths.appRootSrc,
                     type: 'javascript/auto',
                     use: [
                         localFileLoader('wxss'),
@@ -243,7 +262,7 @@ module.exports = function (webpackEnv) {
                 },
                 {
                     test: /\.js$/,
-                    include: [paths.appSrc, paths.appOutSrc].concat(
+                    include: [paths.appSrc, paths.appRootSrc].concat(
                         getOakInclude()
                     ),
                     exclude: /node_modules/,
@@ -251,7 +270,7 @@ module.exports = function (webpackEnv) {
                 },
                 {
                     test: /\.((?!tsx)ts)$/,
-                    include: [paths.appSrc, paths.appOutSrc].concat(
+                    include: [paths.appSrc, paths.appRootSrc].concat(
                         getOakInclude()
                     ),
                     exclude: /node_modules/,
@@ -305,7 +324,7 @@ module.exports = function (webpackEnv) {
                 },
                 {
                     test: /\.(xml|wxml)$/,
-                    include: paths.appOutSrc,
+                    include: paths.appRootSrc,
                     type: 'javascript/auto',
                     use: [
                         localFileLoader('wxml'),
@@ -365,7 +384,7 @@ module.exports = function (webpackEnv) {
                         //     },
                         // },
                         configFile: paths.appTsConfig,
-                        context: paths.appOutPath,
+                        context: paths.appRootPath,
                         diagnosticOptions: {
                             // semantic: true,
                             syntactic: true,
@@ -378,8 +397,8 @@ module.exports = function (webpackEnv) {
                         // as micromatch doesn't match
                         // otherwise.
                         include: [
-                            { file: '../**/app/**/*.{ts,tsx}' },
-                            { file: '**/app/**/*.{ts,tsx}' },
+                            { file: '../**/app/**/*.ts' },
+                            { file: '**/app/**/*.ts' },
                             { file: '../**/src/**/*.ts' },
                             { file: '**/src/**/*.ts' },
                         ],
