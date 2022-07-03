@@ -277,7 +277,7 @@ module.exports = function (webpackEnv) {
                     loader: 'ts-loader',
                     options: {
                         configFile: paths.appTsConfig,
-                        context: paths.appOutPath,
+                        context: paths.appRootPath,
                         transpileOnly: true,
                     },
                 },
