@@ -18,11 +18,14 @@ export default async function build(cmd: any) {
         );
         return;
     }
+    //ts类型检查 waring 还是error,
+    //主要web受影响，error级别的话 控制台和网页都报错，warning级别的话 控制台报错
+    const TSC_COMPILE_ON_ERROR = cmd.check !== 'error';
     Success(`${success(`build ${cmd.target} environment: ${cmd.mode}`)}`);
     if (cmd.target === 'mp' || cmd.target === 'wechatMp') {
         const result = spawn.sync(
-            `cross-env NODE_ENV=${cmd.mode} NODE_TARGET=${cmd.target} "${process.execPath}"`,
-             [
+            `cross-env NODE_ENV=${cmd.mode} NODE_TARGET=${cmd.target} TSC_COMPILE_ON_ERROR=${TSC_COMPILE_ON_ERROR} "${process.execPath}"`,
+            [
                 require.resolve(
                     `../scripts/${
                         cmd.mode === 'production'
@@ -43,7 +46,7 @@ export default async function build(cmd: any) {
         }
     } else if (cmd.target === 'web') {
         const result = spawn.sync(
-            `cross-env NODE_ENV=${cmd.mode} NODE_TARGET=${cmd.target} "${process.execPath}"`,
+            `cross-env NODE_ENV=${cmd.mode} NODE_TARGET=${cmd.target} TSC_COMPILE_ON_ERROR=${TSC_COMPILE_ON_ERROR} "${process.execPath}"`,
             [
                 require.resolve(
                     `../scripts/${
