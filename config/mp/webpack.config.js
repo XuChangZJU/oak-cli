@@ -9,7 +9,10 @@ const ProgressBarPlugin = require('progress-bar-webpack-plugin');
 const UiExtractPlugin = require('ui-extract-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
-const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
+const ForkTsCheckerWebpackPlugin =
+    process.env.TSC_COMPILE_ON_ERROR === 'true'
+        ? require('react-dev-utils/ForkTsCheckerWarningWebpackPlugin')
+        : require('react-dev-utils/ForkTsCheckerWebpackPlugin');
 const OakWeChatMpPlugin = require('../../plugins/WechatMpPlugin');
 
 const getClientEnvironment = require('./env');
