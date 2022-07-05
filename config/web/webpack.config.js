@@ -111,7 +111,7 @@ module.exports = function (webpackEnv) {
 
 
     // common function to get style loaders
-    const getStyleLoaders = (cssOptions, preProcessor) => {
+    const getStyleLoaders = (cssOptions, preProcessor, preProcessOptions) => {
         const loaders = [
             isEnvDevelopment && require.resolve('style-loader'),
             isEnvProduction && {
@@ -187,9 +187,9 @@ module.exports = function (webpackEnv) {
                 },
                 {
                     loader: require.resolve(preProcessor),
-                    options: {
+                    options: Object.assign({
                         sourceMap: true,
-                    },
+                    }, preProcessOptions),
                 }
             );
         }
@@ -610,6 +610,25 @@ module.exports = function (webpackEnv) {
                                 'sass-loader'
                             ),
                         },
+                        // {
+                        //     test: lessRegex,
+                        //     use: [
+                        //         {
+                        //             loader: 'style-loader',
+                        //         },
+                        //         {
+                        //             loader: 'css-loader', // translates CSS into CommonJS
+                        //         },
+                        //         {
+                        //             loader: 'less-loader', // compiles Less to CSS
+                        //             options: {
+                        //                 lessOptions: {
+                        //                     javascriptEnabled: true,
+                        //                 },
+                        //             },
+                        //         },
+                        //     ],
+                        // },
                         {
                             test: lessRegex,
                             exclude: lessModuleRegex,
@@ -623,7 +642,12 @@ module.exports = function (webpackEnv) {
                                         mode: 'icss',
                                     },
                                 },
-                                'less-loader'
+                                'less-loader',
+                                {
+                                    lessOptions: {
+                                        javascriptEnabled: true,
+                                    },
+                                }
                             ),
                             sideEffects: true,
                         },
@@ -640,7 +664,12 @@ module.exports = function (webpackEnv) {
                                         getLocalIdent: getCSSModuleLocalIdent,
                                     },
                                 },
-                                'less-loader'
+                                'less-loader',
+                                {
+                                    lessOptions: {
+                                        javascriptEnabled: true,
+                                    },
+                                }
                             ),
                         },
                         // "file" loader makes sure those assets get served by WebpackDevServer.
