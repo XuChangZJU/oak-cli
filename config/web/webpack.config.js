@@ -866,7 +866,6 @@ module.exports = function (webpackEnv) {
                             { file: '**/src/**/?(*.){spec|test}.*' },
                             { file: '**/src/setupProxy.*' },
                             { file: '**/src/setupTests.*' },
-                            { file: '**/src/App.tsx' },
                         ],
                     },
                     logger: {
