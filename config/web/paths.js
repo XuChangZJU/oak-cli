@@ -3,12 +3,13 @@
 const path = require('path');
 const fs = require('fs');
 const getPublicUrlOrPath = require('react-dev-utils/getPublicUrlOrPath');
+const subDirName = process.env.SUB_DIR_NAME || 'web';
 
 // Make sure any symlinks in the project folder are resolved:
 // https://github.com/facebook/create-react-app/issues/637
 const appDirectory = fs.realpathSync(process.cwd());
 const resolveRoot = (relativePath) => path.resolve(appDirectory, relativePath);
-const resolveApp = (relativePath) => path.resolve(resolveRoot('web'), relativePath);
+const resolveApp = (relativePath) => path.resolve(resolveRoot(subDirName), relativePath);
 
 // We use `PUBLIC_URL` environment variable or "homepage" field to infer
 // "public path" at which the app is served.

@@ -3,10 +3,11 @@
 const path = require('path');
 const fs = require('fs');
 
+const subDirName = process.env.SUB_DIR_NAME || 'wechatMp';
 
 const appDirectory = fs.realpathSync(process.cwd());
 const resolveRoot = (relativePath) => path.resolve(appDirectory, relativePath);
-const resolveApp = (relativePath) => path.resolve(resolveRoot('wechatMp'), relativePath);
+const resolveApp = (relativePath) => path.resolve(resolveRoot(subDirName), relativePath);
 
 const buildPath = process.env.BUILD_PATH || 'dist';
 

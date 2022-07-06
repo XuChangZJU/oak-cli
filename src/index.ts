@@ -52,6 +52,7 @@ program
     .command('start')
     .option('-t, --target <target>', 'target')
     .option('-m, --mode <mode>', 'mode')
+    .option('-d, --subDir <subDirName>', 'subDirName')
     .option('-c, --check <level>', 'level')
     .description('build project of start on demand')
     .action(build);
@@ -59,6 +60,7 @@ program
     .command('build')
     .option('-t, --target <target>', 'target')
     .option('-m, --mode <mode>', 'mode')
+    .option('-d, --subDir <subDirName>', 'subDirName')
     .option('-c, --check <level>', 'level')
     .description('build project of build on demand')
     .action(build);

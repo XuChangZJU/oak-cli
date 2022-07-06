@@ -644,8 +644,12 @@ module.exports = function (webpackEnv) {
                                 },
                                 'less-loader',
                                 {
-                                    lessOptions: {
-                                        javascriptEnabled: true,
+                                    lessOptions: () => {
+                                        const oakConfigJson = require(paths.oakConfigJson);
+                                        return {
+                                            javascriptEnabled: true,
+                                            modifyVars: oakConfigJson.theme,
+                                        };
                                     },
                                 }
                             ),
@@ -666,8 +670,12 @@ module.exports = function (webpackEnv) {
                                 },
                                 'less-loader',
                                 {
-                                    lessOptions: {
-                                        javascriptEnabled: true,
+                                    lessOptions: () => {
+                                        const oakConfigJson = require(paths.oakConfigJson);
+                                        return {
+                                            javascriptEnabled: true,
+                                            modifyVars: oakConfigJson.theme,
+                                        };
                                     },
                                 }
                             ),

@@ -24,8 +24,13 @@ export default async function build(cmd: any) {
     Success(`${success(`build ${cmd.target} environment: ${cmd.mode}`)}`);
     if (cmd.target === 'mp' || cmd.target === 'wechatMp') {
         const result = spawn.sync(
-            `cross-env NODE_ENV=${cmd.mode} NODE_TARGET=${cmd.target} TSC_COMPILE_ON_ERROR=${TSC_COMPILE_ON_ERROR} "${process.execPath}"`,
+            `cross-env`,
             [
+                `NODE_ENV=${cmd.mode}`,
+                `NODE_TARGET=${cmd.target}`,
+                `SUB_DIR_NAME=${cmd.subDir || 'wechatMp'}`,
+                `TSC_COMPILE_ON_ERROR=${TSC_COMPILE_ON_ERROR}`,
+                `"${process.execPath}"`,
                 require.resolve(
                     `../scripts/${
                         cmd.mode === 'production'
@@ -46,8 +51,13 @@ export default async function build(cmd: any) {
         }
     } else if (cmd.target === 'web') {
         const result = spawn.sync(
-            `cross-env NODE_ENV=${cmd.mode} NODE_TARGET=${cmd.target} TSC_COMPILE_ON_ERROR=${TSC_COMPILE_ON_ERROR} "${process.execPath}"`,
+            `cross-env`,
             [
+                `NODE_ENV=${cmd.mode}`,
+                `NODE_TARGET=${cmd.target}`,
+                `SUB_DIR_NAME=${cmd.subDir || 'web'}`,
+                `TSC_COMPILE_ON_ERROR=${TSC_COMPILE_ON_ERROR}`,
+                `"${process.execPath}"`,
                 require.resolve(
                     `../scripts/${
                         cmd.mode === 'production'
