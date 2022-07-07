@@ -15,7 +15,11 @@ module.exports = () => {
                     const { body } = path.node;
                     // 在Function App前面插入router的相关代码
                     const functionAppNode = body[body.length - 2];
+                    const routerDelarationNode = body[body.length - 3];
                     assert(t.isFunctionDeclaration(functionAppNode) && t.isIdentifier(functionAppNode.id) && functionAppNode.id.name === 'App');
+                    assert(t.isVariableDeclaration(routerDelarationNode) && routerDelarationNode.kind === 'let'
+                        && t.isVariableDeclarator(routerDelarationNode.declarations[0]) && t.isIdentifier(routerDelarationNode.declarations[0].id)
+                        && routerDelarationNode.declarations[0].id.name === 'routers');
 
                     const { pages } = require(join(cwd, appDir, 'src', 'app.json'));
                     const objs = pages.map(
@@ -44,12 +48,13 @@ module.exports = () => {
                         }
                     );
 
-                    body.splice(body.length - 2, 0, t.variableDeclaration('const', [
-                        t.variableDeclarator(
+                    body.splice(body.length - 2, 0, t.expressionStatement(
+                        t.assignmentExpression(
+                            '=',
                             t.identifier('routers'),
                             t.arrayExpression(objs)
                         )
-                    ]));
+                    ));
                 }
             },
         },
