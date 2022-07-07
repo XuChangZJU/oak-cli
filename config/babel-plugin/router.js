@@ -9,9 +9,9 @@ module.exports = () => {
         visitor: {
             Program(path, state) {
                 const { cwd, filename } = state;
-                const rel = relative(cwd, filename);
-                if (rel.endsWith(`\\src\\App.tsx`)) {
-                    const appDir = rel.slice(0, rel.indexOf('\\'));
+                const rel = relative(cwd, filename).replace(/\\/g, '/');
+                if (rel.endsWith(`/src/App.tsx`)) {
+                    const appDir = rel.slice(0, rel.indexOf('/'));
                     const { body } = path.node;
                     // 在Function App前面插入router的相关代码
                     const functionAppNode = body[body.length - 2];
