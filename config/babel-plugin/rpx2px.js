@@ -13,14 +13,13 @@ const rpxRegExp = /\b(\d+(\.\d+)?)rpx\b/;
 
 
 class Rpx2px {
-    constructor(op) {
-         this.options = Object.assign(defaultOptions, options);
+    constructor(options) {
+        this.options = Object.assign(defaultOptions, options);
     }
 
     generatePx(cssText) {
         const self = this;
         const astObj = css.parse(cssText);
-
 
         function processRules(rules) {
             // FIXME: keyframes do not support `force px` comment
@@ -101,7 +100,7 @@ class Rpx2px {
         return value.replace(rpxGlobalRegExp, function (ele1, ele2) {
             return type === 'rpx' ? ele2 : getValue(ele2);
         });
-    };
+    }
 }
 
 module.exports = Rpx2px;
