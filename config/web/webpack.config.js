@@ -31,6 +31,7 @@ const createEnvironmentHash = require('./webpack/persistentCache/createEnvironme
 const oakPathTsxPlugin = require('../babel-plugin/oakPath');
 const oakRenderTsxPlugin = require('../babel-plugin/oakRender');
 const oakRouterPlugin = require('../babel-plugin/router');
+const oakRpxToPxPlugin = require('../babel-plugin/oakRpxToPx');
 
 // Source maps are resource heavy and can cause out of memory issue for large source files.
 const shouldUseSourceMap = process.env.GENERATE_SOURCEMAP !== 'false';
@@ -154,6 +155,7 @@ module.exports = function (webpackEnv) {
                                   // so that it honors browserslist config in package.json
                                   // which in turn let's users customize the target behavior as per their needs.
                                   'postcss-normalize',
+                                  oakRpxToPxPlugin,
                               ]
                             : [
                                   'tailwindcss',
@@ -167,6 +169,7 @@ module.exports = function (webpackEnv) {
                                           stage: 3,
                                       },
                                   ],
+                                  oakRpxToPxPlugin,
                               ],
                     },
                     sourceMap: isEnvProduction
@@ -678,7 +681,9 @@ module.exports = function (webpackEnv) {
                                             javascriptEnabled: true,
                                             modifyVars: oakConfigJson.theme,
                                         };
+                                        
                                     },
+                            
                                 }
                             ),
                         },
