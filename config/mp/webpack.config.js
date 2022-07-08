@@ -110,7 +110,7 @@ module.exports = function (webpackEnv) {
                 : false
             : isEnvDevelopment && 'cheap-module-source-map',
         entry: {
-            app: isEnvProduction ? paths.appIndexJs : paths.appIndexDevJs,
+            app: paths.appIndexJs,
         },
         output: {
             path: paths.appBuild,
