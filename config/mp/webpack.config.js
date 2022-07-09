@@ -11,7 +11,7 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
 const ForkTsCheckerWebpackPlugin =
     process.env.TSC_COMPILE_ON_ERROR === 'true'
-        ? require('react-dev-utils/ForkTsCheckerWarningWebpackPlugin')
+        ? require('./../../plugins/ForkTsCheckerWarningWebpackPlugin')
         : require('react-dev-utils/ForkTsCheckerWebpackPlugin');
 const OakWeChatMpPlugin = require('../../plugins/WechatMpPlugin');
 
