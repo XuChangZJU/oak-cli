@@ -79,6 +79,7 @@ program
 program
     .command('run')
     .option('-i, --initialize', 'true')
+    .option('-m, --mode <mode>', 'mode')
     .description(`run backend server by ${CLI_NAME}`)
     .action(run);
 // output help information on unknown commands

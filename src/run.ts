@@ -31,10 +31,15 @@ export default async function run(options: any): Promise<void> {
     }
     else {
         Success(`${success('启动服务器……')}`);
+        console.log(options.mode);
         // ts-node scripts/build-app-domain & npm link ./app-domain
-        const result = spawn.sync(
-            'ts-node',
-            [require.resolve('../scripts/' + 'start-server.js')],
+        const result =  spawn.sync(
+            `cross-env`,
+            [
+                `NODE_ENV=${options.mode}`,
+                'ts-node',
+                require.resolve('../scripts/' + 'start-server.js'),
+            ],
             {
                 stdio: 'inherit',
                 shell: true,
