@@ -25,7 +25,7 @@ const publicUrlOrPath = getPublicUrlOrPath(
 
 const buildPath = process.env.BUILD_PATH || 'build';
 
-const moduleFileExtensions = [
+let moduleFileExtensions = [
   'web.mjs',
   'mjs',
   'web.js',
@@ -34,10 +34,29 @@ const moduleFileExtensions = [
   'ts',
   'web.tsx',
   'tsx',
-  'json',
   'web.jsx',
   'jsx',
 ];
+if (process.env.NODE_ENV !== 'production') {
+    moduleFileExtensions = [
+        'dev.web.js',
+        'dev.web.ts',
+        'dev.web.tsx',
+        'dev.js',
+        'dev.ts',
+        'dev.tsx',
+    ].concat(moduleFileExtensions);
+}
+else {
+      moduleFileExtensions = [
+          'prod.web.js',
+          'prod.web.ts',
+          'prod.web.tsx',
+          'prod.js',
+          'prod.ts',
+          'prod.tsx',
+      ].concat(moduleFileExtensions);
+}
 
 // Resolve file paths in the same order as webpack
 const resolveModule = (resolveFn, filePath) => {

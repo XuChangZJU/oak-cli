@@ -31,7 +31,8 @@ const createEnvironmentHash = require('./webpack/persistentCache/createEnvironme
 const oakPathTsxPlugin = require('../babel-plugin/oakPath');
 const oakRenderTsxPlugin = require('../babel-plugin/oakRender');
 const oakRouterPlugin = require('../babel-plugin/router');
-const oakRpxToPxPlugin = require('../babel-plugin/oakRpxToPx');
+const oakStylePlugin = require('../babel-plugin/oakStyle');
+const oakRpxToPxPlugin = require('../postcss-plugin/oakRpxToPx');
 
 // Source maps are resource heavy and can cause out of memory issue for large source files.
 const shouldUseSourceMap = process.env.GENERATE_SOURCEMAP !== 'false';
@@ -492,6 +493,7 @@ module.exports = function (webpackEnv) {
                                             oakPathTsxPlugin,
                                             oakRenderTsxPlugin,
                                             oakRouterPlugin,
+                                            // oakStylePlugin,
                                         ],
                                         // This is a feature of `babel-loader` for webpack (not Babel itself).
                                         // It enables caching results in ./node_modules/.cache/babel-loader/
