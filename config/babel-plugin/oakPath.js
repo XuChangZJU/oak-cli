@@ -19,11 +19,10 @@ module.exports = (babel) => {
                 const { cwd, filename } = state;
                 const rel = relative(cwd, filename).replace(/\\/g, '/');
                 if (/(pages|components)[\w|\W]+(index\.tsx|index\.pc\.tsx)$/.test(rel)) {
-                    const lessFile = filename.replace(/\.ts$/, '.less');
+                    const lessFile = filename.replace(/\.(ts|tsx)$/, '.less');
                     const lessFileExists = fs.existsSync(lessFile);
-                    const pcLessFile = filename.replace(/\.ts$/, '.pc.less');
+                    const pcLessFile = filename.replace(/\.(ts|tsx)$/, '.pc.less');
                     const pcLessFileExists = fs.existsSync(pcLessFile);
-
                     const { body } = path.node;
                     const lessFileImport = rel.endsWith('.pc.tsx') ?
                         (pcLessFileExists ? './index.pc.less' : './index.less') :

@@ -26,16 +26,19 @@ const publicUrlOrPath = getPublicUrlOrPath(
 const buildPath = process.env.BUILD_PATH || 'build';
 
 let moduleFileExtensions = [
-  'web.mjs',
-  'mjs',
-  'web.js',
-  'js',
-  'web.ts',
-  'ts',
-  'web.tsx',
-  'tsx',
-  'web.jsx',
-  'jsx',
+    'web.mjs',
+    'mjs',
+    'web.js',
+    'js',
+    'web.ts',
+    'pc.ts',
+    'ts',
+    'web.tsx',
+    'pc.tsx',
+    'tsx',
+    'web.jsx',
+    'pc.jsx',
+    'jsx',
 ];
 if (process.env.NODE_ENV !== 'production') {
     moduleFileExtensions = [
