@@ -105,7 +105,7 @@ module.exports = (babel) => {
                         );
                         if (valueAttr) {
                             console.warn(
-                                `「${state.filename}」有JSX元素同时定义了oak:value和value，请确保value等于{this.state["oak:value"]}`
+                                `「${state.filename}」有JSX元素同时定义了oak:value和value，请确保value与formData返回的对应属性名相同}`
                             );
                         } else {
                             attributes.push(
