@@ -97,8 +97,8 @@ class Rpx2px {
             return val == 0 ? val : `calc(100vw / ${rpxUnit} * ${val})`;
         }
 
-        return value.replace(rpxGlobalRegExp, function (ele1, ele2) {
-            return type === 'rpx' ? ele2 : getValue(ele2);
+        return value.replace(rpxGlobalRegExp, function ($0, $1) {
+            return type === 'rpx' ? $1 : getValue($1);
         });
     }
 }

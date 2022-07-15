@@ -77,6 +77,7 @@ function traverse(doc, callback) {
 const isSrc = (name) => name === 'src';
 
 const isDynamicSrc = (src) => /\{\{/.test(src);
+const oakMessage = 'oak-message';
 const oakRegex = /(\/*[a-zA-Z0-9_-])*\/app\/|(\\*[a-zA-Z0-9_-])*\\app\\/;
 const localRegex = /(\/*[a-zA-Z0-9_-])*\/src+\/|(\\*[a-zA-Z0-9_-])*\\src+\\/;
 const TranslationFunction = 't';
@@ -115,6 +116,15 @@ function getWxsCode() {
     const code = fs.readFileSync(path.join(BASE_PATH, '/wxs.js'), 'utf-8');
     const runner = `module.exports = { \nt: Interpreter.getMessageInterpreter() \n}`;
     return [code, runner].join('\n');
+}
+
+function getAppJson(context) {
+    const JSON_PATH = require.resolve(`${context}/app.json`);
+    if (!fs.existsSync(JSON_PATH)) {
+        return;
+    }
+    const data = fs.readFileSync(JSON_PATH, 'utf8');
+    return JSON.parse(data);
 }
 
 module.exports = async function (content) {
@@ -175,9 +185,16 @@ module.exports = async function (content) {
     }
     // 注入全局message组件
     if (/pages/.test(context)) {
-        source =
-            source +
-            `<message show="{{!!oakError}}" type="{{oakError.type || ''}}" content="{{oakError.msg || ''}}" />`;
+        const appJson = getAppJson(projectContext);
+        if (
+            appJson &&
+            appJson.usingComponents &&
+            appJson.usingComponents[oakMessage]
+        ) {
+            source =
+                source +
+                `\n <${oakMessage} show="{{!!oakError}}" type="{{oakError.type || ''}}" content="{{oakError.msg || ''}}" ></${oakMessage}>`;
+        }
     }
 
     const doc = new DOMParser({

@@ -83,13 +83,16 @@ module.exports = (babel) => {
                     if (tsxFileExists && pcTsxFileExists) {
                         statements.push(
                             t.ifStatement(
-                                t.booleanLiteral(true),
-                                t.blockStatement(
-                                    renderStatements
+                                t.binaryExpression(
+                                    '===',
+                                    t.memberExpression(
+                                        t.memberExpression(t.thisExpression(), t.identifier('props')),
+                                        t.identifier('width')
+                                    ),
+                                    t.stringLiteral('xs')
                                 ),
-                                t.blockStatement(
-                                    renderPcStatements
-                                )
+                                t.blockStatement(renderStatements),
+                                t.blockStatement(renderPcStatements)
                             )
                         );
                     }

@@ -11,14 +11,27 @@ const resolveApp = (relativePath) => path.resolve(resolveRoot(subDirName), relat
 
 const buildPath = process.env.BUILD_PATH || 'dist';
 
-const moduleFileExtensions = [
+let moduleFileExtensions = [
   'mp.js',
   'js',
   'mp.ts',
   'ts',
-  'json',
-  'wxs',
 ];
+if (process.env.NODE_ENV !== 'production') {
+    moduleFileExtensions = [
+        'dev.mp.js',
+        'dev.mp.ts',
+        'dev.js',
+        'dev.ts',
+    ].concat(moduleFileExtensions);
+} else {
+    moduleFileExtensions = [
+        'prod.mp.js',
+        'prod.mp.ts',
+        'prod.js',
+        'prod.ts',
+    ].concat(moduleFileExtensions);
+}
 
 // Resolve file paths in the same order as webpack
 const resolveModule = (resolveFn, filePath) => {
