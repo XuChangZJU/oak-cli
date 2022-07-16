@@ -15,7 +15,7 @@ export default async function run(options: any): Promise<void> {
         const drop = options.args.includes('drop') || false;
         const result = spawn.sync(
             'ts-node',
-            [require.resolve('../scripts/' + 'initialize-database.js'), `${drop}`],
+            [require.resolve('../scripts/' + 'initialize-server.ts'), `${drop}`],
             {
                 stdio: 'inherit',
                 shell: true,
@@ -37,6 +37,7 @@ export default async function run(options: any): Promise<void> {
             `cross-env`,
             [
                 `NODE_ENV=${options.mode}`,
+                'OAK_PLATFORM=server',
                 'ts-node',
                 require.resolve('../scripts/' + 'start-server.js'),
             ],
