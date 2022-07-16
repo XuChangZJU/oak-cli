@@ -210,8 +210,12 @@ function build(previousFileSizes) {
 }
 
 function copyPublicFolder() {
-  fs.copySync(paths.appPublic, paths.appBuild, {
-    dereference: true,
-    filter: file => file !== paths.appHtml,
-  });
+    fs.copySync(paths.appPublic, paths.appBuild, {
+        dereference: true,
+        filter: (file) => file !== paths.appHtml,
+    });
+
+    //copy
+    const { copyLocaleFiles } = require('./locales/copy-web-locales');
+    copyLocaleFiles();
 }
