@@ -20,16 +20,16 @@ function buildLocales(projectPath, businessProjectPath, buildPath) {
 }
 
 function readProject(json, projectPath, hasDomain, hasCommon, buildPath) {
-    // 读取oak-app-domain/_locales
+    // 读取oak-app-domain/
     if (hasDomain) {
         const domainLocalesPath = Path.resolve(
             projectPath,
-            'oak-app-domain/_locales'
+            'oak-app-domain'
         ).replace(/\\/g, '/');
-        readLocaleFiles(json, domainLocalesPath, '', Mode.domain);
+        findFiles(json, domainLocalesPath, '', Mode.domain);
     }
 
-    //
+    // 读取business
     if (hasCommon) {
         const localesPath = Path.resolve(projectPath, 'locales').replace(
             /\\/g,
@@ -39,14 +39,14 @@ function readProject(json, projectPath, hasDomain, hasCommon, buildPath) {
     }
 
     const pagesPath = Path.resolve(projectPath, 'pages').replace(/\\/g, '/');
-    findPages(json, pagesPath, '', Mode.entity);
+    findFiles(json, pagesPath, '', Mode.entity);
     // listenerFiles(pagesPath, buildPath);
 
     const componentsPath = Path.resolve(projectPath, 'components').replace(
         /\\/g,
         '/'
     );
-    findPages(json, componentsPath, '', Mode.entity);
+    findFiles(json, componentsPath, '', Mode.entity);
 }
 
 function readLocaleFiles(json, path, name, mode) {
@@ -56,20 +56,14 @@ function readLocaleFiles(json, path, name, mode) {
     const files = fs.readdirSync(path);
     files.forEach((val, index) => {
         const lng = val.substring(val, val.indexOf('.'));
-        let fPath = Path.resolve(path, val).replace(/\\/g, '/');
-        let locales;
-        if (mode === Mode.domain) {
-            locales = require(fPath).default;
-        } else {
-            locales = fs.readJsonSync(fPath);
-        }
-        
-        setWith(json, name ? `${lng}.${name}` : lng, locales, Object);
+        const fPath = Path.resolve(path, val).replace(/\\/g, '/');
+        const dataJson = fs.readJsonSync(fPath);
+        setWith(json, name ? `${lng}.${name}` : lng, dataJson, Object);
     });
 }
 
-// pages /house/locales/zh-CN.json 或者 /house/list/locales/zh-CN.json
-function findPages(json, path, name = '', mode) {
+// pages /house/locales/zh-CN.json 或者 /house/list/locales/zh-CN.json  或者 oak-app-domain
+function findFiles(json, path, name = '', mode) {
     if (!fs.existsSync(path)) {
         return;
     }
@@ -77,7 +71,7 @@ function findPages(json, path, name = '', mode) {
     files
         .filter(
             (ele) =>
-                !['.DS_Store'].includes(ele) &&
+                !['.DS_Store', 'package.json'].includes(ele) &&
                 !/\.(ts|less|jsx|tsx|wxml)$/.test(ele)
         )
         .forEach((val, index) => {
@@ -89,7 +83,7 @@ function findPages(json, path, name = '', mode) {
                     readLocaleFiles(json, fPath, name, mode);
                 } else {
                     const name2 = getName(val);
-                    findPages(
+                    findFiles(
                         json,
                         fPath,
                         name ? `${name}-${name2}` : name2,
