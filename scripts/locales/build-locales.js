@@ -4,140 +4,10 @@ const Path = require('path');
 
 const { merge, get, set, setWith } = require('lodash');
 
-const Mode = {
-    domain: 'domain',
-    common: 'common',
-    entity: 'entity',
-};
-
-function buildLocales(projectPath, businessProjectPath, buildPath) {
-    const dataJson = {};
-    readProject(dataJson, projectPath, true, true, buildPath);
-
-    readProject(dataJson, businessProjectPath, false, true, buildPath);
-
-    return dataJson;
-}
-
-function readProject(json, projectPath, hasDomain, hasCommon, buildPath) {
-    // 读取oak-app-domain/
-    if (hasDomain) {
-        const domainLocalesPath = Path.resolve(
-            projectPath,
-            'oak-app-domain'
-        ).replace(/\\/g, '/');
-        findFiles(json, domainLocalesPath, '', Mode.domain);
-    }
-
-    // 读取business
-    if (hasCommon) {
-        const localesPath = Path.resolve(projectPath, 'locales').replace(
-            /\\/g,
-            '/'
-        );
-        findLocales(json, localesPath, '', Mode.common);
-    }
-
-    const pagesPath = Path.resolve(projectPath, 'pages').replace(/\\/g, '/');
-    findFiles(json, pagesPath, '', Mode.entity);
-    // listenerFiles(pagesPath, buildPath);
-
-    const componentsPath = Path.resolve(projectPath, 'components').replace(
-        /\\/g,
-        '/'
-    );
-    findFiles(json, componentsPath, '', Mode.entity);
-}
-
-function readLocaleFiles(json, path, name, mode) {
-    if (!fs.existsSync(path)) {
-        return;
-    }
-    const files = fs.readdirSync(path);
-    files.forEach((val, index) => {
-        const lng = val.substring(val, val.indexOf('.'));
-        const fPath = Path.resolve(path, val).replace(/\\/g, '/');
-        const dataJson = fs.readJsonSync(fPath);
-        setWith(json, name ? `${lng}.${name}` : lng, dataJson, Object);
-    });
-}
-
-// pages /house/locales/zh-CN.json 或者 /house/list/locales/zh-CN.json  或者 oak-app-domain
-function findFiles(json, path, name = '', mode) {
-    if (!fs.existsSync(path)) {
-        return;
-    }
-    const files = fs.readdirSync(path);
-    files
-        .filter(
-            (ele) =>
-                !['.DS_Store', 'package.json'].includes(ele) &&
-                !/\.(ts|less|jsx|tsx|wxml)$/.test(ele)
-        )
-        .forEach((val, index) => {
-            let fPath = Path.resolve(path, val).replace(/\\/g, '/');
-            let stats = fs.statSync(fPath);
-            if (stats.isDirectory()) {
-                // 文件夹
-                if (val === 'locales') {
-                    readLocaleFiles(json, fPath, name, mode);
-                } else {
-                    const name2 = getName(val);
-                    findFiles(
-                        json,
-                        fPath,
-                        name ? `${name}-${name2}` : name2,
-                        mode
-                    );
-                }
-            }
-        });
-}
-
-// locales /Common/zh-CN.json   应该没有这种/common/xx/zh-CN.json
-function findLocales(json, path, name = '', mode) {
-    if (!fs.existsSync(path)) {
-        return;
-    }
-    const files = fs.readdirSync(path);
-    files.forEach((val, index) => {
-        let fPath = Path.join(path, val).replace(/\\/g, '/');
-        let stats = fs.statSync(fPath);
-
-        if (stats.isDirectory()) {
-            // 文件夹
-            const name2 = getName(val);
-            findLocales(json, fPath, name ? `${name}-${name2}` : name2, mode);
-        }
-
-        if (stats.isFile()) {
-            readLocaleFiles(json, path, name, mode);
-        }
-    });
-}
-
-function listenerFiles(path, buildPath) {
-    fs.watch(path, { recursive: true }, (eventType, filename) => {
-        console.log('\nThe file', filename, 'was modified!');
-        console.log('The type of change was:', eventType);
-
-        if (
-            /(\/_locales\/)/.test(filename) ||
-            /(\/locales\/)|/.test(filename)
-        ) {
-            if (eventType === 'change') {
-                //文件内容改变
-                const { name, lng } = getNameAndLng(filename);
-                let fPath = Path.resolve(path, filename).replace(/\\/g, '/');
-                // 需要换成json文件
-                const locales = fs.readJsonSync(fPath);
-                const json = {};
-                setWith(json, name ? `${lng}.${name}` : lng, locales, Object);
-                mergeJsonFiles(json, buildPath, true);
-            }
-        }
-    });
-}
+const oakRegex =
+    /(\/*[a-zA-Z0-9_-])*\/app\/(pages|components)\/|(\\*[a-zA-Z0-9_-])*\\app\\(pages|components)\\/;
+const localRegex =
+    /(\/*[a-zA-Z0-9_-])*\/src\/(pages|components)+\/|(\\*[a-zA-Z0-9_-])*\\src\/(pages|components)+\\/;
 
 function getName(val) {
     const name = val.substring(0, 1).toLowerCase() + val.substring(1);
@@ -148,7 +18,7 @@ function getNameAndLng(path) {
     let name = '';
     let lng = '';
 
-    const arr = path.split('/').filter(ele => !!ele);
+    const arr = path.split('/').filter((ele) => !!ele);
 
     let isLocales = false;
     for (let n of arr) {
@@ -168,8 +38,130 @@ function getNameAndLng(path) {
     };
 }
 
+function buildLocales({
+    projectPath,
+    businessProjectPath,
+    buildPath,
+    nodeEnv,
+    platform,
+}) {
+    const dataJson = {};
+    const projectPaths = [projectPath, businessProjectPath];
+    projectPaths.forEach((path) => {
+        readProject(dataJson, path, buildPath, nodeEnv, platform);
+    });
+    return dataJson;
+}
+
+function readProject(json, projectPath, buildPath, nodeEnv, platform) {
+    // 读取oak-app-domain/
+    const domainLocalesPath = Path.resolve(
+        projectPath,
+        'oak-app-domain'
+    ).replace(/\\/g, '/');
+    findLocaleFiles(json, domainLocalesPath, '', buildPath, nodeEnv, platform);
+
+    // 读取business/locales
+    const localesPath = Path.resolve(projectPath, 'locales').replace(
+        /\\/g,
+        '/'
+    );
+    findLocaleFiles(json, localesPath, '', buildPath, nodeEnv, platform);
+
+    const pagesPath = Path.resolve(projectPath, 'pages').replace(/\\/g, '/');
+    findLocaleFiles(json, pagesPath, '', buildPath, nodeEnv, platform);
+
+    const componentsPath = Path.resolve(projectPath, 'components').replace(
+        /\\/g,
+        '/'
+    );
+    findLocaleFiles(json, componentsPath, '', buildPath, nodeEnv, platform);
+}
+
+function readLocaleFiles(json, path, name) {
+    if (!fs.existsSync(path)) {
+        return;
+    }
+    const files = fs.readdirSync(path);
+    files.forEach((val, index) => {
+        const lng = val.substring(val, val.indexOf('.'));
+        const fPath = Path.resolve(path, val).replace(/\\/g, '/');
+        const dataJson = fs.readJsonSync(fPath);
+        setWith(json, name ? `${lng}.${name}` : lng, dataJson, Object);
+    });
+}
+
+// pages /house/locales/zh-CN.json 或者 /house/list/locales/zh-CN.json  或者 oak-app-domain
+function findLocaleFiles(json, path, name = '', buildPath, nodeEnv, platform) {
+    if (!fs.existsSync(path)) {
+        return;
+    }
+    const files = fs.readdirSync(path);
+    files
+        .filter(
+            (ele) =>
+                !['.DS_Store', 'package.json'].includes(ele) &&
+                !/\.(ts|less|jsx|tsx|wxml)$/.test(ele)
+        )
+        .forEach((val, index) => {
+            let fPath = Path.resolve(path, val).replace(/\\/g, '/');
+            let stats = fs.statSync(fPath);
+            if (stats.isDirectory()) {
+                // 文件夹
+                if (val === 'locales') {
+                    readLocaleFiles(json, fPath, name);
+                    //监听locales文件夹
+                    if (nodeEnv !== 'production') {
+                        listenerLocaleFiles(fPath, buildPath, nodeEnv, platform);
+                    }
+                } else {
+                    const name2 = getName(val);
+                    findLocaleFiles(
+                        json,
+                        fPath,
+                        name ? `${name}-${name2}` : name2,
+                        buildPath,
+                        nodeEnv,
+                        platform
+                    );
+                }
+            }
+        });
+}
+
+function listenerLocaleFiles(path, buildPath, nodeEnv, platform) {
+    fs.watch(path, { recursive: true }, (eventType, filename) => {
+        const fPath = Path.resolve(path, filename).replace(/\\/g, '/');
+        console.log('\nThe file', fPath, 'was modified!');
+        console.log('The type of change was:', eventType);
+
+        if (/(\/locales\/)|/.test(filename) && /\.(json)$/.test(filename)) {
+            if (eventType === 'change') {
+                //文件内容改变
+                const newFilename = fPath.replace(oakRegex, '').replace(localRegex, '');
+                const { name, lng } = getNameAndLng(newFilename);
+
+                const dataJson = fs.readJsonSync(fPath);
+                const newJson = {};
+                setWith(
+                    newJson,
+                    name ? `${lng}.${name}` : lng,
+                    dataJson,
+                    Object
+                );
+                if (platform === 'wechatMp') {
+                    mergeMpJsonFiles(newJson, buildPath, true);
+                } else {
+                    mergeWebJsonFiles(newJson, buildPath, true);
+                }
+                
+            }
+        }
+    });
+}
+
 //
-function mergeJsonFiles(json, buildPath, isMerge) {
+function mergeWebJsonFiles(json, buildPath, isMerge) {
     for (let lng in json) {
         // lng生成文件夹
         const lngPath = Path.resolve(buildPath, lng);
@@ -194,19 +186,26 @@ function mergeJsonFiles(json, buildPath, isMerge) {
     }
 }
 
+function mergeMpJsonFiles(json, buildPath, isMerge) {
+    for (let lng in json) {
+        // lng生成文件夹
+        const lngPath = Path.resolve(buildPath, `${lng}.json`);
 
-// 生成json文件
-function generateJsonFiles(buildPath, json) {
-    if (!fs.existsSync(buildPath)) {
-        fs.mkdirSync(buildPath);
-    } else {
-        fs.emptyDirSync(buildPath);
+        const data = json[lng] || {};
+         let dataJson = {};
+         if (isMerge) {
+             if (fs.existsSync(lngPath)) {
+                 dataJson = fs.readJSONSync(lngPath);
+             }
+         }
+         merge(dataJson, data);
+         fs.writeFileSync(lngPath, JSON.stringify(dataJson, null, 2));
     }
-    mergeJsonFiles(json, buildPath, false);
 }
 
 
 module.exports = {
     buildLocales,
-    generateJsonFiles,
+    mergeWebJsonFiles,
+    mergeMpJsonFiles,
 };
