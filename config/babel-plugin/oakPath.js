@@ -18,33 +18,45 @@ module.exports = (babel) => {
             Program(path, state) {
                 const { cwd, filename } = state;
                 const rel = relative(cwd, filename).replace(/\\/g, '/');
-                if (/(pages|components)[\w|\W]+(index\.tsx|index\.pc\.tsx)$/.test(rel)) {
+                if (
+                    /(pages|components)[\w|\W]+(index\.tsx|index\.pc\.tsx)$/.test(
+                        rel
+                    )
+                ) {
                     const lessFile = filename.replace(/\.(ts|tsx)$/, '.less');
                     const lessFileExists = fs.existsSync(lessFile);
-                    const pcLessFile = filename.replace(/\.(ts|tsx)$/, '.pc.less');
+                    const pcLessFile = filename.replace(
+                        /\.(ts|tsx)$/,
+                        '.pc.less'
+                    );
                     const pcLessFileExists = fs.existsSync(pcLessFile);
                     const { body } = path.node;
-                    const lessFileImport = rel.endsWith('.pc.tsx') ?
-                        (pcLessFileExists ? './index.pc.less' : './index.less') :
-                        (lessFileExists ? './index.less' : './index.pc.less');
+                    const lessFileImport = rel.endsWith('.pc.tsx')
+                        ? pcLessFileExists
+                            ? './index.pc.less'
+                            : './index.less'
+                        : lessFileExists
+                        ? './index.less'
+                        : './index.pc.less';
                     body.unshift(
-                        t.importDeclaration(
-                            [],
-                            t.stringLiteral(lessFileImport)
-                        )
+                        t.importDeclaration([], t.stringLiteral(lessFileImport))
                     );
                 }
             },
             JSXAttribute(path, state) {
                 const { cwd, filename } = state;
                 const rel = relative(cwd, filename).replace(/\\/g, '/');
-                if (/(pages|components)[\w|\W]+(index\.tsx|index\.pc\.tsx)$/.test(rel))  {
+                if (
+                    /(pages|components)[\w|\W]+(index\.tsx|index\.pc\.tsx)$/.test(
+                        rel
+                    )
+                ) {
                     const { node } = path;
                     if (isOakNamespaceIdentifier(node.name, 'path')) {
                         // 若存在oak:path，则注入oakParent={this.state.oakFullpath}和oakPath={oak:path}
                         assert(t.isJSXOpeningElement(path.parent));
                         const { attributes } = path.parent;
-    
+
                         const parentAttr = attributes.find(
                             (ele) =>
                                 t.isJSXIdentifier(ele.name) &&
@@ -70,13 +82,13 @@ module.exports = (babel) => {
                                 )
                             );
                         }
-    
+
                         const pathAttr = attributes.find(
                             (ele) =>
                                 t.isJSXIdentifier(ele.name) &&
                                 ele.name.name === 'oakPath'
                         );
-    
+
                         if (pathAttr) {
                             console.warn(
                                 `「${state.filename}」有JSX元素同时定义了oak:path和oakPath，请确保两者相等`
@@ -90,13 +102,12 @@ module.exports = (babel) => {
                             );
                         }
                         path.remove();
-                    }
-                    else if (isOakNamespaceIdentifier(node.name, 'value')) {
+                    } else if (isOakNamespaceIdentifier(node.name, 'value')) {
                         // 如果是oak:value，增加value和data-attr属性
                         assert(t.isJSXOpeningElement(path.parent));
                         assert(t.isStringLiteral(node.value));
                         const { attributes } = path.parent;
-    
+
                         const valueAttr = attributes.find(
                             (ele) =>
                                 t.isJSXIdentifier(ele.name) &&
@@ -122,17 +133,18 @@ module.exports = (babel) => {
                                 )
                             );
                         }
-    
+
                         const dataAttrAttr = attributes.find(
                             (ele) =>
                                 t.isJSXIdentifier(ele.name) &&
                                 ele.name.name === 'data-attr'
                         );
-    
+
                         if (dataAttrAttr) {
                             assert(
                                 t.isStringLiteral(dataAttrAttr.value) &&
-                                    dataAttrAttr.value.value === node.value.value,
+                                    dataAttrAttr.value.value ===
+                                        node.value.value,
                                 `「${state.filename}」中有JSX元素同时定义了oak:value和data-attr，且两者的值不相等`
                             );
                         } else {
@@ -145,6 +157,37 @@ module.exports = (babel) => {
                         }
                         path.remove();
                     }
+                }
+            },
+            CallExpression(path, state) {
+                // this.props.t/this.t/t
+                // t('common:detail') 不需要处理 t('detail') 需要处理;
+                // t(`${common}:${cc}`) 不需要处理 t(`${common}cc`) 需要处理
+                const { node } = path;
+                if (
+                    node &&
+                    node.callee &&
+                    ((t.isIdentifier(node.callee) &&
+                        node.callee.name === 't') ||
+                        (t.isMemberExpression(node.callee) &&
+                            t.isIdentifier(node.callee.property) &&
+                            node.callee.property.name === 't'))
+                ) {
+                    const arguments = node.arguments;
+                    arguments &&
+                        arguments.forEach((node2, index) => {
+                            if (
+                                index === 0 &&
+                                t.isLiteral(node2) &&
+                                node2.value.indexOf(':') === -1
+                            ) {
+                                arguments.splice(
+                                    index,
+                                    1,
+                                    t.stringLiteral('house-list:' + node2.value)
+                                );
+                            }
+                        });
                 }
             },
         },

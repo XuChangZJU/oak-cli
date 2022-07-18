@@ -4,6 +4,12 @@ const Path = require('path');
 
 const { merge, get, set, setWith } = require('lodash');
 
+const Mode = {
+    domain: 'domain',
+    common: 'common',
+    entity: 'entity',
+};
+
 function buildLocales(projectPath, businessProjectPath, buildPath) {
     const dataJson = {};
     readProject(dataJson, projectPath, true, true, buildPath);
@@ -19,39 +25,51 @@ function readProject(json, projectPath, hasDomain, hasCommon, buildPath) {
         const domainLocalesPath = Path.resolve(
             projectPath,
             'oak-app-domain/_locales'
-        );
-        readLocaleFiles(json, domainLocalesPath);
+        ).replace(/\\/g, '/');
+        readLocaleFiles(json, domainLocalesPath, '', Mode.domain);
     }
 
     //
     if (hasCommon) {
-        const localesPath = Path.resolve(projectPath, 'locales');
-        findLocales(json, localesPath);
+        const localesPath = Path.resolve(projectPath, 'locales').replace(
+            /\\/g,
+            '/'
+        );
+        findLocales(json, localesPath, '', Mode.common);
     }
 
-    const pagesPath = Path.resolve(projectPath, 'pages');
-    findPages(json, pagesPath);
-    listenerFiles(pagesPath, buildPath);
+    const pagesPath = Path.resolve(projectPath, 'pages').replace(/\\/g, '/');
+    findPages(json, pagesPath, '', Mode.entity);
+    // listenerFiles(pagesPath, buildPath);
 
-    const componentsPath = Path.resolve(projectPath, 'components');
-    findPages(json, componentsPath);
+    const componentsPath = Path.resolve(projectPath, 'components').replace(
+        /\\/g,
+        '/'
+    );
+    findPages(json, componentsPath, '', Mode.entity);
 }
 
-function readLocaleFiles(json, path, name) {
+function readLocaleFiles(json, path, name, mode) {
     if (!fs.existsSync(path)) {
         return;
     }
     const files = fs.readdirSync(path);
     files.forEach((val, index) => {
         const lng = val.substring(val, val.indexOf('.'));
-        let fPath = Path.resolve(path, val);
-        const locales = require(fPath).default;
+        let fPath = Path.resolve(path, val).replace(/\\/g, '/');
+        let locales;
+        if (mode === Mode.domain) {
+            locales = require(fPath).default;
+        } else {
+            locales = fs.readJsonSync(fPath);
+        }
+        
         setWith(json, name ? `${lng}.${name}` : lng, locales, Object);
     });
 }
 
-// pages /house/locales/zh-CN.ts 或者 /house/list/locales/zh-CN.ts
-function findPages(json, path, name = '') {
+// pages /house/locales/zh-CN.json 或者 /house/list/locales/zh-CN.json
+function findPages(json, path, name = '', mode) {
     if (!fs.existsSync(path)) {
         return;
     }
@@ -59,42 +77,47 @@ function findPages(json, path, name = '') {
     files
         .filter(
             (ele) =>
-                !['.DS_Store', 'index.ts'].includes(ele) &&
-                !/\.(json|less|jsx|tsx|wxml)$/.test(ele)
+                !['.DS_Store'].includes(ele) &&
+                !/\.(ts|less|jsx|tsx|wxml)$/.test(ele)
         )
         .forEach((val, index) => {
-            let fPath = Path.resolve(path, val);
+            let fPath = Path.resolve(path, val).replace(/\\/g, '/');
             let stats = fs.statSync(fPath);
             if (stats.isDirectory()) {
                 // 文件夹
                 if (val === 'locales') {
-                    readLocaleFiles(json, fPath, name);
+                    readLocaleFiles(json, fPath, name, mode);
                 } else {
                     const name2 = getName(val);
-                    findPages(json, fPath, name ? `${name}-${name2}` : name2);
+                    findPages(
+                        json,
+                        fPath,
+                        name ? `${name}-${name2}` : name2,
+                        mode
+                    );
                 }
             }
         });
 }
 
-// locales /Common/zh-CN.ts   应该没有这种/common/xx/zh-CN.ts
-function findLocales(json, path, name = '') {
+// locales /Common/zh-CN.json   应该没有这种/common/xx/zh-CN.json
+function findLocales(json, path, name = '', mode) {
     if (!fs.existsSync(path)) {
         return;
     }
     const files = fs.readdirSync(path);
     files.forEach((val, index) => {
-        let fPath = Path.join(path, val);
+        let fPath = Path.join(path, val).replace(/\\/g, '/');
         let stats = fs.statSync(fPath);
 
         if (stats.isDirectory()) {
             // 文件夹
             const name2 = getName(val);
-            findLocales(json, fPath, name ? `${name}-${name2}` : name2);
+            findLocales(json, fPath, name ? `${name}-${name2}` : name2, mode);
         }
 
         if (stats.isFile()) {
-            readLocaleFiles(json, path, name);
+            readLocaleFiles(json, path, name, mode);
         }
     });
 }
@@ -111,10 +134,9 @@ function listenerFiles(path, buildPath) {
             if (eventType === 'change') {
                 //文件内容改变
                 const { name, lng } = getNameAndLng(filename);
-                let fPath = Path.resolve(path, filename);
+                let fPath = Path.resolve(path, filename).replace(/\\/g, '/');
                 // 需要换成json文件
-                const locales = require(fPath).default;
-                const d = fs.readFileSync(fPath);
+                const locales = fs.readJsonSync(fPath);
                 const json = {};
                 setWith(json, name ? `${lng}.${name}` : lng, locales, Object);
                 mergeJsonFiles(json, buildPath, true);
