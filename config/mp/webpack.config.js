@@ -24,6 +24,9 @@ const pkg = require(paths.appPackageJson);
 // Check if TypeScript is setup
 const useTypeScript = fs.existsSync(paths.appTsConfig);
 const createEnvironmentHash = require('./webpack/persistentCache/createEnvironmentHash');
+
+const oakI18nPlugin = require('../babel-plugin/oakI18n');
+
 const shouldUseSourceMap = process.env.GENERATE_SOURCEMAP !== 'false';
 
 const copyPatterns = [].concat(pkg.copyWebpack || []).map((pattern) =>
@@ -270,6 +273,9 @@ module.exports = function (webpackEnv) {
                     ),
                     exclude: /node_modules/,
                     loader: 'babel-loader',
+                    options: {
+                        plugins: [oakI18nPlugin],
+                    },
                 },
                 {
                     test: /\.((?!tsx)ts)$/,
@@ -277,12 +283,22 @@ module.exports = function (webpackEnv) {
                         getOakInclude()
                     ),
                     exclude: /node_modules/,
-                    loader: 'ts-loader',
-                    options: {
-                        configFile: paths.appTsConfig,
-                        context: paths.appRootPath,
-                        transpileOnly: true,
-                    },
+                    use: [
+                        {
+                            loader: 'babel-loader',
+                            options: {
+                                plugins: [oakI18nPlugin],
+                            },
+                        },
+                        {
+                            loader: 'ts-loader',
+                            options: {
+                                configFile: paths.appTsConfig,
+                                context: paths.appRootPath,
+                                transpileOnly: true,
+                            },
+                        },
+                    ],
                 },
                 // {
                 //     test: /\.json$/,

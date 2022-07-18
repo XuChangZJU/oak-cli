@@ -31,6 +31,7 @@ const createEnvironmentHash = require('./webpack/persistentCache/createEnvironme
 const oakPathTsxPlugin = require('../babel-plugin/oakPath');
 const oakRenderTsxPlugin = require('../babel-plugin/oakRender');
 const oakRouterPlugin = require('../babel-plugin/router');
+const oakI18nPlugin = require('../babel-plugin/oakI18n');
 const oakStylePlugin = require('../babel-plugin/oakStyle');
 const oakRpxToPxPlugin = require('../postcss-plugin/oakRpxToPx');
 
@@ -493,6 +494,7 @@ module.exports = function (webpackEnv) {
                                             oakPathTsxPlugin,
                                             oakRenderTsxPlugin,
                                             oakRouterPlugin,
+                                            oakI18nPlugin,
                                             // oakStylePlugin,
                                         ],
                                         // This is a feature of `babel-loader` for webpack (not Babel itself).
