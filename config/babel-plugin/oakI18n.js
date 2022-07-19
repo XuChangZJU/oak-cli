@@ -44,6 +44,7 @@ module.exports = (babel) => {
                                  if (
                                      index === 0 &&
                                      t.isLiteral(node2) &&
+                                     node2.value &&
                                      node2.value.indexOf(':') === -1
                                  ) {
                                      arguments.splice(
@@ -51,6 +52,28 @@ module.exports = (babel) => {
                                          1,
                                          t.stringLiteral(ns + ':' + node2.value)
                                      );
+                                 }
+                                 else if (
+                                     index === 0 &&
+                                     t.isTemplateLiteral(node2) &&
+                                     node2.quasis &&
+                                     !node2.quasis.find(
+                                         (node3) =>
+                                             node3 &&
+                                             node3.value &&
+                                             node3.value.raw &&
+                                             node3.value.raw.indexOf(':') !== -1
+                                     )
+                                 ) {
+                                     
+                                      node2.quasis.splice(
+                                          0,
+                                          1,
+                                          t.templateElement({
+                                              raw: ns + ':' + node2.quasis[0].value.raw,
+                                              cooked: ns + ':' + node2.quasis[0].value.cooked,
+                                          })
+                                      );
                                  }
                              });
                      }
