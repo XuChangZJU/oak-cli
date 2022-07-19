@@ -80,6 +80,11 @@ const isDynamicSrc = (src) => /\{\{/.test(src);
 const oakMessage = 'oak-message';
 const oakRegex = /(\/*[a-zA-Z0-9_-])*\/app\/|(\\*[a-zA-Z0-9_-])*\\app\\/;
 const localRegex = /(\/*[a-zA-Z0-9_-])*\/src+\/|(\\*[a-zA-Z0-9_-])*\\src+\\/;
+const oakPagesOrComponentsRegex =
+    /(\/*[a-zA-Z0-9_-])*\/app\/(pages|components)\/|(\\*[a-zA-Z0-9_-])*\\app\\(pages|components)\\/;
+const localPagesOrComponentsRegex =
+    /(\/*[a-zA-Z0-9_-])*\/src\/(pages|components)+\/|(\\*[a-zA-Z0-9_-])*\\src\/(pages|components)+\\/;
+
 const TranslationFunction = 't';
 const I18nModuleName = 'i18n';
 const CURRENT_LOCALE_KEY = '$_locale';
@@ -261,22 +266,43 @@ module.exports = async function (content) {
         if (node.nodeType === node.TEXT_NODE) {
             // 处理i18n 把t()转成i18n.t()
             if (existsT(node.nodeValue)) {
-                const val = replaceT(node.nodeValue);
+                const p = replaceDoubleSlash(resourcePath)
+                    .replace(oakPagesOrComponentsRegex, '')
+                    .replace(localPagesOrComponentsRegex, '');
+                const eP = p.substring(0, p.lastIndexOf('/'));
+                const ns = eP
+                    .split('/')
+                    .filter((ele) => !!ele)
+                    .join('-');
+                const val = replaceT(node.nodeValue); // {{i18n.t()}}
                 const valArr = val.split('}}');
                 let newVal = '';
                 valArr.forEach((ele, index) => {
                     if (existsT(ele)) {
-                        const head = ele.substring(0, ele.indexOf(')'));
+                        const head = ele.substring(0, ele.indexOf("i18n.t(") + 7);
+                        let argsStr = ele.substring(ele.indexOf('i18n.t(') + 7);
+                            argsStr = argsStr.substring(0, argsStr.indexOf(')'));
                         const end = ele.substring(ele.indexOf(')'));
+                        const arguments = argsStr.split(',').filter(ele2 => !!ele2);
+                        arguments &&
+                           arguments.forEach((nodeVal, index) => {
+                               if (index === 0 && nodeVal.indexOf(':') === -1) {
+                                   arguments.splice(
+                                       index,
+                                       1,
+                                       `'${ns}:' + ` + nodeVal
+                                   );
+                               }
+                           });
                         newVal +=
                             head +
+                            arguments.join(',') +
                             `,${CURRENT_LOCALE_KEY},${CURRENT_LOCALE_DATA} || ''` +
                             end +
                             '}}';
-                    } else if (ele && ele.indexOf("{{") !== -1) {
+                    } else if (ele && ele.indexOf('{{') !== -1) {
                         newVal += ele + '}}';
-                    }
-                    else {
+                    } else {
                         newVal += ele;
                     }
                 });
