@@ -198,7 +198,7 @@ module.exports = async function (content) {
         ) {
             source =
                 source +
-                `\n <${oakMessage} show="{{!!oakError}}" type="{{oakError.type || ''}}" content="{{oakError.msg || ''}}" ></${oakMessage}>`;
+                `\n <${oakMessage}></${oakMessage}>`;
         }
     }
 
