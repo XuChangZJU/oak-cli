@@ -10,10 +10,10 @@ module.exports = (babel) => {
             Program(path, state) {
                 const { cwd, filename } = state;
                 const rel = relative(cwd, filename).replace(/\\/g, '/');
-                if (/pages|components[\w|\W]+index\.ts$/.test(rel)) {
-                    const tsxFile = filename.replace(/\.ts$/, '.tsx');
+                if (/pages|components[\w|\W]+index\.(web.ts|ts)$/.test(rel)) {
+                    const tsxFile = filename.replace(/\.(web.ts|ts)$/, '.tsx');
                     const tsxFileExists = fs.existsSync(tsxFile);
-                    const pcTsxFile = filename.replace(/\.ts$/, '.pc.tsx');
+                    const pcTsxFile = filename.replace(/\.(web.ts|ts)$/, '.pc.tsx');
                     const pcTsxFileExists = fs.existsSync(pcTsxFile);
                     /** 根据tsx文件存在的情况，注入如下的render代码
                      * if (true) {
@@ -21,7 +21,7 @@ module.exports = (babel) => {
                             return renderMobile.call(this);
                         }
                         else {
-                            const renderScreen = require('./index.screen.tsx').default;
+                            const renderScreen = require('./index.pc.tsx').default;
                             return renderScreen.call(this);
                         }
                      */
@@ -95,7 +95,7 @@ module.exports = (babel) => {
                     } else {
                         assert(
                             false,
-                            `${filename}文件夹中不存在index.tsx或者index.pc.tsx`
+                            `${filename}文件中不存在index.tsx或者index.pc.tsx`
                         );
                     }
                     const node = path.node;
