@@ -14,8 +14,7 @@ const ForkTsCheckerWebpackPlugin =
     process.env.TSC_COMPILE_ON_ERROR === 'true'
         ? require('./../../plugins/ForkTsCheckerWarningWebpackPlugin')
         : require('react-dev-utils/ForkTsCheckerWebpackPlugin');
-const BundleAnalyzerPlugin =
-    require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+
 
 const OakWeChatMpPlugin = require('../../plugins/WechatMpPlugin');
 
