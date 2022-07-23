@@ -30,6 +30,7 @@ export default async function build(cmd: any) {
                 `NODE_TARGET=${cmd.target}`,
                 `SUB_DIR_NAME=${cmd.subDir || 'wechatMp'}`,
                 `TSC_COMPILE_ON_ERROR=${TSC_COMPILE_ON_ERROR}`,
+                `COMPILE_ANALYZE=${cmd.analyze}`,
                 `ts-node`,
                 require.resolve(
                     `../scripts/${
@@ -57,6 +58,7 @@ export default async function build(cmd: any) {
                 `NODE_TARGET=${cmd.target}`,
                 `SUB_DIR_NAME=${cmd.subDir || 'web'}`,
                 `TSC_COMPILE_ON_ERROR=${TSC_COMPILE_ON_ERROR}`,
+                `COMPILE_ANALYZE=${cmd.analyze}`,
                 `ts-node`,
                 require.resolve(
                     `../scripts/${

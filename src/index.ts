@@ -50,6 +50,7 @@ program
     .action(make);
 program
     .command('start')
+    .option('--analyze', 'analyze')
     .option('-t, --target <target>', 'target')
     .option('-m, --mode <mode>', 'mode')
     .option('-d, --subDir <subDirName>', 'subDirName')
@@ -58,6 +59,7 @@ program
     .action(build);
 program
     .command('build')
+    .option('--analyze', 'analyze')
     .option('-t, --target <target>', 'target')
     .option('-m, --mode <mode>', 'mode')
     .option('-d, --subDir <subDirName>', 'subDirName')
