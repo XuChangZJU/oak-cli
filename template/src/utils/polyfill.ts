@@ -1,7 +1,14 @@
-import { v4 } from 'uuid';
+import { v4, v1 } from 'uuid';
 
-async function generateNewId() {
-    return v4({ random: await getRandomValues(16) });
+export type GenerateIdOption = {
+    shuffle?: boolean;
+};
+
+async function generateNewId(option?: GenerateIdOption) {
+    if (option?.shuffle && process.env.NODE_ENV === 'development') {
+        return v4({ random: await getRandomValues(16) });
+    }
+    return v1({ random: await getRandomValues(16) });
 }
 
 Object.assign(global, {
