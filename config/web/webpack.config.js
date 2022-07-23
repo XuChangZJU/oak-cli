@@ -361,6 +361,7 @@ module.exports = function (webpackEnv) {
                 '@': paths.appSrc,
                 '@project': paths.appRootSrc,
                 '@oak-general-business': paths.oakGeneralBusinessAppPath,
+                'bn.js': require.resolve('bn.js'),
             },
             plugins: [
                 // Prevents users from importing files from outside of src/ (or node_modules/).
