@@ -364,7 +364,6 @@ module.exports = function (webpackEnv) {
             ],
         },
         plugins: [
-            // new BundleAnalyzerPlugin({ port: 8081 }),        // 要看体积分析的话就放开这行
             new UiExtractPlugin({ context: paths.appSrc }),
             new OakWeChatMpPlugin({
                 context: paths.appSrc,
