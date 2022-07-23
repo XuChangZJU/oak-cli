@@ -9,7 +9,6 @@ const ProgressBarPlugin = require('progress-bar-webpack-plugin');
 const UiExtractPlugin = require('ui-extract-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
-const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
 const ForkTsCheckerWebpackPlugin =
     process.env.TSC_COMPILE_ON_ERROR === 'true'
         ? require('./../../plugins/ForkTsCheckerWarningWebpackPlugin')
