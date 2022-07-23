@@ -1,11 +1,13 @@
 import { CreateOperationData as System } from 'oak-app-domain/System/Schema';
-export const DEV_SYSTEM_ID = 'MY_DEV_SYSTEM_ID';
+import { DEV_SYSTEM_ID } from 'oak-general-business';
+
+import Config from '../config';
 
 export const systems: System[] = [
     {
         id: DEV_SYSTEM_ID,
-        name: 'develop',
-        description: '开发用的system',
-        config: {},
-    }
+        name: Config.System.develop.name,
+        description: Config.System.develop.description,
+        config: Config.System.develop.config,
+    },
 ];

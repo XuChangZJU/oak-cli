@@ -1,9 +1,13 @@
 import { ExceptionRouters } from 'oak-frontend-base';
-import { exceptionRouters as GenenralExceptionRouters } from 'oak-general-business';
 import { ExampleException } from './types/Exception';
+import { exceptionRouters as generalExceptionRouter } from 'oak-general-business';
 
-export const routers = ([
-    [ExampleException, {
-        router: '/url/url',
-    }]
-] as ExceptionRouters).concat(GenenralExceptionRouters);
+export const routers = [
+    [
+        ExampleException,
+        {
+            router: '/url/url',
+        },
+    ],
+    ...generalExceptionRouter,
+] as ExceptionRouters;

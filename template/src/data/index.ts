@@ -1,8 +1,11 @@
 import { applications } from './application';
 import { systems } from './system';
-import { data as GeneralData } from 'oak-general-business';
+import { domains } from './domain';
+import { data as generalData } from 'oak-general-business';
 
-export const data = Object.assign({
+export const data = {
     application: applications,
     system: systems,
-}, GeneralData);
+    ...generalData,
+    domain: domains,
+};

@@ -1,14 +1,13 @@
-import { Aspect } from 'oak-domain/lib/types';
-import { aspectDict as GeneralAspectDict } from 'oak-general-business';
+import { test } from './sample';
+import { aspectDict as generalAspectDict } from 'oak-general-business';
+import { AspectDict as GeneralAspectDict } from 'oak-general-business/src/aspects/AspectDict';
+import { AspectDict } from './AspectDict';
 import { EntityDict } from 'oak-app-domain';
 import { RuntimeContext } from '../RuntimeContext';
 
-import { test } from './sample';
-
-const aspectDict = Object.assign({
+const aspectDict = {
     test,
-}, GeneralAspectDict as Record<keyof typeof GeneralAspectDict, Aspect<EntityDict, RuntimeContext>>);
+    ...generalAspectDict,
+} as AspectDict & GeneralAspectDict<EntityDict, RuntimeContext>;
 
-export {
-    aspectDict,
-}
+export { aspectDict };

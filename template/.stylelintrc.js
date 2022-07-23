@@ -1,4 +1,3 @@
-
 module.exports = {
     customSyntax: 'postcss-less',
     extends: 'stylelint-config-standard',
@@ -16,9 +15,14 @@ module.exports = {
         'no-duplicate-selectors': null,
         'selector-class-pattern': null,
         'font-family-no-missing-generic-family-keyword': null,
-        'function-no-unknown': [true, { ignoreFunctions: ['alpha', 'constant', 'fadeout'] }],
+        'function-no-unknown': [
+            true,
+            { ignoreFunctions: ['alpha', 'constant', 'fadeout'] },
+        ],
         'declaration-block-no-shorthand-property-overrides': null,
         'no-empty-source': null,
-        'selector-type-no-unknown': null
+        'selector-type-no-unknown': null,
+        'function-url-quotes': null,
+        'max-line-length': null,
     },
 };

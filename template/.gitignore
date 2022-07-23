@@ -61,6 +61,7 @@ out
 # Nuxt.js build / generate output
 .nuxt
 dist
+build
 # Gatsby files
 .cache/
 # Comment in the public line in if your project uses Gatsby and not Next.js
@@ -86,5 +87,5 @@ dist
 .pnp.*
 
 package-lock.json
-src/wechatMp/dist
 oak-app-domain
+*/public/locales
