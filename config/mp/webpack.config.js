@@ -127,7 +127,6 @@ module.exports = function (webpackEnv) {
         },
         resolve: {
             alias: {
-                assert: require.resolve('assert'),
                 '@': paths.appSrc,
                 '@project': paths.appRootSrc,
                 '@oak-general-business': paths.oakGeneralBusinessAppPath,
@@ -293,7 +292,6 @@ module.exports = function (webpackEnv) {
                             loader: 'babel-loader',
                             options: {
                                 plugins: [oakI18nPlugin],
-                                presets: ['@babel/preset-env']
                             },
                         },
                         {
@@ -370,7 +368,7 @@ module.exports = function (webpackEnv) {
                 extensions: paths.moduleFileExtensions.map((ext) => `.${ext}`),
                 exclude: ['*/weui-miniprogram/*'],
                 include: ['project.config.json', 'sitemap.json'],
-                split: !isEnvDevelopment,
+                split: isEnvProduction,
             }),
             new webpack.DefinePlugin(env.stringified),
             new StylelintPlugin({
