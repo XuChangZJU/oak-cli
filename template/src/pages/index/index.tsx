@@ -5,7 +5,7 @@ export default function render() {
     const { searchValue } = this.state;
     return (
         <div style={{ height: '100vh' }}>
-  
+            模板
         </div>
     );
 }

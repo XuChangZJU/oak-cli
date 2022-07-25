@@ -6,7 +6,7 @@ import { I18nextProvider } from 'react-i18next';
 import './index.less';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-import { ResponsiveProvider } from 'oak-frontend-base/src/platforms/web/responsive';
+import { ResponsiveProvider } from 'oak-frontend-base/lib/platforms/web/responsive';
 import { getAppType } from './utils/env';
 import initialize from '../../src/initialize';
 

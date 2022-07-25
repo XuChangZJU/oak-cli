@@ -1,9 +1,9 @@
 import { GenerateIdOption } from '../utils/polyfill';
-import { MakeOakComponent, MakeOakPage } from 'oak-frontend-base/src/page.mp';
+import { MakeOakComponent, MakeOakPage } from 'oak-frontend-base/lib/page.mp';
 import {
     MakeOakComponent as MakeOakWebComponent,
     MakeOakPage as MakeOakWebPage,
-} from 'oak-frontend-base/src/page.web';
+} from 'oak-frontend-base/lib/page.web';
 import { EntityDict } from 'oak-app-domain';
 import { RuntimeContext } from '../RuntimeContext';
 import { aspectDict } from '../aspects';

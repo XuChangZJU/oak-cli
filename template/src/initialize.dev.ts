@@ -5,7 +5,7 @@ import { EntityDict, storageSchema, ActionDefDict } from 'oak-app-domain';
 import { CommonAspectDict } from 'oak-common-aspect';
 import { RuntimeContext } from './RuntimeContext';
 
-import { initialize as initializeGeneralFeatures } from 'oak-general-business/src/features';
+import { initialize as initializeGeneralFeatures } from 'oak-general-business/lib/features';
 
 import { initialize as initializeFeatures } from './features';
 import { data } from './data';
