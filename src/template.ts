@@ -10,6 +10,7 @@ export function packageJsonContent({
     let oakPackageStr;
     if (isDev) {
         oakPackageStr = `"${cliname}": "file:../${cliname}",
+        "oak-common-aspect": "file:../oak-common-aspect",
         "oak-domain": "file:../oak-domain",
         "oak-frontend-base": "file:../oak-frontend-base",
         "oak_external-sdk": "file:../oak-external-sdk",
@@ -18,6 +19,7 @@ export function packageJsonContent({
     }
     else {
         oakPackageStr = `"${cliname}": "^${cliversion}",
+        "oak-common-aspect": "^1.0.0",
         "oak-domain": "^1.0.0",
         "oak-frontend-base": "^1.0.0",
         "oak-general-business": "^1.0.0",

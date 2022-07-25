@@ -28,7 +28,7 @@ module.exports = () => {
                             const { navigationBarTitleText } = require(`${relPath}.json`);
                             const pagePath = ele.slice(ele.indexOf('pages/') + 6, ele.length - 6);
                             return t.objectExpression([
-                                t.objectProperty(t.identifier('title'), t.stringLiteral(navigationBarTitleText)),
+                                t.objectProperty(t.identifier('title'), t.stringLiteral(navigationBarTitleText || '')),
                                 t.objectProperty(t.identifier('path'), t.stringLiteral(pagePath)),
                                 t.objectProperty(t.identifier('element'), t.callExpression(
                                     t.identifier('LazyLoad'),

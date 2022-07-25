@@ -11,7 +11,7 @@ const Locales = 'locales';
 
 function copyLocaleFiles() {
     //build locales
-    consola.start(`${chalk.blueBright('读取locales，生成json数据')}`);
+    consola.success(`${chalk.blueBright('读取locales，生成json数据')}`);
     // locales到mp/dist下
     const buildPath = Path.resolve(paths.appBuild, Locales);
     const json = buildLocales({

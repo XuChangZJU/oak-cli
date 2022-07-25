@@ -1,0 +1,8 @@
+{
+    "host": "localhost",
+    "user": "root",
+    "password": "",
+    "database": "bangzuxia",
+    "charset": "utf8mb4_general_ci",
+    "connectionLimit": 5
+}
