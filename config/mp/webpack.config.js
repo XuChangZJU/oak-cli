@@ -279,6 +279,8 @@ module.exports = function (webpackEnv) {
                     loader: 'babel-loader',
                     options: {
                         plugins: [oakI18nPlugin],
+                        //开启缓存
+                        // cacheDirectory: false,
                     },
                 },
                 {
@@ -292,6 +294,9 @@ module.exports = function (webpackEnv) {
                             loader: 'babel-loader',
                             options: {
                                 plugins: [oakI18nPlugin],
+                                //开启缓存
+                                // cacheDirectory: false,
+                                // presets: ['@babel/preset-env'],
                             },
                         },
                         {
@@ -326,6 +331,7 @@ module.exports = function (webpackEnv) {
                             loader: 'wxml-loader',
                             options: {
                                 context: paths.appSrc,
+                                cacheDirectory: false,
                             },
                         },
                     ],
@@ -341,6 +347,7 @@ module.exports = function (webpackEnv) {
                             loader: 'wxml-loader',
                             options: {
                                 context: paths.appSrc,
+                                cacheDirectory: false,
                             },
                         },
                     ],
@@ -355,6 +362,7 @@ module.exports = function (webpackEnv) {
                             loader: 'wxml-loader',
                             options: {
                                 context: paths.appSrc,
+                                cacheDirectory: false,
                             },
                         },
                     ],

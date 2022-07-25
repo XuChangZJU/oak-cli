@@ -133,11 +133,10 @@ function getAppJson(context) {
 }
 
 module.exports = async function (content) {
-    // loader的缓存功能
-    // this.cacheable && this.cacheable();
-
     const options = this.getOptions() || {}; //获取配置参数
-    const { context: projectContext } = options; // context 本项目路径
+    const { context: projectContext, cacheDirectory = true } = options; // context 本项目路径
+    // loader的缓存功能
+    this.cacheable && this.cacheable(cacheDirectory);
     const callback = this.async();
     const {
         options: webpackLegacyOptions,
@@ -186,7 +185,6 @@ module.exports = async function (content) {
                 `<wxs src='${wxsRelativePath}' module='${I18nModuleName}'></wxs>` +
                 source;
         }
-
     }
     // 注入全局message组件
     if (/pages/.test(context)) {
@@ -196,9 +194,7 @@ module.exports = async function (content) {
             appJson.usingComponents &&
             appJson.usingComponents[oakMessage]
         ) {
-            source =
-                source +
-                `\n <${oakMessage}></${oakMessage}>`;
+            source = source + `\n <${oakMessage}></${oakMessage}>`;
         }
     }
 
@@ -254,8 +250,7 @@ module.exports = async function (content) {
                 } else {
                     node.setAttribute('focus', `{{!!oakFocused.${oakValue}}}`);
                 }
-            }
-            else if (node.hasAttribute('oak:path')) {
+            } else if (node.hasAttribute('oak:path')) {
                 // oak:path声明的属性加上oakPath和oakParent
                 const oakValue = node.getAttribute('oak:path');
                 node.removeAttribute('oak:path');
@@ -279,21 +274,29 @@ module.exports = async function (content) {
                 let newVal = '';
                 valArr.forEach((ele, index) => {
                     if (existsT(ele)) {
-                        const head = ele.substring(0, ele.indexOf("i18n.t(") + 7);
+                        const head = ele.substring(
+                            0,
+                            ele.indexOf('i18n.t(') + 7
+                        );
                         let argsStr = ele.substring(ele.indexOf('i18n.t(') + 7);
-                            argsStr = argsStr.substring(0, argsStr.indexOf(')'));
+                        argsStr = argsStr.substring(0, argsStr.indexOf(')'));
                         const end = ele.substring(ele.indexOf(')'));
-                        const arguments = argsStr.split(',').filter(ele2 => !!ele2);
+                        const arguments = argsStr
+                            .split(',')
+                            .filter((ele2) => !!ele2);
                         arguments &&
-                           arguments.forEach((nodeVal, index) => {
-                               if (index === 0 && nodeVal.indexOf(':') === -1) {
-                                   arguments.splice(
-                                       index,
-                                       1,
-                                       `'${ns}:' + ` + nodeVal
-                                   );
-                               }
-                           });
+                            arguments.forEach((nodeVal, index) => {
+                                if (
+                                    index === 0 &&
+                                    nodeVal.indexOf(':') === -1
+                                ) {
+                                    arguments.splice(
+                                        index,
+                                        1,
+                                        `'${ns}:' + ` + nodeVal
+                                    );
+                                }
+                            });
                         newVal +=
                             head +
                             arguments.join(',') +
