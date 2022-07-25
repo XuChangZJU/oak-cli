@@ -14,7 +14,7 @@ function copyLocaleFiles() {
     try {
         // locales到web/public下
         const buildPath = Path.resolve(paths.appPublic, Locales);
-        consola.start(`${chalk.blueBright('读取locales，生成json数据')}`);
+        consola.success(`${chalk.greenBright('读取locales，生成json数据')}`);
         const json = buildLocales({
             projectPath: paths.appRootSrc,
             businessProjectPath: paths.oakGeneralBusinessAppPath,
