@@ -8,7 +8,7 @@
         "dev": "tsc --watch"
     },
     "bin": {
-        "oak-cli": "lib/index.js"
+        "oak-cli": "lib/index"
     },
     "author": "",
     "license": "",

@@ -280,7 +280,7 @@ export function tsConfigWebJsonContent() {
   "extends": "./tsconfig.paths.json",
    "compilerOptions": {
     "module": "commonjs",
-    "target": "esnext",
+    "target": "es5",
     "allowJs": true,
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
