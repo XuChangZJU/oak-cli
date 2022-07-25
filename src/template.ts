@@ -33,21 +33,40 @@ export function packageJsonContent({
         "make:domain": "${cliname} make",
         "start:mp": "${cliname} start --target mp --mode development",
         "build:mp": "${cliname} build --target mp --mode production",
+        "build-analyze:mp": "${cliname} build --target mp --mode production --analyze",
         "start:web": "${cliname} start --target web --mode development",
-        "build:web": "${cliname} build --target web --mode production"
+        "build:web": "${cliname} build --target web --mode production",
+        "build-analyze:web": "${cliname} build --target web --mode production --analyze",
+        "build": "tsc",
+        "server:init": "cross-env NODE_ENV=development; cross-env OAK_PLATFORM=server ts-node scripts/initServer.ts",
+        "server:start": "cross-env NODE_ENV=development; cross-env OAK_PLATFORM=server ts-node scripts/startServer.ts",
+        "postinstall": "${cliname} make"
     },
     "keywords": [],
     "author": "",
     "license": "",
     "dependencies": {
         "@reduxjs/toolkit": "^1.7.2",
+        "classnames": "^2.3.1",
         "crypto-browserify": "^3.12.0",
+        "i18next": "^20.6.1",
+        "i18next-browser-languagedetector": "^6.1.4",
+        "i18next-chained-backend": "^3.0.2",
+        "i18next-http-backend": "^1.4.1",
+        "i18next-localstorage-backend": "^3.1.3",
+        "i18next-resource-store-loader": "^0.1.2",
         "lodash": "^4.17.21",
+        "luxon": "^2.4.0",
+        "nprogress": "^0.2.0",
         ${oakPackageStr}
-        "react": "^18.1.0",
+        "react": "^18.2.0",
         "react-dom": "^18.1.0",
+        "react-i18next": "^11.18.0",
+        "react-responsive": "^9.0.0-beta.10",
         "react-router-dom": "^6.3.0",
         "react-scripts": "5.0.1",
+        "rmc-pull-to-refresh": "^1.0.13",
+        "url": "^0.11.0",
         "uuid": "^8.3.2"
     },
     "devDependencies": {
@@ -57,19 +76,20 @@ export function packageJsonContent({
         "@babel/preset-env": "^7.12.13",
         "@babel/preset-typescript": "^7.12.13",
         "@pmmmwh/react-refresh-webpack-plugin": "^0.5.3",
+        "@svgr/webpack": "^5.5.0",
         "@testing-library/jest-dom": "^5.16.4",
         "@testing-library/react": "^13.3.0",
         "@testing-library/user-event": "^13.5.0",
-        "@types/jest": "^27.5.2",
-        "@types/node": "^16.11.38",
-        "@types/react": "^18.0.12",
-        "@types/react-dom": "^18.0.5",
-        "@svgr/webpack": "^5.5.0",
         "@types/assert": "^1.5.6",
         "@types/fs-extra": "^9.0.13",
+        "@types/jest": "^27.5.2",
         "@types/lodash": "^4.14.179",
         "@types/luxon": "^2.3.2",
         "@types/mocha": "^8.2.0",
+        "@types/node": "^16.11.38",
+        "@types/nprogress": "^0.2.0",
+        "@types/react": "^18.0.12",
+        "@types/react-dom": "^18.0.5",
         "@types/shelljs": "^0.8.11",
         "@types/uuid": "^8.3.0",
         "@types/wechat-miniprogram": "^3.4.0",
@@ -85,7 +105,7 @@ export function packageJsonContent({
         "chalk": "^4.1.2",
         "clean-webpack-plugin": "^4.0.0",
         "copy-webpack-plugin": "^10.2.4",
-        "cross-env": "^7.0.2",
+        "cross-env": "^7.0.3",
         "css-loader": "^6.6.0",
         "css-minimizer-webpack-plugin": "^3.2.0",
         "dotenv": "^10.0.0",
@@ -133,9 +153,9 @@ export function packageJsonContent({
         "stylelint-webpack-plugin": "^3.1.1",
         "tailwindcss": "^3.0.2",
         "terser-webpack-plugin": "^5.2.5",
-        "ts-loader": "^9.2.6",
-        "ts-node": "^9.1.1",
-        "typescript": "^4.5.2",
+        "ts-loader": "^9.3.0",
+        "ts-node": "^10.8.1",
+        "typescript": "^4.7.3",
         "ui-extract-webpack-plugin": "^1.0.0",
         "web-vitals": "^2.1.4",
         "webpack": "^5.69.1",
@@ -162,31 +182,131 @@ export function packageJsonContent({
 
 export function tsConfigJsonContent() {
     return `{
-   "compilerOptions": {
-    "module": "CommonJS",
-    "target": "esnext",
-    "allowJs": false,
+  "extends": "./tsconfig.paths.json",
+  "compilerOptions": {
+    "jsx": "preserve",
+    "module": "commonjs",
+    "target": "es5",
+    "allowJs": true,
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
-    "experimentalDecorators": true,
+    "experimentalDecorators": true,   
+    "skipLibCheck": true,
     "strict": true,
     "lib": [
-      "ES2020"
+      "dom",
+      "dom.iterable",
+      "esnext"
     ],
-    "typeRoots": [
-      "./src/typings"
-    ],
+    "outDir": "lib", /* Redirect output structure to the directory. */
+    "rootDir": "src", /* Specify the root directory of input files. Use to control the output directory structure with --outDir. */
     "types": [
       "node",
       "miniprogram-api-typings"
     ],
-    "resolveJsonModule": true /* Disallow inconsistently-cased references to the same file. */
+    "resolveJsonModule": true
+  },
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "**/*.spec.ts",
+    "test"
+  ]
+}`;
+}
+
+export function tsConfigPathsJsonContent() {
+    return `{
+    "compilerOptions": {
+        "baseUrl": "./",
+        "paths": {
+            "@project/*": [
+                "src/*"
+            ],
+            "@oak-general-business/*": [
+                "node_modules/oak-general-business/app/*"
+            ],
+        },
+    }
+}`;
+}
+
+export function tsConfigMpJsonContent() {
+    return `{
+   "extends": "./tsconfig.paths.json",
+   "compilerOptions": {
+    "module": "commonjs",
+    "target": "es5",
+    "allowJs": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "experimentalDecorators": true,
+    "strict": true,
+    "downlevelIteration": true,
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    // "outDir": "lib", /* Redirect output structure to the directory. */
+    // "rootDir": "src", /* Specify the root directory of input files. Use to control the output directory structure with --outDir. */
+    "types": [
+      "node",
+      "miniprogram-api-typings"
+    ],
+    "resolveJsonModule": true,
+    "jsx": "react"
   },
   "include": [
     "./**/*.ts",
+    "./**/*.mp.ts"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "./web"
+  ]
+}`;
+}
+
+export function tsConfigWebJsonContent() {
+    return `{
+  "extends": "./tsconfig.paths.json",
+   "compilerOptions": {
+    "module": "commonjs",
+    "target": "esnext",
+    "allowJs": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "experimentalDecorators": true,
+    "strict": true,
+    
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    // "outDir": "lib", /* Redirect output structure to the directory. */
+    // "rootDir": "src", /* Specify the root directory of input files. Use to control the output directory structure with --outDir. */
+    "types": [
+      "node",
+      "miniprogram-api-typings"
+    ],
+    "resolveJsonModule": true,
+    "jsx": "react"
+  },
+  "include": [
+    "./**/*.ts",
+    "./**/*.tsx",
+    "./**/*.web.ts",
+    "./**/*.web.tsx",
+    "./**/*.pc.ts",
+    "./**/*.pc.tsx"
+  ],
+  "exclude": [
+    "node_modules",
+    "./wechatMp"
   ]
 }`;
 }
@@ -281,7 +401,7 @@ export function appJsonContentWithWeChatMp(isDev: boolean) {
         pages.push('@oak-general-business/pages/pickers/area/index');
     }
     else {
-       pages.push('pages/index/index'); 
+       pages.push('@project/pages/index/index'); 
     }
     return `{
   "pages":${JSON.stringify(pages, null, 4)},
@@ -303,7 +423,22 @@ export function appJsonContentWithWeChatMp(isDev: boolean) {
 export function oakConfigContentWithWeChatMp() {
     return `{
     "theme": {
-        "@primary-color": "#2d8cf0"
+    }
+}`;
+}
+
+export function appJsonContentWithWeb(isDev: boolean) {
+    return `{
+    "pages": [
+        "@project/pages/index/index"
+    ]
+}
+`;
+}
+
+export function oakConfigContentWithWeb() {
+    return `{
+    "theme": {
     }
 }`;
 }

@@ -97,7 +97,7 @@ module.exports = {
     publicUrlOrPath,
     appRootSrc: resolveRoot('src'),
     appRootPath: resolveRoot('.'),
-    oakConfigJson: resolveRoot('oak.config.json'),
+    oakConfigJson: resolveApp('src/oak.config.json'),
     oakGeneralBusinessAppPath: resolveRoot(
         'node_modules/oak-general-business/app'
     ),

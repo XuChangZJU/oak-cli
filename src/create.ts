@@ -15,9 +15,14 @@ import {
 import {
     packageJsonContent,
     tsConfigJsonContent,
+    tsConfigPathsJsonContent,
+    tsConfigMpJsonContent,
+    tsConfigWebJsonContent,
     appJsonContentWithWeChatMp,
     projectConfigContentWithWeChatMp,
     oakConfigContentWithWeChatMp,
+    appJsonContentWithWeb,
+    oakConfigContentWithWeb,
 } from './template';
 import { PromptInput } from './interface';
 import { join } from 'path';
@@ -132,6 +137,38 @@ async function createWechatMpBoilplate(dir: string, isDev: boolean, isUpdate?: b
     );
 }
 
+async function createWebBoilplate(
+    dir: string,
+    isDev: boolean,
+    isUpdate?: boolean
+) {
+    // 获取web项目app.json内容
+    const appJsonWithWeb = appJsonContentWithWeb(isDev);
+
+    // 获取web项目oak.config.json内容
+    const oakConfigWithWeb = oakConfigContentWithWeb();
+
+    const appJsonPathWithWeb = join(dir, 'src', 'app.json');
+
+    // web项目oak.config.json路径
+    const oakConfigPathWithWeb = join(dir, 'src', USER_CONFIG_FILE_NAME);
+
+    // 创建小程序项目app.json
+    checkFileExistsAndCreate(
+        appJsonPathWithWeb,
+        appJsonWithWeb,
+        checkFileExistsAndCreateType.FILE,
+        isUpdate
+    );
+    // 创建小程序项目oak.config.json
+    checkFileExistsAndCreate(
+        oakConfigPathWithWeb,
+        oakConfigWithWeb,
+        checkFileExistsAndCreateType.FILE,
+        isUpdate
+    );
+}
+
 export async function create(dirName: string, cmd: any) {
     const nameOption = {
         type: 'input',
@@ -157,6 +194,9 @@ export async function create(dirName: string, cmd: any) {
 
     // 获取tsconfig.json内容
     const tsconfigJson = tsConfigJsonContent();
+    const tsConfigPathsJson = tsConfigPathsJsonContent();
+    const tsConfigMpJson = tsConfigMpJsonContent();
+    const tsConfigWebJson = tsConfigWebJsonContent();
 
     // 项目根路径
     const rootPath = process.cwd() + '/' + dirName;
@@ -164,6 +204,12 @@ export async function create(dirName: string, cmd: any) {
     const packageJsonPath = `${rootPath}/package.json`;
     // tsconfig.json路径
     const tsconfigJsonPath = `${rootPath}/tsconfig.json`;
+    // tsconfig.paths.json路径
+    const tsconfigPathsJsonPath = `${rootPath}/tsconfig.paths.json`;
+    // tsconfig.mp.json路径
+    const tsConfigMpJsonPath = `${rootPath}/tsconfig.mp.json`;
+    // tsconfig.web.json路径
+    const tsConfigWebJsonPath = `${rootPath}/tsconfig.web.json`;
     // web项目根路径
     const webRootPath = `${rootPath}/web`;
     // 小程序项目根路径
@@ -188,10 +234,29 @@ export async function create(dirName: string, cmd: any) {
             tsconfigJson,
             checkFileExistsAndCreateType.FILE
         );
+        // 创建tsconfig.paths.json
+        checkFileExistsAndCreate(
+            tsconfigPathsJsonPath,
+            tsConfigPathsJson,
+            checkFileExistsAndCreateType.FILE
+        );
+        // 创建tsconfig.mp.json
+        checkFileExistsAndCreate(
+            tsConfigMpJsonPath,
+            tsConfigMpJson,
+            checkFileExistsAndCreateType.FILE
+        );
+        // 创建tsconfig.web.json
+        checkFileExistsAndCreate(
+            tsConfigWebJsonPath,
+            tsConfigWebJson,
+            checkFileExistsAndCreateType.FILE
+        );
         // 复制项目文件
         copyFolder(currentPath, rootPath);
 
         await createWechatMpBoilplate(weChatMpRootPath, isDev);
+        await createWebBoilplate(webRootPath, isDev);
         if (!shell.which('npm')) {
             Warn(warn('Sorry, this script requires npm! Please install npm!'));
             shell.exit(1);
