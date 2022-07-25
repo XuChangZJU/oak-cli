@@ -1,26 +1,44 @@
 import { EntityDict } from 'oak-app-domain';
-import { Feature, BasicFeatures } from 'oak-frontend-base';
-import { aspectDict } from '../aspects';
+import { AspectWrapper } from 'oak-domain/lib/types';
+import { BasicFeatures } from 'oak-frontend-base/lib/features';
+import { Feature } from 'oak-frontend-base/lib/types/Feature';
+import { CommonAspectDict } from 'oak-common-aspect';
+import { AspectDict } from '../aspects/AspectDict';
 import { RuntimeContext } from '../RuntimeContext';
 
 type DoSthAcion = {
-    type: 'doSth',
+    type: 'doSth';
     payload: {
         args: string;
-    }
-}
+    };
+};
 
-export class Sample extends Feature<EntityDict, RuntimeContext, typeof aspectDict> {
+export class Sample extends Feature<
+    EntityDict,
+    RuntimeContext,
+    AspectDict & CommonAspectDict<EntityDict, RuntimeContext>
+> {
     get(params: any) {
         throw new Error('Method not implemented.');
     }
     action(action: DoSthAcion) {
         throw new Error('Method not implemented.');
     }
-    cache: BasicFeatures<EntityDict, RuntimeContext, typeof aspectDict>['cache'];
+    cache: BasicFeatures<
+        EntityDict,
+        RuntimeContext,
+        AspectDict & CommonAspectDict<EntityDict, RuntimeContext>
+    >['cache'];
 
-    constructor(cache: BasicFeatures<EntityDict, RuntimeContext, typeof aspectDict>['cache']) {
-        super();
+    constructor(
+        aspectWrapper: AspectWrapper<EntityDict, RuntimeContext, AspectDict>,
+        cache: BasicFeatures<
+            EntityDict,
+            RuntimeContext,
+            AspectDict & CommonAspectDict<EntityDict, RuntimeContext>
+        >['cache']
+    ) {
+        super(aspectWrapper);
         this.cache = cache;
-    };
-};
+    }
+}

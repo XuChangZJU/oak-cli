@@ -1,5 +1,5 @@
 import './utils/polyfill';
-import { initialize as init } from 'oak-frontend-base/src/initialize.prod';
+import { initialize as init } from 'oak-frontend-base/lib/initialize.prod';
 import { SimpleConnector } from 'oak-domain/lib/utils/SimpleConnector';
 
 import { AspectWrapper } from 'oak-domain/lib/types';
@@ -15,9 +15,8 @@ import { checkers } from './checkers';
 import { makeException } from './types/Exception';
 import { AspectDict } from './aspects/AspectDict';
 
-import { BasicFeatures } from 'oak-frontend-base';
+import { BasicFeatures } from 'oak-frontend-base/lib/features';
 import { AppType } from 'oak-app-domain/Application/Schema';
-
 
 export default function initialize(type: AppType, url: string) {
     let wholeFeatures = {};
@@ -60,18 +59,22 @@ export default function initialize(type: AppType, url: string) {
      */
     if (type === 'wechatMp') {
         // 如果是小程序，需要显式传入url
-        const apiPath = process.env.NODE_ENV === 'development' ? '3001': '/oak-api';  // 生产环境通过路径映射增加oak-api
-        const protocol = process.env.NODE_ENV === 'development' ? 'http://' : 'https://';
+        const apiPath =
+            process.env.NODE_ENV === 'development' ? '3001' : '/oak-api'; // 生产环境通过路径映射增加oak-api
+        const protocol =
+            process.env.NODE_ENV === 'development' ? 'http://' : 'https://';
         URL = `${protocol}${url}${apiPath}/aspect`;
-    }
-    else if (process.env.NODE_ENV === 'development') {
+    } else if (process.env.NODE_ENV === 'development') {
         URL = 'http://localhost:3001/aspect';
-    }
-    else {
+    } else {
         // web和public环境只需要传相对路径
         URL = `/oak-api/aspect`;
     }
-    const connector = new SimpleConnector(URL, makeException, RuntimeContext.FromCxtStr);
+    const connector = new SimpleConnector(
+        URL,
+        makeException,
+        RuntimeContext.FromCxtStr
+    );
     const { i18n } = init<
         EntityDict,
         RuntimeContext,
@@ -84,7 +87,7 @@ export default function initialize(type: AppType, url: string) {
         routers,
         connector,
         checkers,
-        ActionDefDict,
+        ActionDefDict
     );
 
     return {

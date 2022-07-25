@@ -1,5 +1,5 @@
 import './utils/polyfill';
-import { initialize as init } from 'oak-frontend-base/src/initialize.dev';
+import { initialize as init } from 'oak-frontend-base/lib/initialize.dev';
 
 import { EntityDict, storageSchema, ActionDefDict } from 'oak-app-domain';
 import { CommonAspectDict } from 'oak-common-aspect';
@@ -12,7 +12,6 @@ import { data } from './data';
 import { routers } from './exceptionRouters';
 import { checkers } from './checkers';
 
-
 // dev需要将下面内容也传入
 import { AspectDict } from './aspects/AspectDict';
 import { aspectDict } from './aspects';
@@ -20,7 +19,7 @@ import { triggers } from './triggers';
 import { watchers } from './watchers';
 
 import { AspectWrapper } from 'oak-domain/lib/types';
-import { BasicFeatures } from 'oak-frontend-base';
+import { BasicFeatures } from 'oak-frontend-base/lib/features';
 import { AppType } from 'oak-app-domain/Application/Schema';
 
 export default function initialize(type: AppType, url?: string) {
@@ -73,7 +72,7 @@ export default function initialize(type: AppType, url?: string) {
         checkers,
         watchers,
         data as any,
-        ActionDefDict,
+        ActionDefDict
     );
 
     return {

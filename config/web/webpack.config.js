@@ -190,7 +190,7 @@ module.exports = function (webpackEnv) {
                         sourceMap: isEnvProduction
                             ? shouldUseSourceMap
                             : isEnvDevelopment,
-                        root: paths.appSrc,
+                        root: paths.appRootSrc,
                     },
                 },
                 {

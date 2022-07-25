@@ -85,7 +85,6 @@ const locale: LocaleDef<
             subtitle: '副标题',
             addrDetail: '地址',
             type: '房屋类型',
-            lock: '锁',
             floor: '楼层',
             totalFloors: '总楼层',
             roomNumber: '房间数',

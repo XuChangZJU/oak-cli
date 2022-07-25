@@ -1,5 +1,5 @@
 import { EntityDict } from 'oak-app-domain';
-import { BasicFeatures } from 'oak-frontend-base';
+import { BasicFeatures } from 'oak-frontend-base/lib/features';
 import { CommonAspectDict } from 'oak-common-aspect';
 import * as Sample from './Sample';
 import { AspectDict } from '../aspects/AspectDict';
