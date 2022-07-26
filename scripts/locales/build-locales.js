@@ -5,9 +5,9 @@ const Path = require('path');
 const { merge, get, set, setWith } = require('lodash');
 
 const oakRegex =
-    /(\/*[a-zA-Z0-9_-])*\/app\/(pages|components)\/|(\\*[a-zA-Z0-9_-])*\\app\\(pages|components)\\/;
+    /(\/*[a-zA-Z0-9_-])*\/app\/(pages|components|locales)+\/|(\\*[a-zA-Z0-9_-])*\\app\\(pages|components|locales)+\\/;
 const localRegex =
-    /(\/*[a-zA-Z0-9_-])*\/src\/(pages|components)+\/|(\\*[a-zA-Z0-9_-])*\\src\/(pages|components)+\\/;
+    /(\/*[a-zA-Z0-9_-])*\/src\/(pages|components|locales)+\/|(\\*[a-zA-Z0-9_-])*\\src\/(pages|components|locales)+\\/;
 
 function getName(val) {
     const name = val.substring(0, 1).toLowerCase() + val.substring(1);
@@ -138,7 +138,11 @@ function listenerLocaleFiles(path, buildPath, nodeEnv, platform) {
         if (/(\/locales\/)|/.test(filename) && /\.(json)$/.test(filename)) {
             if (eventType === 'change') {
                 //文件内容改变
-                const newFilename = fPath.replace(oakRegex, '').replace(localRegex, '');
+                const newFilename = fPath
+                    .replace(oakRegex, '')
+                    .replace(localRegex, '');
+                console.log(newFilename);
+               
                 const { name, lng } = getNameAndLng(newFilename);
 
                 const dataJson = fs.readJsonSync(fPath);
