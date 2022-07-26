@@ -141,7 +141,6 @@ function listenerLocaleFiles(path, buildPath, nodeEnv, platform) {
                 const newFilename = fPath
                     .replace(oakRegex, '')
                     .replace(localRegex, '');
-                console.log(newFilename);
                
                 const { name, lng } = getNameAndLng(newFilename);
 
