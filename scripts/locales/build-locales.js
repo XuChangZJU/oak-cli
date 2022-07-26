@@ -54,28 +54,10 @@ function buildLocales({
 }
 
 function readProject(json, projectPath, buildPath, nodeEnv, platform) {
-    // 读取oak-app-domain/
-    const domainLocalesPath = Path.resolve(
-        projectPath,
-        'oak-app-domain'
-    ).replace(/\\/g, '/');
-    findLocaleFiles(json, domainLocalesPath, '', buildPath, nodeEnv, platform);
-
-    // 读取business/locales
-    const localesPath = Path.resolve(projectPath, 'locales').replace(
-        /\\/g,
-        '/'
-    );
-    findLocaleFiles(json, localesPath, '', buildPath, nodeEnv, platform);
-
-    const pagesPath = Path.resolve(projectPath, 'pages').replace(/\\/g, '/');
-    findLocaleFiles(json, pagesPath, '', buildPath, nodeEnv, platform);
-
-    const componentsPath = Path.resolve(projectPath, 'components').replace(
-        /\\/g,
-        '/'
-    );
-    findLocaleFiles(json, componentsPath, '', buildPath, nodeEnv, platform);
+    ['oak-app-domain', 'pages', 'components', 'locales'].forEach((ele) => {
+        const path = Path.resolve(projectPath, ele).replace(/\\/g, '/');
+        findLocaleFiles(json, path, '', buildPath, nodeEnv, platform);
+    });
 }
 
 function readLocaleFiles(json, path, name) {
