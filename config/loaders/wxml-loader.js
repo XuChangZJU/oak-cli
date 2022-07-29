@@ -72,6 +72,12 @@ function traverse(doc, callback) {
             traverse(doc.childNodes.item(i), callback);
         }
     }
+    if (doc.attributes) {
+        const { length } = doc.attributes;
+        for (let i = 0; i < length; i++) {
+            traverse(doc.attributes.item(i), callback);
+        }
+    }
 }
 
 const isSrc = (name) => name === 'src';
@@ -213,6 +219,12 @@ module.exports = async function (content) {
     }).parseFromString(source, 'text/xml');
     const requests = [];
     traverse(doc, (node) => {
+        if (node.nodeType === node.ATTRIBUTE_NODE) {
+            if (existsT(node.value)) {
+                const newVal = formatT(node.value, resourcePath);
+                node.value = newVal;
+            }
+        }
         if (node.nodeType === node.ELEMENT_NODE) {
             // xml存在src path路径
             if (node.hasAttribute('src')) {
@@ -259,56 +271,56 @@ module.exports = async function (content) {
             }
         }
         if (node.nodeType === node.TEXT_NODE) {
-            // 处理i18n 把t()转成i18n.t()
             if (existsT(node.nodeValue)) {
-                const p = replaceDoubleSlash(resourcePath)
-                    .replace(oakPagesOrComponentsRegex, '')
-                    .replace(localPagesOrComponentsRegex, '');
-                const eP = p.substring(0, p.lastIndexOf('/'));
-                const ns = eP
-                    .split('/')
-                    .filter((ele) => !!ele)
-                    .join('-');
-                const val = replaceT(node.nodeValue); // {{i18n.t()}}
-                const valArr = val.split('}}');
-                let newVal = '';
-                valArr.forEach((ele, index) => {
-                    if (existsT(ele)) {
-                        const head = ele.substring(
-                            0,
-                            ele.indexOf('i18n.t(') + 7
-                        );
-                        let argsStr = ele.substring(ele.indexOf('i18n.t(') + 7);
-                        argsStr = argsStr.substring(0, argsStr.indexOf(')'));
-                        const end = ele.substring(ele.indexOf(')'));
-                        const arguments = argsStr
-                            .split(',')
-                            .filter((ele2) => !!ele2);
-                        arguments &&
-                            arguments.forEach((nodeVal, index) => {
-                                if (
-                                    index === 0 &&
-                                    nodeVal.indexOf(':') === -1
-                                ) {
-                                    arguments.splice(
-                                        index,
-                                        1,
-                                        `'${ns}:' + ` + nodeVal
-                                    );
-                                }
-                            });
-                        newVal +=
-                            head +
-                            arguments.join(',') +
-                            `,${CURRENT_LOCALE_KEY},${CURRENT_LOCALE_DATA} || ''` +
-                            end +
-                            '}}';
-                    } else if (ele && ele.indexOf('{{') !== -1) {
-                        newVal += ele + '}}';
-                    } else {
-                        newVal += ele;
-                    }
-                });
+                // const p = replaceDoubleSlash(resourcePath)
+                //     .replace(oakPagesOrComponentsRegex, '')
+                //     .replace(localPagesOrComponentsRegex, '');
+                // const eP = p.substring(0, p.lastIndexOf('/'));
+                // const ns = eP
+                //     .split('/')
+                //     .filter((ele) => !!ele)
+                //     .join('-');
+                // const val = replaceT(node.nodeValue); // {{i18n.t()}}
+                // const valArr = val.split('}}');
+                // let newVal = '';
+                // valArr.forEach((ele, index) => {
+                //     if (existsT(ele)) {
+                //         const head = ele.substring(
+                //             0,
+                //             ele.indexOf('i18n.t(') + 7
+                //         );
+                //         let argsStr = ele.substring(ele.indexOf('i18n.t(') + 7);
+                //         argsStr = argsStr.substring(0, argsStr.indexOf(')'));
+                //         const end = ele.substring(ele.indexOf(')'));
+                //         const arguments = argsStr
+                //             .split(',')
+                //             .filter((ele2) => !!ele2);
+                //         arguments &&
+                //             arguments.forEach((nodeVal, index) => {
+                //                 if (
+                //                     index === 0 &&
+                //                     nodeVal.indexOf(':') === -1
+                //                 ) {
+                //                     arguments.splice(
+                //                         index,
+                //                         1,
+                //                         `'${ns}:' + ` + nodeVal
+                //                     );
+                //                 }
+                //             });
+                //         newVal +=
+                //             head +
+                //             arguments.join(',') +
+                //             `,${CURRENT_LOCALE_KEY},${CURRENT_LOCALE_DATA} || ''` +
+                //             end +
+                //             '}}';
+                //     } else if (ele && ele.indexOf('{{') !== -1) {
+                //         newVal += ele + '}}';
+                //     } else {
+                //         newVal += ele;
+                //     }
+                // });
+                const newVal = formatT(node.nodeValue, resourcePath);
                 node.deleteData(0, node.nodeValue.length);
                 node.insertData(0, newVal);
             }
@@ -340,3 +352,46 @@ module.exports = async function (content) {
         callback(err, content);
     }
 };
+
+
+function formatT(value, resourcePath) {
+    // 处理i18n 把t()转成i18n.t()
+    const p = replaceDoubleSlash(resourcePath)
+        .replace(oakPagesOrComponentsRegex, '')
+        .replace(localPagesOrComponentsRegex, '');
+    const eP = p.substring(0, p.lastIndexOf('/'));
+    const ns = eP
+        .split('/')
+        .filter((ele) => !!ele)
+        .join('-');
+    const val = replaceT(value); // {{i18n.t()}}
+    const valArr = val.split('}}');
+    let newVal = '';
+    valArr.forEach((ele, index) => {
+        if (existsT(ele)) {
+            const head = ele.substring(0, ele.indexOf('i18n.t(') + 7);
+            let argsStr = ele.substring(ele.indexOf('i18n.t(') + 7);
+            argsStr = argsStr.substring(0, argsStr.indexOf(')'));
+            const end = ele.substring(ele.indexOf(')'));
+            const arguments = argsStr.split(',').filter((ele2) => !!ele2);
+            arguments &&
+                arguments.forEach((nodeVal, index) => {
+                    if (index === 0 && nodeVal.indexOf(':') === -1) {
+                        arguments.splice(index, 1, `'${ns}:' + ` + nodeVal);
+                    }
+                });
+            newVal +=
+                head +
+                arguments.join(',') +
+                `,${CURRENT_LOCALE_KEY},${CURRENT_LOCALE_DATA} || ''` +
+                end +
+                '}}';
+        } else if (ele && ele.indexOf('{{') !== -1) {
+            newVal += ele + '}}';
+        } else {
+            newVal += ele;
+        }
+    });
+
+    return newVal;
+}
