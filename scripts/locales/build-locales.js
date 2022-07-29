@@ -112,7 +112,8 @@ function findLocaleFiles(json, path, name = '', buildPath, nodeEnv, platform) {
 }
 
 function listenerLocaleFiles(path, buildPath, nodeEnv, platform) {
-    fs.watch(path, { recursive: true }, (eventType, filename) => {
+    // todo linux下不支持recursive监控，以后再说
+    fs.watch(path, process.platform !== 'linux' ? { recursive: true } : {}, (eventType, filename) => {
         const fPath = Path.resolve(path, filename).replace(/\\/g, '/');
         console.log('\nThe file', fPath, 'was modified!');
         console.log('The type of change was:', eventType);
