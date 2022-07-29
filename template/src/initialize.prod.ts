@@ -18,7 +18,11 @@ import { AspectDict } from './aspects/AspectDict';
 import { BasicFeatures } from 'oak-frontend-base/lib/features';
 import { AppType } from 'oak-app-domain/Application/Schema';
 
-export default function initialize(type: AppType, url: string) {
+export default function initialize(
+    type: AppType,
+    url: string,
+    i18nOptions?: Record<string, any>
+) {
     let wholeFeatures = {};
     const createFeatures = (
         aspectWrapper: AspectWrapper<
@@ -87,7 +91,8 @@ export default function initialize(type: AppType, url: string) {
         routers,
         connector,
         checkers,
-        ActionDefDict
+        ActionDefDict,
+        i18nOptions
     );
 
     return {

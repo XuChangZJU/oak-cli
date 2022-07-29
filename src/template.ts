@@ -68,9 +68,9 @@ export function packageJsonContent({
         "react-router-dom": "^6.3.0",
         "react-scripts": "5.0.1",
         "rmc-pull-to-refresh": "^1.0.13",
-        "tdesign-icons-react": "^0.1.3",
-        "tdesign-mobile-react": "^0.1.2",
-        "tdesign-react": "^0.37.0",
+        "tdesign-icons-react": "^0.1.4",
+        "tdesign-mobile-react": "^0.2.0",
+        "tdesign-react": "^0.37.1",
         "url": "^0.11.0",
         "uuid": "^8.3.2"
     },

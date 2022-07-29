@@ -22,7 +22,11 @@ import { AspectWrapper } from 'oak-domain/lib/types';
 import { BasicFeatures } from 'oak-frontend-base/lib/features';
 import { AppType } from 'oak-app-domain/Application/Schema';
 
-export default function initialize(type: AppType, url?: string) {
+export default function initialize(
+    type: AppType,
+    url?: string,
+    i18nOptions?: Record<string, any>
+) {
     let wholeFeatures = {};
     const createFeatures = (
         aspectWrapper: AspectWrapper<
@@ -72,7 +76,8 @@ export default function initialize(type: AppType, url?: string) {
         checkers,
         watchers,
         data as any,
-        ActionDefDict
+        ActionDefDict,
+        i18nOptions
     );
 
     return {
