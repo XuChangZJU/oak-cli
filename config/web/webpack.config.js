@@ -622,25 +622,6 @@ module.exports = function (webpackEnv) {
                                 'sass-loader'
                             ),
                         },
-                        // {
-                        //     test: lessRegex,
-                        //     use: [
-                        //         {
-                        //             loader: 'style-loader',
-                        //         },
-                        //         {
-                        //             loader: 'css-loader', // translates CSS into CommonJS
-                        //         },
-                        //         {
-                        //             loader: 'less-loader', // compiles Less to CSS
-                        //             options: {
-                        //                 lessOptions: {
-                        //                     javascriptEnabled: true,
-                        //                 },
-                        //             },
-                        //         },
-                        //     ],
-                        // },
                         {
                             test: lessRegex,
                             exclude: lessModuleRegex,
