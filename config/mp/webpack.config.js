@@ -377,6 +377,10 @@ module.exports = function (webpackEnv) {
                 exclude: ['*/weui-miniprogram/*'],
                 include: ['project.config.json', 'sitemap.json'],
                 split: isEnvProduction,
+                debugPanel: {
+                    name: 'oak-debugPanel',
+                    show: !isEnvProduction,
+                },
             }),
             new webpack.DefinePlugin(env.stringified),
             new StylelintPlugin({

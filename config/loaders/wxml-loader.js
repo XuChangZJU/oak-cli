@@ -84,6 +84,7 @@ const isSrc = (name) => name === 'src';
 
 const isDynamicSrc = (src) => /\{\{/.test(src);
 const oakMessage = 'oak-message';
+const oakDebugPanel = 'oak-debugPanel';
 const oakRegex = /(\/*[a-zA-Z0-9_-])*\/app\/|(\\*[a-zA-Z0-9_-])*\\app\\/;
 const localRegex = /(\/*[a-zA-Z0-9_-])*\/src+\/|(\\*[a-zA-Z0-9_-])*\\src+\\/;
 const oakPagesOrComponentsRegex =
@@ -151,7 +152,7 @@ module.exports = async function (content) {
         _compiler = {},
         resourcePath,
     } = this;
-    const { output } = _compiler.options;
+    const { output, mode } = _compiler.options;
     const { path: outputPath } = output;
     const { context, target } = webpackLegacyOptions || this;
     const issuer = _compilation.moduleGraph.getIssuer(this._module);
@@ -201,6 +202,14 @@ module.exports = async function (content) {
             appJson.usingComponents[oakMessage]
         ) {
             source = source + `\n <${oakMessage}></${oakMessage}>`;
+        }
+        if (
+            mode !== 'production' &&
+            appJson &&
+            appJson.usingComponents &&
+            appJson.usingComponents[oakDebugPanel]
+        ) {
+            source = source + `\n <${oakDebugPanel}></${oakDebugPanel}>`;
         }
     }
 

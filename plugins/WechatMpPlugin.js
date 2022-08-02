@@ -66,7 +66,6 @@ function replaceDoubleSlash(str) {
 class OakWeChatMpPlugin {
     constructor(options = {}) {
         this.options = Object.assign(
-            {},
             {
                 context: path.resolve(process.cwd(), 'src'),
                 clear: true,
@@ -78,6 +77,10 @@ class OakWeChatMpPlugin {
                 vendorChunkName: 'vendor',
                 runtimeChunkName: 'runtime',
                 split: true,
+                debugPanel: {
+                    name: 'oak-debugPanel',
+                    show: true,
+                },
             },
             options
         );
@@ -329,8 +332,12 @@ class OakWeChatMpPlugin {
                 }
             };
 
-            for (const c of Object.values(usingComponents)) {
+            for (const k of Object.keys(usingComponents)) {
+                const c = usingComponents[k];
                 if (c.indexOf('plugin://') === 0) {
+                    continue;
+                }
+                if (k === this.options.debugPanel.name && !this.options.debugPanel.show) {
                     continue;
                 }
                 if (c.indexOf('/npm_components') === 0) {
@@ -731,6 +738,9 @@ class OakWeChatMpPlugin {
             if (appJson.usingComponents) {
                 for (let ck of Object.keys(appJson.usingComponents)) {
                     let component = appJson.usingComponents[ck];
+                    if (ck === this.options.debugPanel.name && !this.options.debugPanel.show) {
+                        continue;
+                    }
                     if (getIsOak(component)) {
                         component = replaceOakPrefix(component);
                     } else if (getIsLocal(component)) {
