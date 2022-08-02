@@ -1,30 +1,32 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Routes, Route } from 'react-router-dom';
-import { Button, Drawer } from 'tdesign-react';
-import { ChevronUpIcon } from 'tdesign-icons-react'
 
 import './App.less';
-import LazyLoad from './utils/lazyLoad';
-const Console = LazyLoad(() => import('./template/console'));
-const Frontend = LazyLoad(() => import('./template/frontend'));
-const NotFound = LazyLoad(() => import('./template/notFound'));
-const Message = LazyLoad(() => import('@oak-general-business/components/message'));
-const DebugPanel = LazyLoad(() => import('@oak-general-business/components/Func/debugPanel'));
+import Loading from './template/Loading';
+const Console = React.lazy(() => import('./template/console'));
+const Frontend = React.lazy(() => import('./template/frontend'));
+const NotFound = React.lazy(() => import('./template/notFound'));
+const Message = React.lazy(() => import('@oak-general-business/components/message'));
+const DebugPanel = React.lazy(() => import('@oak-general-business/components/func/debugPanel'));
 
 type Router = {
     path: string;
-    element: ReturnType<typeof LazyLoad>;
+    element: React.LazyExoticComponent<React.ComponentType<any>>;
     title: string;
-}
+};
 
 function getRoutes(routers2: Router[], namespace?: string) {
     return routers2.map((router, index) => {
-        const { path, element } = router;
+        const { path, element: Component } = router;
         return (
             <Route
                 key={`route_${namespace ? `${namespace}_` : ''}${index}`}
                 path={path}
-                element={element}
+                element={
+                    <React.Suspense fallback={<Loading />}>
+                        <Component />
+                    </React.Suspense>
+                }
             ></Route>
         );
     });
@@ -33,54 +35,46 @@ function getRoutes(routers2: Router[], namespace?: string) {
 let routers: Router[] = [];
 
 function App() {
-    const [visible, setVisible] = useState(false);
-
-    const handleClick = () => {
-        setVisible(true);
-    };
-    const handleClose = () => {
-        setVisible(false);
-    };
     return (
         <React.Fragment>
-            {Message}
+            <React.Suspense>
+                <Message />
+            </React.Suspense>
             <Routes>
-                <Route path="/console" element={Console}>
+                <Route
+                    path="/console"
+                    element={
+                        <React.Suspense fallback={<Loading />}>
+                            <Console />
+                        </React.Suspense>
+                    }
+                >
                     {getRoutes(routers, 'console')}
                 </Route>
-                <Route path="/" element={Frontend}>
+                <Route
+                    path="/"
+                    element={
+                        <React.Suspense fallback={<Loading />}>
+                            <Frontend />
+                        </React.Suspense>
+                    }
+                >
                     {getRoutes(routers)}
                 </Route>
-                <Route path="*" element={NotFound} />
+                <Route
+                    path="*"
+                    element={
+                        <React.Suspense fallback={<Loading />}>
+                            <NotFound />
+                        </React.Suspense>
+                    }
+                />
             </Routes>
-            {
-                process.env.NODE_ENV === "development" && (
-                    <React.Fragment>
-                        <Button
-                            variant="text"
-                            shape="circle"
-                            theme="primary"
-                            icon={<ChevronUpIcon />}
-                            style={{
-                                position: 'absolute',
-                                bottom: 0,
-                                right: '45vw',
-                            }}
-                            onClick={handleClick}
-                        />
-
-                        <Drawer
-                            placement="bottom"
-                            visible={visible}
-                            onClose={handleClose}
-                            header={<text>debug控制台</text>}
-                            footer={<div/>}
-                        >
-                            {DebugPanel}
-                        </Drawer>
-                    </React.Fragment>
-                )
-            }
+            {process.env.NODE_ENV === 'development' && (
+                <React.Suspense>
+                    <DebugPanel />
+                </React.Suspense>
+            )}
         </React.Fragment>
     );
 }
