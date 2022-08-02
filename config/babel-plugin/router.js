@@ -31,7 +31,7 @@ module.exports = () => {
                                 t.objectProperty(t.identifier('title'), t.stringLiteral(navigationBarTitleText || '')),
                                 t.objectProperty(t.identifier('path'), t.stringLiteral(pagePath)),
                                 t.objectProperty(t.identifier('element'), t.callExpression(
-                                    t.identifier('LazyLoad'),
+                                    t.memberExpression(t.identifier('React'), t.identifier('lazy')),
                                     [
                                         t.arrowFunctionExpression(
                                             [],
