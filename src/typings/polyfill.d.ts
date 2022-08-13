@@ -1,4 +1,4 @@
-import { GenerateIdOption } from "oak-backend-base/src/polyfill";
+import { GenerateIdOption } from "oak-backend-base/lib/polyfill";
 
 declare global {
     const generateNewId: (option?: GenerateIdOption) => Promise<string>;

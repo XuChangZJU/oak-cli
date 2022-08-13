@@ -13,7 +13,7 @@ export function packageJsonContent({
         "oak-common-aspect": "file:../oak-common-aspect",
         "oak-domain": "file:../oak-domain",
         "oak-frontend-base": "file:../oak-frontend-base",
-        "oak_external-sdk": "file:../oak-external-sdk",
+        "oak-external-sdk": "file:../oak-external-sdk",
         "oak-general-business": "file:../oak-general-business",
         "oak-memory-tree-store": "file:../oak-memory-tree-store",`;
     }
@@ -23,7 +23,7 @@ export function packageJsonContent({
         "oak-domain": "^1.0.0",
         "oak-frontend-base": "^1.0.0",
         "oak-general-business": "^1.0.0",
-        "oak_external-sdk": "^1.0.0",
+        "oak-external-sdk": "^1.0.0",
         "oak-memory-tree-store": "^1.0.0",`;
     }
 
@@ -42,7 +42,7 @@ export function packageJsonContent({
         "build": "tsc",
         "server:init": "cross-env NODE_ENV=development; cross-env OAK_PLATFORM=server ts-node scripts/initServer.ts",
         "server:start": "cross-env NODE_ENV=development; cross-env OAK_PLATFORM=server ts-node scripts/startServer.ts",
-        "postinstall": "${cliname} make"
+        "postinstall": "npm run make:domain"
     },
     "keywords": [],
     "author": "",
@@ -70,7 +70,7 @@ export function packageJsonContent({
         "rmc-pull-to-refresh": "^1.0.13",
         "tdesign-icons-react": "^0.1.4",
         "tdesign-mobile-react": "^0.2.0",
-        "tdesign-react": "^0.37.1",
+        "tdesign-react": "^0.38.0",
         "url": "^0.11.0",
         "uuid": "^8.3.2"
     },

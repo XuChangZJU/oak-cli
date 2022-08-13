@@ -1,6 +1,6 @@
 
-export const CLI_VERSION = require('../package.json')['version']
-export const CLI_NAME = require('../package.json')['name']
+export const CLI_VERSION = require('../package.json')['version'];
+export const CLI_NAME = Object.keys(require('../package.json')['bin'])[0];
 
 export const BASE_DIR = process.cwd()
 
