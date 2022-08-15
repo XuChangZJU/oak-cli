@@ -3,28 +3,30 @@ export function packageJsonContent({
     name,
     version,
     description,
-    cliversion,
-    cliname,
+    cliVersion,
+    cliName,
+    cliBinName,
     isDev,
 }: PackageJsonInput) {
-    let oakPackageStr;
+    let oakDependencyStr;
+    let oakDevDependencyStr;
     if (isDev) {
-        oakPackageStr = `"${cliname}": "file:../${cliname}",
-        "oak-common-aspect": "file:../oak-common-aspect",
+        oakDependencyStr = `"oak-common-aspect": "file:../oak-common-aspect",
         "oak-domain": "file:../oak-domain",
         "oak-frontend-base": "file:../oak-frontend-base",
         "oak-external-sdk": "file:../oak-external-sdk",
         "oak-general-business": "file:../oak-general-business",
         "oak-memory-tree-store": "file:../oak-memory-tree-store",`;
+        oakDevDependencyStr = `"${cliName}": "file:../oak-cli",`
     }
     else {
-        oakPackageStr = `"${cliname}": "^${cliversion}",
-        "oak-common-aspect": "^1.0.0",
+        oakDependencyStr = `"oak-common-aspect": "^1.0.0",
         "oak-domain": "^1.0.0",
         "oak-frontend-base": "^1.0.0",
         "oak-general-business": "^1.0.0",
         "oak-external-sdk": "^1.0.0",
         "oak-memory-tree-store": "^1.0.0",`;
+        oakDevDependencyStr = `"${cliName}": "^${cliVersion}",`
     }
 
     return `{
@@ -32,13 +34,13 @@ export function packageJsonContent({
     "version": "${version}",
     "description": "${description}",
     "scripts": {
-        "make:domain": "${cliname} make",
-        "start:mp": "${cliname} start --target mp --mode development",
-        "build:mp": "${cliname} build --target mp --mode production",
-        "build-analyze:mp": "${cliname} build --target mp --mode production --analyze",
-        "start:web": "${cliname} start --target web --mode development",
-        "build:web": "${cliname} build --target web --mode production",
-        "build-analyze:web": "${cliname} build --target web --mode production --analyze",
+        "make:domain": "${cliBinName} make",
+        "start:mp": "${cliBinName} start --target mp --mode development",
+        "build:mp": "${cliBinName} build --target mp --mode production",
+        "build-analyze:mp": "${cliBinName} build --target mp --mode production --analyze",
+        "start:web": "${cliBinName} start --target web --mode development",
+        "build:web": "${cliBinName} build --target web --mode production",
+        "build-analyze:web": "${cliBinName} build --target web --mode production --analyze",
         "build": "tsc",
         "server:init": "cross-env NODE_ENV=development; cross-env OAK_PLATFORM=server ts-node scripts/initServer.ts",
         "server:start": "cross-env NODE_ENV=development; cross-env OAK_PLATFORM=server ts-node scripts/startServer.ts",
@@ -60,7 +62,7 @@ export function packageJsonContent({
         "lodash": "^4.17.21",
         "luxon": "^2.4.0",
         "nprogress": "^0.2.0",
-        ${oakPackageStr}
+        ${oakDependencyStr}
         "react": "^18.2.0",
         "react-dom": "^18.1.0",
         "react-i18next": "^11.18.0",
@@ -98,6 +100,7 @@ export function packageJsonContent({
         "@types/shelljs": "^0.8.11",
         "@types/uuid": "^8.3.0",
         "@types/wechat-miniprogram": "^3.4.0",
+        ${oakDevDependencyStr}
         "assert": "^2.0.0",
         "babel-jest": "^27.4.2",
         "babel-loader": "^8.2.3",

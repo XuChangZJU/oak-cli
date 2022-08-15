@@ -1,5 +1,6 @@
 export declare const CLI_VERSION: any;
-export declare const CLI_NAME: string;
+export declare const CLI_NAME: any;
+export declare const CLI_BIN_NAME: string;
 export declare const BASE_DIR: string;
 export declare const USER_CONFIG_FILE_NAME = "oak.config.json";
 export declare const USER_CONFIG_FILE: string;

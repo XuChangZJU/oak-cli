@@ -11,6 +11,7 @@ import {
     USER_CONFIG_FILE_NAME,
     CLI_NAME,
     MINI_VERSION_URL,
+    CLI_BIN_NAME,
 } from './config';
 import {
     packageJsonContent,
@@ -187,8 +188,9 @@ export async function create(dirName: string, cmd: any) {
         name,
         version,
         description,
-        cliversion: CLI_VERSION,
-        cliname: CLI_NAME,
+        cliVersion: CLI_VERSION,
+        cliName: CLI_NAME,
+        cliBinName: CLI_BIN_NAME,
         isDev,
     });
 
