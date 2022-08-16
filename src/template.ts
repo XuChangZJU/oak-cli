@@ -418,7 +418,8 @@ export function appJsonContentWithWeChatMp(isDev: boolean) {
     "enablePullDownRefresh": true
   },
   "usingComponents": {
-    "message": "components/message/index"
+    "oak-message": "@oak-general-business/components/message/index",
+    "oak-debugPanel": "@oak-general-business/components/func/debugPanel/index"
   },
   "style": "v2",
   "sitemapLocation": "sitemap.json"
