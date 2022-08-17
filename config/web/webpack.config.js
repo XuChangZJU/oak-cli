@@ -206,7 +206,7 @@ module.exports = function (webpackEnv) {
 
     const getOakInclude = () => {
         return isEnvProduction
-            ? [/oak-general-business/]
+            ? [/oak-general-business/, /oak-frontend-base/]
             : [
                   /oak-domain/,
                   /oak-external-sdk/,
@@ -507,6 +507,12 @@ module.exports = function (webpackEnv) {
                                         // See #6846 for context on why cacheCompression is disabled
                                         cacheCompression: false,
                                         compact: isEnvProduction,
+                                        overrides: [
+                                            {
+                                                include: /oak-frontend-base/,
+                                                sourceType: 'unambiguous',
+                                            },
+                                        ],
                                     },
                                 },
                             ],

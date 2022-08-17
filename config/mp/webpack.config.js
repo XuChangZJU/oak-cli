@@ -91,7 +91,7 @@ module.exports = function (webpackEnv) {
 
     const getOakInclude = () => {
         return isEnvProduction
-            ? [/oak-general-business/]
+            ? [/oak-general-business/, /oak-frontend-base/]
             : [
                   /oak-domain/,
                   /oak-external-sdk/,
@@ -288,7 +288,7 @@ module.exports = function (webpackEnv) {
                     include: [paths.appSrc, paths.appRootSrc].concat(
                         getOakInclude()
                     ),
-                    exclude: /node_modules/,
+                    //exclude: /node_modules/,
                     use: [
                         {
                             loader: 'babel-loader',
@@ -296,7 +296,6 @@ module.exports = function (webpackEnv) {
                                 plugins: [oakI18nPlugin],
                                 //开启缓存
                                 // cacheDirectory: false,
-                                // presets: ['@babel/preset-env'],
                             },
                         },
                         {
