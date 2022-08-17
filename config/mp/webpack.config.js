@@ -91,7 +91,7 @@ module.exports = function (webpackEnv) {
 
     const getOakInclude = () => {
         return isEnvProduction
-            ? [/oak-general-business/]
+            ? [/oak-general-business/, /oak-frontend-base/]
             : [
                   /oak-domain/,
                   /oak-external-sdk/,
