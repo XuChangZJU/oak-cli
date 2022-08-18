@@ -1,7 +1,6 @@
 const fs = require('fs');
 const { relative, resolve } = require('path');
 const t = require('@babel/types');
-const pull = require('lodash/pull');
 const { assert } = require('console');
 
 module.exports = (babel) => {

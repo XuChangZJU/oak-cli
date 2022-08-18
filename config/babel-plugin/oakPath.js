@@ -1,7 +1,6 @@
 const fs = require('fs');
 const { relative, resolve } = require('path');
 const t = require('@babel/types');
-const pull = require('lodash/pull');
 const { assert } = require('console');
 
 function isOakNamespaceIdentifier(node, name) {
@@ -38,9 +37,17 @@ module.exports = (babel) => {
                         : lessFileExists
                         ? './index.less'
                         : './index.pc.less';
-                    body.unshift(
-                        t.importDeclaration([], t.stringLiteral(lessFileImport))
-                    );
+                    if (
+                        (lessFileExists && !pcLessFileExists) ||
+                        (!lessFileExists && pcLessFileExists)
+                    ) {
+                        body.unshift(
+                            t.importDeclaration(
+                                [],
+                                t.stringLiteral(lessFileImport)
+                            )
+                        );
+                    }
                 }
             },
             JSXAttribute(path, state) {
