@@ -9,18 +9,20 @@ module.exports = (babel) => {
             Program(path, state) {
                 const { cwd, filename } = state;
                 const rel = relative(cwd, filename).replace(/\\/g, '/');
-                if (/pages|components[\w|\W]+index\.(web.ts|ts)$/.test(rel)) {
-                    const tsxFile = filename.replace(/\.(web.ts|ts)$/, '.tsx');
+                const tsPage = /pages|components[\w|\W]+index\.(web.ts|ts)$/.test(rel);
+                const jsPage = /pages|components[\w|\W]+index\.(web.js|js)$/.test(rel)
+                if (tsPage || jsPage) {
+                    const tsxFile = filename.replace(/index\.(web.ts|ts)$/, tsPage ? 'web.tsx': 'web.jsx');
                     const tsxFileExists = fs.existsSync(tsxFile);
-                    const pcTsxFile = filename.replace(/\.(web.ts|ts)$/, '.pc.tsx');
+                    const pcTsxFile = filename.replace(/index\.(web.ts|ts)$/, tsPage ? 'web.pc.tsx' : 'web.pc.jsx');
                     const pcTsxFileExists = fs.existsSync(pcTsxFile);
                     /** 根据tsx文件存在的情况，注入如下的render代码
-                     * if (true) {
-                            const renderMobile = require('./index.tsx').default;
+                     * if (this.props.width === 'xs') {
+                            const renderMobile = require('./web.tsx').default;
                             return renderMobile.call(this);
                         }
                         else {
-                            const renderScreen = require('./index.pc.tsx').default;
+                            const renderScreen = require('./web.pc.tsx').default;
                             return renderScreen.call(this);
                         }
                      */
@@ -30,7 +32,7 @@ module.exports = (babel) => {
                                 t.identifier('render'),
                                 t.memberExpression(
                                     t.callExpression(t.identifier('require'), [
-                                        t.stringLiteral('./index.tsx'),
+                                        t.stringLiteral(`./web.${tsPage ? 'tsx' : 'jsx'}`),
                                     ]),
                                     t.identifier('default')
                                 )
@@ -52,7 +54,7 @@ module.exports = (babel) => {
                                 t.identifier('render'),
                                 t.memberExpression(
                                     t.callExpression(t.identifier('require'), [
-                                        t.stringLiteral('./index.pc.tsx'),
+                                        t.stringLiteral(`./web.pc.${tsPage ? 'tsx' : 'jsx'}`),
                                     ]),
                                     t.identifier('default')
                                 )
