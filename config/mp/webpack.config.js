@@ -397,7 +397,7 @@ module.exports = function (webpackEnv) {
                     ),
             }),
             // TypeScript type checking
-            false &&
+            useTypeScript &&
                 new ForkTsCheckerWebpackPlugin({
                     async: isEnvDevelopment,
                     typescript: {
