@@ -498,7 +498,6 @@ module.exports = function (webpackEnv) {
                                             oakRenderTsxPlugin,
                                             oakRouterPlugin,
                                             oakI18nPlugin,
-                                            // oakStylePlugin,
                                         ],
                                         // This is a feature of `babel-loader` for webpack (not Babel itself).
                                         // It enables caching results in ./node_modules/.cache/babel-loader/
@@ -507,12 +506,6 @@ module.exports = function (webpackEnv) {
                                         // See #6846 for context on why cacheCompression is disabled
                                         cacheCompression: false,
                                         compact: isEnvProduction,
-                                        overrides: [
-                                            {
-                                                include: /oak-frontend-base/,
-                                                sourceType: 'unambiguous',
-                                            },
-                                        ],
                                     },
                                 },
                             ],
