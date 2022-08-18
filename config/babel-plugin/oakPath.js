@@ -54,7 +54,7 @@ module.exports = (babel) => {
                 const { cwd, filename } = state;
                 const rel = relative(cwd, filename).replace(/\\/g, '/');
                 if (
-                    /(pages|components)[\w|\W]+(index\.tsx|index\.pc\.tsx)$/.test(
+                    /(pages|components)[\w|\W]+(index\.tsx|index\.pc\.tsx|web\.tsx|web\.pc\.tsx|web\.jsx|web\.pc\.jsx)$/.test(
                         rel
                     )
                 ) {

@@ -506,6 +506,12 @@ module.exports = function (webpackEnv) {
                                         // See #6846 for context on why cacheCompression is disabled
                                         cacheCompression: false,
                                         compact: isEnvProduction,
+                                        // overrides: [
+                                        //     {
+                                        //         include: /oak-general-business/,
+                                        //         sourceType: 'unambiguous',
+                                        //     },
+                                        // ],
                                     },
                                 },
                             ],
@@ -812,7 +818,7 @@ module.exports = function (webpackEnv) {
                     maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
                 }),
             // TypeScript type checking
-            useTypeScript &&
+            false &&
                 new ForkTsCheckerWebpackPlugin({
                     async: isEnvDevelopment,
                     typescript: {

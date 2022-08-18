@@ -13,7 +13,7 @@ const requiredPath = require('required-path');
 
 const pluginName = 'OakWeChatMpPlugin';
 const oakRegex = /(^@)(?!project)([a-zA-Z0-9_-])+\/{1}/i;
-const oakPageRegex = /node_modules\/[a-zA-Z0-9_-]+\/app\//;
+const oakPageRegex = /node_modules\/[a-zA-Z0-9_-]+\/lib\//;
 const localRegex = /^@project\/{1}/i;
 const localPageRegex = /[a-zA-Z0-9_-]*src\//;
 
@@ -42,7 +42,7 @@ function getProjectName(str) {
 
 function getOakPage(page) {
     const name = getProjectName(page); //截取项目名
-    const oakPage = `node_modules/${name}/app/` + replaceOakPrefix(page);
+    const oakPage = `node_modules/${name}/lib/` + replaceOakPrefix(page);
     return oakPage;
 }
 

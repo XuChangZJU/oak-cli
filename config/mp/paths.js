@@ -66,7 +66,7 @@ module.exports = {
     appRootPath: resolveRoot('.'),
     oakConfigJson: resolveApp('src/oak.config.json'),
     oakGeneralBusinessAppPath: resolveRoot(
-        'node_modules/oak-general-business/app'
+        'node_modules/oak-general-business/lib'
     ),
 };
 
