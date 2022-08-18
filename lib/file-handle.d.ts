@@ -1,4 +1,5 @@
 /// <reference types="node" />
+/// <reference types="node" />
 import { PathLike } from 'fs';
 import { checkFileExistsAndCreateType } from './enum';
 /**
