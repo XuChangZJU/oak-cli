@@ -9,11 +9,12 @@ module.exports = (babel) => {
             Program(path, state) {
                 const { cwd, filename } = state;
                 const rel = relative(cwd, filename).replace(/\\/g, '/');
-                const tsPage = (/oak-general-business\/lib/.test(rel) && /pages|components[\w|\W]+index\.(web.ts|ts)$/.test(rel)) ||
-                    (!/node_modules/.test(rel) && /pages|components[\w|\W]+index\.(web.ts|ts)$/.test(rel));
-                const jsPage = (/oak-general-business\/lib/.test(rel) && /pages|components[\w|\W]+index\.(web.js|js)$/.test(rel)) ||
-                    (!/node_modules/.test(rel) && /pages|components[\w|\W]+index\.(web.js|js)$/.test(rel));
+                const tsPage = (/oak-general-business\/lib/.test(rel) && /(pages|components)[\w|\W]+index\.(web.ts|ts)$/.test(rel)) ||
+                    (!/node_modules/.test(rel) && /(pages|components)[\w|\W]+index\.(web.ts|ts)$/.test(rel));
+                const jsPage = (/oak-general-business\/lib/.test(rel) && /(pages|components)[\w|\W]+index\.(web.js|js)$/.test(rel)) ||
+                    (!/node_modules/.test(rel) && /(pages|components)[\w|\W]+index\.(web.js|js)$/.test(rel));
                 if (tsPage || jsPage) {
+                    console.log(rel);
                     const tsxFile = filename.replace(
                         /index\.(web.ts|ts|web.js|js)$/,
                         tsPage ? 'web.tsx' : 'web.jsx'
