@@ -14,7 +14,6 @@ module.exports = (babel) => {
                 const jsPage = (/oak-general-business\/lib/.test(rel) && /(pages|components)[\w|\W]+index\.(web.js|js)$/.test(rel)) ||
                     (!/node_modules/.test(rel) && /(pages|components)[\w|\W]+index\.(web.js|js)$/.test(rel));
                 if (tsPage || jsPage) {
-                    console.log(rel);
                     const tsxFile = filename.replace(
                         /index\.(web.ts|ts|web.js|js)$/,
                         tsPage ? 'web.tsx' : 'web.jsx'
