@@ -498,7 +498,6 @@ module.exports = function (webpackEnv) {
                                             oakRenderTsxPlugin,
                                             oakRouterPlugin,
                                             oakI18nPlugin,
-                                            // oakStylePlugin,
                                         ],
                                         // This is a feature of `babel-loader` for webpack (not Babel itself).
                                         // It enables caching results in ./node_modules/.cache/babel-loader/
@@ -507,12 +506,12 @@ module.exports = function (webpackEnv) {
                                         // See #6846 for context on why cacheCompression is disabled
                                         cacheCompression: false,
                                         compact: isEnvProduction,
-                                        overrides: [
-                                            {
-                                                include: /oak-frontend-base/,
-                                                sourceType: 'unambiguous',
-                                            },
-                                        ],
+                                        // overrides: [
+                                        //     {
+                                        //         include: /oak-general-business/,
+                                        //         sourceType: 'unambiguous',
+                                        //     },
+                                        // ],
                                     },
                                 },
                             ],
@@ -853,10 +852,14 @@ module.exports = function (webpackEnv) {
                         // '../cra-template-typescript/template/src/App.tsx'
                         // otherwise.
                         include: [
-                            { file: '../**/app/**/*.(*.){ts,tsx}' },
-                            { file: '**/app/**/*.(*.){ts,tsx}' },
-                            { file: '../**/src/**/*.(*.){ts,tsx}' },
-                            { file: '**/src/**/*.(*.){ts,tsx}' },
+                            { file: '../**/app/**/*.{ts,tsx}' },
+                            { file: '**/app/**/*.{ts,tsx}' },
+                            { file: '../**/app/**/*.*.{ts,tsx}' },
+                            { file: '**/app/**/*.*.{ts,tsx}' },
+                            { file: '../**/src/**/*.{ts,tsx}' },
+                            { file: '**/src/**/*.{ts,tsx}' },
+                            { file: '../**/src/**/*.*.{ts,tsx}' },
+                            { file: '**/src/**/*.*.{ts,tsx}' },
                         ],
                         exclude: [
                             { file: '**/src/**/__tests__/**' },

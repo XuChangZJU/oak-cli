@@ -1,8 +1,7 @@
 const fs = require('fs');
 const { relative } = require('path');
-const t = require('@babel/types');
-const pull = require('lodash/pull');
 const { assert } = require('console');
+const t = require('@babel/types');
 const generate = require('@babel/generator').default;
 const parser = require("@babel/parser");
 

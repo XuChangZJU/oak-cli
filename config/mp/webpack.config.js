@@ -41,7 +41,7 @@ const copyPatterns = [].concat(pkg.copyWebpack || []).map((pattern) =>
           }
         : pattern
 );
-const oakRegex = /(\/*[a-zA-Z0-9_-])*\/app\/|(\\*[a-zA-Z0-9_-])*\\app\\/;
+const oakRegex = /(\/*[a-zA-Z0-9_-])*\/lib\/|(\\*[a-zA-Z0-9_-])*\\lib\\/;
 const localRegex = /(\/*[a-zA-Z0-9_-])*\/src+\/|(\\*[a-zA-Z0-9_-])*\\src+\\/;
 
 module.exports = function (webpackEnv) {
@@ -275,7 +275,7 @@ module.exports = function (webpackEnv) {
                     include: [paths.appSrc, paths.appRootSrc].concat(
                         getOakInclude()
                     ),
-                    exclude: /node_modules/,
+                    //exclude: /node_modules/,
                     loader: 'babel-loader',
                     options: {
                         plugins: [oakI18nPlugin],

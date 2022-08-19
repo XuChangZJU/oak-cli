@@ -1,11 +1,10 @@
 const fs = require('fs');
 const { relative, resolve } = require('path');
 const t = require('@babel/types');
-const pull = require('lodash/pull');
 const { assert } = require('console');
 
 const oakRegex =
-    /(\/*[a-zA-Z0-9_-])*\/app\/(pages|components)\/|(\\*[a-zA-Z0-9_-])*\\app\\(pages|components)\\/;
+    /(\/*[a-zA-Z0-9_-])*\/lib\/(pages|components)\/|(\\*[a-zA-Z0-9_-])*\\lib\\(pages|components)\\/;
 const localRegex =
     /(\/*[a-zA-Z0-9_-])*\/src\/(pages|components)+\/|(\\*[a-zA-Z0-9_-])*\\src\/(pages|components)+\\/;
 
@@ -19,15 +18,16 @@ module.exports = (babel) => {
                 // t('common:detail') 不需要处理 t('detail') 需要处理;
                 // t(`${common}:${cc}`) 不需要处理 t(`${common}cc`) 需要处理
                  if (
-                     /(pages|components)[\w|\W]+(.tsx|.ts)$/.test(
-                         res
-                     )
+                     /(pages|components)[\w|\W]+(.tsx|.ts|.jsx|.js)$/.test(res)
                  ) {
-                    const p = res
-                        .replace(oakRegex, '')
-                        .replace(localRegex, '');
-                    const eP = p.substring(0, p.lastIndexOf('/'));
-                    const ns = eP.split('/').filter(ele => !!ele).join('-');
+                     const p = res
+                         .replace(oakRegex, '')
+                         .replace(localRegex, '');
+                     const eP = p.substring(0, p.lastIndexOf('/'));
+                     const ns = eP
+                         .split('/')
+                         .filter((ele) => !!ele)
+                         .join('-');
                      const { node } = path;
                      if (
                          node &&
@@ -52,8 +52,7 @@ module.exports = (babel) => {
                                          1,
                                          t.stringLiteral(ns + ':' + node2.value)
                                      );
-                                 }
-                                 else if (
+                                 } else if (
                                      index === 0 &&
                                      t.isTemplateLiteral(node2) &&
                                      node2.quasis &&
@@ -65,15 +64,20 @@ module.exports = (babel) => {
                                              node3.value.raw.indexOf(':') !== -1
                                      )
                                  ) {
-                                     
-                                      node2.quasis.splice(
-                                          0,
-                                          1,
-                                          t.templateElement({
-                                              raw: ns + ':' + node2.quasis[0].value.raw,
-                                              cooked: ns + ':' + node2.quasis[0].value.cooked,
-                                          })
-                                      );
+                                     node2.quasis.splice(
+                                         0,
+                                         1,
+                                         t.templateElement({
+                                             raw:
+                                                 ns +
+                                                 ':' +
+                                                 node2.quasis[0].value.raw,
+                                             cooked:
+                                                 ns +
+                                                 ':' +
+                                                 node2.quasis[0].value.cooked,
+                                         })
+                                     );
                                  }
                              });
                      }

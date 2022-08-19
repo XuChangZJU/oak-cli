@@ -85,10 +85,10 @@ const isSrc = (name) => name === 'src';
 const isDynamicSrc = (src) => /\{\{/.test(src);
 const oakMessage = 'oak-message';
 const oakDebugPanel = 'oak-debugPanel';
-const oakRegex = /(\/*[a-zA-Z0-9_-])*\/app\/|(\\*[a-zA-Z0-9_-])*\\app\\/;
+const oakRegex = /(\/*[a-zA-Z0-9_-])*\/lib\/|(\\*[a-zA-Z0-9_-])*\\lib\\/;
 const localRegex = /(\/*[a-zA-Z0-9_-])*\/src+\/|(\\*[a-zA-Z0-9_-])*\\src+\\/;
 const oakPagesOrComponentsRegex =
-    /(\/*[a-zA-Z0-9_-])*\/app\/(pages|components)\/|(\\*[a-zA-Z0-9_-])*\\app\\(pages|components)\\/;
+    /(\/*[a-zA-Z0-9_-])*\/lib\/(pages|components)\/|(\\*[a-zA-Z0-9_-])*\\lib\\(pages|components)\\/;
 const localPagesOrComponentsRegex =
     /(\/*[a-zA-Z0-9_-])*\/src\/(pages|components)+\/|(\\*[a-zA-Z0-9_-])*\\src\/(pages|components)+\\/;
 

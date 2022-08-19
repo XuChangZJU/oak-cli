@@ -2,10 +2,10 @@ import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 
 import './App.less';
-import Loading from './template/Loading';
-const Console = React.lazy(() => import('./template/console'));
-const Frontend = React.lazy(() => import('./template/frontend'));
-const NotFound = React.lazy(() => import('./template/notFound'));
+import Loading from './components/Loading';
+const Console = React.lazy(() => import('./components/console'));
+const Frontend = React.lazy(() => import('./components/frontend'));
+const NotFound = React.lazy(() => import('./components/notFound'));
 const Message = React.lazy(() => import('@oak-general-business/components/message'));
 const DebugPanel = React.lazy(() => import('@oak-general-business/components/func/debugPanel'));
 
@@ -24,7 +24,7 @@ function getRoutes(routers2: Router[], namespace?: string) {
                 path={path}
                 element={
                     <React.Suspense fallback={<Loading />}>
-                        <Component />
+                        <Component namespace={namespace} />
                     </React.Suspense>
                 }
             ></Route>
