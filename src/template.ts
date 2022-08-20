@@ -51,6 +51,7 @@ export function packageJsonContent({
         "@reduxjs/toolkit": "^1.7.2",
         "classnames": "^2.3.1",
         "crypto-browserify": "^3.12.0",
+        "dayjs": "^1.11.5",
         "i18next": "^20.6.1",
         "i18next-browser-languagedetector": "^6.1.4",
         "i18next-chained-backend": "^3.0.2",
@@ -58,7 +59,6 @@ export function packageJsonContent({
         "i18next-localstorage-backend": "^3.1.3",
         "i18next-resource-store-loader": "^0.1.2",
         "lodash": "^4.17.21",
-        "luxon": "^2.4.0",
         "nprogress": "^0.2.0",
         ${oakPackageStr}
         "react": "^18.2.0",
