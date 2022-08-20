@@ -6,7 +6,9 @@ import Loading from './components/Loading';
 const Console = React.lazy(() => import('./components/console'));
 const Frontend = React.lazy(() => import('./components/frontend'));
 const NotFound = React.lazy(() => import('./components/notFound'));
+//@ts-ignore
 const Message = React.lazy(() => import('@oak-general-business/components/message'));
+//@ts-ignore
 const DebugPanel = React.lazy(() => import('@oak-general-business/components/func/debugPanel'));
 
 type Router = {
