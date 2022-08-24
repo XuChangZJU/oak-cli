@@ -258,6 +258,7 @@ module.exports = (babel) => {
                              node2 &&
                              node2.expression &&
                              node2.expression.right &&
+                             node2.expression.right.callee &&
                              (node2.expression.right.callee.name === 'OakPage' ||
                                  node2.expression.right.callee.name ===
                                      'OakComponent')
