@@ -116,7 +116,7 @@ module.exports = (babel) => {
                             )
                         ),
                     ];
-                     const renderPcJsStatements = [
+                    const renderPcJsStatements = [
                          t.variableDeclaration('const', [
                              t.variableDeclarator(
                                  t.identifier('render'),
@@ -137,95 +137,97 @@ module.exports = (babel) => {
                                  [t.thisExpression()]
                              )
                          ),
-                     ];
-                    const statements = [];
-                    if (tsxFileExists && pcTsxFileExists) {
-                        statements.push(
-                            t.ifStatement(
-                                t.binaryExpression(
-                                    '===',
-                                    t.memberExpression(
+                    ];
+                    const getStatements = () => {
+                        const statements = [];
+                        if (tsxFileExists && pcTsxFileExists) {
+                            statements.push(
+                                t.ifStatement(
+                                    t.binaryExpression(
+                                        '===',
                                         t.memberExpression(
-                                            t.thisExpression(),
-                                            t.identifier('props')
+                                            t.memberExpression(
+                                                t.thisExpression(),
+                                                t.identifier('props')
+                                            ),
+                                            t.identifier('width')
                                         ),
-                                        t.identifier('width')
+                                        t.stringLiteral('xs')
                                     ),
-                                    t.stringLiteral('xs')
-                                ),
-                                t.blockStatement(renderTsxStatements),
-                                t.blockStatement(renderPcTsxStatements)
-                            )
-                        );
-                    }
-                    else if (jsFileExists && pcJsFileExists) {
-                        statements.push(
-                            t.ifStatement(
-                                t.binaryExpression(
-                                    '===',
-                                    t.memberExpression(
+                                    t.blockStatement(renderTsxStatements),
+                                    t.blockStatement(renderPcTsxStatements)
+                                )
+                            );
+                        } else if (jsFileExists && pcJsFileExists) {
+                            statements.push(
+                                t.ifStatement(
+                                    t.binaryExpression(
+                                        '===',
                                         t.memberExpression(
-                                            t.thisExpression(),
-                                            t.identifier('props')
+                                            t.memberExpression(
+                                                t.thisExpression(),
+                                                t.identifier('props')
+                                            ),
+                                            t.identifier('width')
                                         ),
-                                        t.identifier('width')
+                                        t.stringLiteral('xs')
                                     ),
-                                    t.stringLiteral('xs')
-                                ),
-                                t.blockStatement(renderJsStatements),
-                                t.blockStatement(renderPcJsStatements)
-                            )
-                        );
-                    } else if (jsFileExists && pcTsxFileExists) {
-                        statements.push(
-                            t.ifStatement(
-                                t.binaryExpression(
-                                    '===',
-                                    t.memberExpression(
+                                    t.blockStatement(renderJsStatements),
+                                    t.blockStatement(renderPcJsStatements)
+                                )
+                            );
+                        } else if (jsFileExists && pcTsxFileExists) {
+                            statements.push(
+                                t.ifStatement(
+                                    t.binaryExpression(
+                                        '===',
                                         t.memberExpression(
-                                            t.thisExpression(),
-                                            t.identifier('props')
+                                            t.memberExpression(
+                                                t.thisExpression(),
+                                                t.identifier('props')
+                                            ),
+                                            t.identifier('width')
                                         ),
-                                        t.identifier('width')
+                                        t.stringLiteral('xs')
                                     ),
-                                    t.stringLiteral('xs')
-                                ),
-                                t.blockStatement(renderJsStatements),
-                                t.blockStatement(renderPcTsxStatements)
-                            )
-                        );
-                    } else if (tsxFileExists && pcJsFileExists) {
-                        statements.push(
-                            t.ifStatement(
-                                t.binaryExpression(
-                                    '===',
-                                    t.memberExpression(
+                                    t.blockStatement(renderJsStatements),
+                                    t.blockStatement(renderPcTsxStatements)
+                                )
+                            );
+                        } else if (tsxFileExists && pcJsFileExists) {
+                            statements.push(
+                                t.ifStatement(
+                                    t.binaryExpression(
+                                        '===',
                                         t.memberExpression(
-                                            t.thisExpression(),
-                                            t.identifier('props')
+                                            t.memberExpression(
+                                                t.thisExpression(),
+                                                t.identifier('props')
+                                            ),
+                                            t.identifier('width')
                                         ),
-                                        t.identifier('width')
+                                        t.stringLiteral('xs')
                                     ),
-                                    t.stringLiteral('xs')
-                                ),
-                                t.blockStatement(renderTsxStatements),
-                                t.blockStatement(renderPcJsStatements)
-                            )
-                        );
-                    } else if (tsxFileExists) {
-                        statements.push(...renderTsxStatements);
-                    } else if (pcTsxFileExists) {
-                        statements.push(...renderPcTsxStatements);
-                    } else if (jsFileExists) {
-                        statements.push(...renderJsStatements);
-                    } else if (pcJsFileExists) {
-                        statements.push(...renderPcJsStatements);
-                    } else {
-                        assert(
-                            false,
-                            `${filename}文件中不存在web.tsx或者web.pc.tsx`
-                        );
-                    }
+                                    t.blockStatement(renderTsxStatements),
+                                    t.blockStatement(renderPcJsStatements)
+                                )
+                            );
+                        } else if (tsxFileExists) {
+                            statements.push(...renderTsxStatements);
+                        } else if (pcTsxFileExists) {
+                            statements.push(...renderPcTsxStatements);
+                        } else if (jsFileExists) {
+                            statements.push(...renderJsStatements);
+                        } else if (pcJsFileExists) {
+                            statements.push(...renderPcJsStatements);
+                        } else {
+                            assert(
+                                false,
+                                `${filename}文件中不存在web.tsx或者web.pc.tsx`
+                            );
+                        }
+                        return statements;
+                    };
                     const node = path.node;
                     const body = node.body;
                     body.forEach((node2) => {
@@ -238,6 +240,7 @@ module.exports = (babel) => {
                                 node2.declaration.callee.name ===
                                     'OakComponent')
                         ) {
+                            const statements = getStatements();
                             node2.declaration.arguments.forEach((node3) => {
                                 if (t.isObjectExpression(node3)) {
                                     const propertyRender = t.objectProperty(
@@ -263,6 +266,7 @@ module.exports = (babel) => {
                                  node2.expression.right.callee.name ===
                                      'OakComponent')
                          ) {
+                             const statements = getStatements();
                              node2.expression.right.arguments.forEach((node3) => {
                                  if (t.isObjectExpression(node3)) {
                                      const propertyRender = t.objectProperty(
