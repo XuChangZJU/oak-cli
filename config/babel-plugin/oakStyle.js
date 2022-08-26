@@ -53,7 +53,6 @@ module.exports = (babel) => {
                                         return getValue($1);
                                     }
                                 );
-                                console.log('code2', codeStr);
 
                                 const ast2 = parser.parse(
                                     "30px",
@@ -62,7 +61,6 @@ module.exports = (babel) => {
                                         plugins: ['jsx'],
                                     }
                                 );
-                                console.log('ast2', JSON.stringify(ast2));
 
                                 properties.splice(
                                     index,
