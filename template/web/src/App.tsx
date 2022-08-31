@@ -2,12 +2,11 @@ import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 
 import './App.less';
-import Loading from './components/Loading';
+import AppContainer from './AppContainer';
+
 const Console = React.lazy(() => import('./components/console'));
 const Frontend = React.lazy(() => import('./components/frontend'));
 const NotFound = React.lazy(() => import('./components/notFound'));
-const Message = React.lazy(() => import('@oak-general-business/components/message'));
-const DebugPanel = React.lazy(() => import('@oak-general-business/components/func/debugPanel'));
 
 type Router = {
     path: string;
@@ -22,11 +21,7 @@ function getRoutes(routers2: Router[], namespace?: string) {
             <Route
                 key={`route_${namespace ? `${namespace}_` : ''}${index}`}
                 path={path}
-                element={
-                    <React.Suspense fallback={<Loading />}>
-                        <Component namespace={namespace} />
-                    </React.Suspense>
-                }
+                element={<Component namespace={namespace} />}
             ></Route>
         );
     });
@@ -36,8 +31,7 @@ let routers: Router[] = [];
 
 function App() {
     return (
-        <React.Suspense>
-            <Message />
+        <AppContainer>
             <Routes>
                 <Route path="/console" element={<Console />}>
                     {getRoutes(routers, 'console')}
@@ -47,8 +41,7 @@ function App() {
                 </Route>
                 <Route path="*" element={<NotFound />} />
             </Routes>
-            {process.env.NODE_ENV === 'development' && <DebugPanel />}
-        </React.Suspense>
+        </AppContainer>
     );
 }
 
