@@ -39,7 +39,7 @@ export function packageJsonContent({
         "start:web": "${cliname} start --target web --mode development",
         "build:web": "${cliname} build --target web --mode production",
         "build-analyze:web": "${cliname} build --target web --mode production --analyze",
-        "build": "tsc",
+        "build": "tsc -p tsconfig.build.json",
         "server:init": "cross-env NODE_ENV=development; cross-env OAK_PLATFORM=server ts-node scripts/initServer.ts",
         "server:start": "cross-env NODE_ENV=development; cross-env OAK_PLATFORM=server ts-node scripts/startServer.ts",
         "postinstall": "npm run make:domain"
@@ -189,12 +189,55 @@ export function tsConfigJsonContent() {
     return `{
   "extends": "./tsconfig.paths.json",
   "compilerOptions": {
-    "jsx": "preserve",
+    "jsx": "react-jsx",
     "module": "commonjs",
     "target": "es5",
     "allowJs": true,
     "allowSyntheticDefaultImports": true,
-    "importHelpers": true,
+    "esModuleInterop": true,
+    "experimentalDecorators": true,   
+    "skipLibCheck": true,
+    "strict": true,
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    //"outDir": "lib", /* Redirect output structure to the directory. */
+    //"rootDir": "src", /* Specify the root directory of input files. Use to control the output directory structure with --outDir. */
+    "types": [
+      "node",
+      "miniprogram-api-typings"
+    ],
+    "resolveJsonModule": true
+  },
+  "include": [
+    "./**/*.js",
+    "./**/*.ts",
+    "./**/*.tsx",
+    "./**/*.mp.ts",
+    "./**/*.web.ts",
+    "./**/*.web.tsx",
+    "./**/*.pc.ts",
+    "./**/*.pc.tsx"
+  ],
+  "exclude": [
+    "node_modules",
+    "**/*.spec.ts",
+    "test"
+  ]
+}`;
+}
+
+export function tsConfigBuildJsonContent() {
+    return `{
+  "extends": "./tsconfig.paths.json",
+   "compilerOptions": {
+     "jsx": "react-jsx",
+    "module": "commonjs",
+    "target": "es5",
+    "allowJs": true,
+    "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "experimentalDecorators": true,   
     "skipLibCheck": true,
@@ -401,16 +444,11 @@ export function projectConfigContentWithWeChatMp(
 }
 
 export function appJsonContentWithWeChatMp(isDev: boolean) {
-    const pages = [];
-    if (isDev) {
-        pages.push("@oak-general-business/pages/token/login/index");
-        pages.push('@oak-general-business/pages/address/list/index');
-        pages.push('@oak-general-business/pages/address/upsert/index');
-        pages.push('@oak-general-business/pages/pickers/area/index');
-    }
-    else {
-       pages.push('@project/pages/index/index'); 
-    }
+    const pages = [
+        '@project/pages/book/list/index',
+        '@project/pages/book/upsert/index',
+        '@project/pages/book/detail/index',
+    ];
     return `{
   "pages":${JSON.stringify(pages, null, 4)},
   "window":{
@@ -437,12 +475,14 @@ export function oakConfigContentWithWeChatMp() {
 }
 
 export function appJsonContentWithWeb(isDev: boolean) {
+    const pages = [
+        '@project/pages/book/list/index',
+        '@project/pages/book/upsert/index',
+        '@project/pages/book/detail/index',
+    ];
     return `{
-    "pages": [
-        "@project/pages/index/index"
-    ]
-}
-`;
+    "pages": ${JSON.stringify(pages, null, 4)}
+}`;
 }
 
 export function oakConfigContentWithWeb() {

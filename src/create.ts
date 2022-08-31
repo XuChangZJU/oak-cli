@@ -15,6 +15,7 @@ import {
 import {
     packageJsonContent,
     tsConfigJsonContent,
+    tsConfigBuildJsonContent,
     tsConfigPathsJsonContent,
     tsConfigMpJsonContent,
     tsConfigWebJsonContent,
@@ -194,6 +195,7 @@ export async function create(dirName: string, cmd: any) {
 
     // 获取tsconfig.json内容
     const tsconfigJson = tsConfigJsonContent();
+    const tsConfigBuildJson = tsConfigBuildJsonContent();
     const tsConfigPathsJson = tsConfigPathsJsonContent();
     const tsConfigMpJson = tsConfigMpJsonContent();
     const tsConfigWebJson = tsConfigWebJsonContent();
@@ -204,6 +206,8 @@ export async function create(dirName: string, cmd: any) {
     const packageJsonPath = `${rootPath}/package.json`;
     // tsconfig.json路径
     const tsconfigJsonPath = `${rootPath}/tsconfig.json`;
+    // tsconfig.build.json路径
+    const tsConfigBuildJsonPath = `${rootPath}/tsconfig.build.json`;
     // tsconfig.paths.json路径
     const tsconfigPathsJsonPath = `${rootPath}/tsconfig.paths.json`;
     // tsconfig.mp.json路径
@@ -232,6 +236,12 @@ export async function create(dirName: string, cmd: any) {
         checkFileExistsAndCreate(
             tsconfigJsonPath,
             tsconfigJson,
+            checkFileExistsAndCreateType.FILE
+        );
+        // 创建tsconfig.build.json
+        checkFileExistsAndCreate(
+            tsConfigBuildJsonPath,
+            tsConfigBuildJson,
             checkFileExistsAndCreateType.FILE
         );
         // 创建tsconfig.paths.json

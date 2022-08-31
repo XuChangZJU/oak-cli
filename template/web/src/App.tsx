@@ -6,9 +6,7 @@ import Loading from './components/Loading';
 const Console = React.lazy(() => import('./components/console'));
 const Frontend = React.lazy(() => import('./components/frontend'));
 const NotFound = React.lazy(() => import('./components/notFound'));
-//@ts-ignore
 const Message = React.lazy(() => import('@oak-general-business/components/message'));
-//@ts-ignore
 const DebugPanel = React.lazy(() => import('@oak-general-business/components/func/debugPanel'));
 
 type Router = {
@@ -38,46 +36,19 @@ let routers: Router[] = [];
 
 function App() {
     return (
-        <React.Fragment>
-            <React.Suspense>
-                <Message />
-            </React.Suspense>
+        <React.Suspense>
+            <Message />
             <Routes>
-                <Route
-                    path="/console"
-                    element={
-                        <React.Suspense fallback={<Loading />}>
-                            <Console />
-                        </React.Suspense>
-                    }
-                >
+                <Route path="/console" element={<Console />}>
                     {getRoutes(routers, 'console')}
                 </Route>
-                <Route
-                    path="/"
-                    element={
-                        <React.Suspense fallback={<Loading />}>
-                            <Frontend />
-                        </React.Suspense>
-                    }
-                >
+                <Route path="/" element={<Frontend />}>
                     {getRoutes(routers)}
                 </Route>
-                <Route
-                    path="*"
-                    element={
-                        <React.Suspense fallback={<Loading />}>
-                            <NotFound />
-                        </React.Suspense>
-                    }
-                />
+                <Route path="*" element={<NotFound />} />
             </Routes>
-            {process.env.NODE_ENV === 'development' && (
-                <React.Suspense>
-                    <DebugPanel />
-                </React.Suspense>
-            )}
-        </React.Fragment>
+            {process.env.NODE_ENV === 'development' && <DebugPanel />}
+        </React.Suspense>
     );
 }
 
