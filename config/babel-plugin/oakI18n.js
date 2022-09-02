@@ -3,10 +3,8 @@ const { relative, resolve } = require('path');
 const t = require('@babel/types');
 const { assert } = require('console');
 
-const oakRegex =
-    /(\/*[a-zA-Z0-9_-])*\/lib\/(pages|components)\/|(\\*[a-zA-Z0-9_-])*\\lib\\(pages|components)\\/;
-const localRegex =
-    /(\/*[a-zA-Z0-9_-])*\/src\/(pages|components)+\/|(\\*[a-zA-Z0-9_-])*\\src\/(pages|components)+\\/;
+const Regex =
+    /(\/*[a-zA-Z0-9_-])*\/(lib|src)\/(pages|components)+\/|(\\*[a-zA-Z0-9_-])*\\(lib|src)\\(pages|components)+\\|[a-zA-Z]:(\/*[a-zA-Z0-9_-])*\/(lib|src)\/(pages|components)+\/|[a-zA-Z]:(\\*[a-zA-Z0-9_-])*\\(lib|src)\\(pages|components)+\\/;
 
 module.exports = (babel) => {
     return {
@@ -20,14 +18,6 @@ module.exports = (babel) => {
                  if (
                      /(pages|components)[\w|\W]+(.tsx|.ts|.jsx|.js)$/.test(res)
                  ) {
-                     const p = res
-                         .replace(oakRegex, '')
-                         .replace(localRegex, '');
-                     const eP = p.substring(0, p.lastIndexOf('/'));
-                     const ns = eP
-                         .split('/')
-                         .filter((ele) => !!ele)
-                         .join('-');
                      const { node } = path;
                      if (
                          node &&
@@ -38,6 +28,12 @@ module.exports = (babel) => {
                                  t.isIdentifier(node.callee.property) &&
                                  node.callee.property.name === 't'))
                      ) {
+                         const p = res.replace(Regex, '');
+                         const eP = p.substring(0, p.lastIndexOf('/'));
+                         const ns = eP
+                             .split('/')
+                             .filter((ele) => !!ele)
+                             .join('-');
                          const arguments = node.arguments;
                          arguments &&
                              arguments.forEach((node2, index) => {

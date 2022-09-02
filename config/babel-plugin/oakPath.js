@@ -14,42 +14,42 @@ function isOakNamespaceIdentifier(node, name) {
 module.exports = (babel) => {
     return {
         visitor: {
-            Program(path, state) {
-                const { cwd, filename } = state;
-                const rel = relative(cwd, filename).replace(/\\/g, '/');
-                if (
-                    /(pages|components)[\w|\W]+(index\.tsx|index\.pc\.tsx)$/.test(
-                        rel
-                    )
-                ) {
-                    const lessFile = filename.replace(/\.(ts|tsx)$/, '.less');
-                    const lessFileExists = fs.existsSync(lessFile);
-                    const pcLessFile = filename.replace(
-                        /\.(ts|tsx)$/,
-                        '.pc.less'
-                    );
-                    const pcLessFileExists = fs.existsSync(pcLessFile);
-                    const { body } = path.node;
-                    const lessFileImport = rel.endsWith('.pc.tsx')
-                        ? pcLessFileExists
-                            ? './index.pc.less'
-                            : './index.less'
-                        : lessFileExists
-                        ? './index.less'
-                        : './index.pc.less';
-                    if (
-                        (lessFileExists && !pcLessFileExists) ||
-                        (!lessFileExists && pcLessFileExists)
-                    ) {
-                        body.unshift(
-                            t.importDeclaration(
-                                [],
-                                t.stringLiteral(lessFileImport)
-                            )
-                        );
-                    }
-                }
-            },
+            // Program(path, state) {
+            //     const { cwd, filename } = state;
+            //     const rel = relative(cwd, filename).replace(/\\/g, '/');
+            //     if (
+            //         /(pages|components)[\w|\W]+(index\.tsx|index\.pc\.tsx|web\.tsx|web\.pc\.tsx|web\.jsx|web\.pc\.jsx)$/.test(
+            //             rel
+            //         )
+            //     ) {
+            //         const lessFile = filename.replace(/\.(ts|tsx|jsx)$/, '.less');
+            //         const lessFileExists = fs.existsSync(lessFile);
+            //         const pcLessFile = filename.replace(
+            //             /\.(ts|tsx)$/,
+            //             '.pc.less'
+            //         );
+            //         const pcLessFileExists = fs.existsSync(pcLessFile);
+            //         const { body } = path.node;
+            //         const lessFileImport = rel.endsWith('.pc.tsx')
+            //             ? pcLessFileExists
+            //                 ? './index.pc.less'
+            //                 : './index.less'
+            //             : lessFileExists
+            //             ? './index.less'
+            //             : './index.pc.less';
+            //         if (
+            //             (lessFileExists && !pcLessFileExists) ||
+            //             (!lessFileExists && pcLessFileExists)
+            //         ) {
+            //             body.unshift(
+            //                 t.importDeclaration(
+            //                     [],
+            //                     t.stringLiteral(lessFileImport)
+            //                 )
+            //             );
+            //         }
+            //     }
+            // },
             JSXAttribute(path, state) {
                 const { cwd, filename } = state;
                 const rel = relative(cwd, filename).replace(/\\/g, '/');

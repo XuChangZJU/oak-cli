@@ -5,9 +5,10 @@ import KoaRouter from 'koa-router';
 import KoaBody from 'koa-body';
 import { AppLoader } from 'oak-backend-base';
 import { OakException, Connector, EntityDict, Context, RowStore } from 'oak-domain/lib/types';
+import { EntityDict as BaseEntityDict } from 'oak-domain/lib/base-app-domain';
 import { MySQLConfiguration } from 'oak-db/lib/MySQL/types/Configuration';
 
-export async function startup<ED extends EntityDict, Cxt extends Context<ED>>(
+export async function startup<ED extends EntityDict & BaseEntityDict, Cxt extends Context<ED>>(
     path: string,
     contextBuilder: (scene?: string) => (store: RowStore<ED, Cxt>) => Cxt,
     dbConfig: MySQLConfiguration,

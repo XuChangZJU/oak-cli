@@ -3,10 +3,10 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import { I18nextProvider } from 'react-i18next';
+import { ResponsiveProvider } from 'oak-frontend-base/lib/platforms/web';
 import './index.less';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-import { ResponsiveProvider } from 'oak-frontend-base/lib/platforms/web/responsive';
 import { getAppType } from './utils/env';
 import initialize from '../../src/initialize';
 

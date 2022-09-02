@@ -6,3 +6,11 @@ declare module '*.module.less' {
     };
     export default classes;
 }
+
+declare namespace JSX {
+    interface IntrinsicAttributes {
+        ['oak:path']?: string;
+        ['oak:value']?: string;
+        ['oak:attr']?: string;
+    }
+}

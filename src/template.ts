@@ -53,6 +53,7 @@ export function packageJsonContent({
         "@reduxjs/toolkit": "^1.7.2",
         "classnames": "^2.3.1",
         "crypto-browserify": "^3.12.0",
+        "dayjs": "^1.11.5",
         "i18next": "^20.6.1",
         "i18next-browser-languagedetector": "^6.1.4",
         "i18next-chained-backend": "^3.0.2",
@@ -60,7 +61,6 @@ export function packageJsonContent({
         "i18next-localstorage-backend": "^3.1.3",
         "i18next-resource-store-loader": "^0.1.2",
         "lodash": "^4.17.21",
-        "luxon": "^2.4.0",
         "nprogress": "^0.2.0",
         ${oakDependencyStr}
         "react": "^18.2.0",
@@ -192,12 +192,55 @@ export function tsConfigJsonContent() {
     return `{
   "extends": "./tsconfig.paths.json",
   "compilerOptions": {
-    "jsx": "preserve",
+    "jsx": "react-jsx",
     "module": "commonjs",
     "target": "es5",
     "allowJs": true,
     "allowSyntheticDefaultImports": true,
-    "importHelpers": true,
+    "esModuleInterop": true,
+    "experimentalDecorators": true,   
+    "skipLibCheck": true,
+    "strict": true,
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    //"outDir": "lib", /* Redirect output structure to the directory. */
+    //"rootDir": "src", /* Specify the root directory of input files. Use to control the output directory structure with --outDir. */
+    "types": [
+      "node",
+      "miniprogram-api-typings"
+    ],
+    "resolveJsonModule": true
+  },
+  "include": [
+    "./**/*.js",
+    "./**/*.ts",
+    "./**/*.tsx",
+    "./**/*.mp.ts",
+    "./**/*.web.ts",
+    "./**/*.web.tsx",
+    "./**/*.pc.ts",
+    "./**/*.pc.tsx"
+  ],
+  "exclude": [
+    "node_modules",
+    "**/*.spec.ts",
+    "test"
+  ]
+}`;
+}
+
+export function tsConfigBuildJsonContent() {
+    return `{
+  "extends": "./tsconfig.paths.json",
+   "compilerOptions": {
+     "jsx": "react-jsx",
+    "module": "commonjs",
+    "target": "es5",
+    "allowJs": true,
+    "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "experimentalDecorators": true,   
     "skipLibCheck": true,
@@ -404,16 +447,11 @@ export function projectConfigContentWithWeChatMp(
 }
 
 export function appJsonContentWithWeChatMp(isDev: boolean) {
-    const pages = [];
-    if (isDev) {
-        pages.push("@oak-general-business/pages/token/login/index");
-        pages.push('@oak-general-business/pages/address/list/index');
-        pages.push('@oak-general-business/pages/address/upsert/index');
-        pages.push('@oak-general-business/pages/pickers/area/index');
-    }
-    else {
-       pages.push('@project/pages/index/index'); 
-    }
+    const pages = [
+        '@project/pages/book/list/index',
+        '@project/pages/book/upsert/index',
+        '@project/pages/book/detail/index',
+    ];
     return `{
   "pages":${JSON.stringify(pages, null, 4)},
   "window":{
@@ -440,12 +478,18 @@ export function oakConfigContentWithWeChatMp() {
 }
 
 export function appJsonContentWithWeb(isDev: boolean) {
+    const pages = [
+        '@project/pages/store/list/index',
+        '@project/pages/store/upsert/index',
+        '@project/pages/store/detail/index',
+        '@project/pages/book/list/index',
+        '@project/pages/book/upsert/index',
+        '@project/pages/book/detail/index',
+        '@oak-general-business/pages/login/index',
+    ];
     return `{
-    "pages": [
-        "@project/pages/index/index"
-    ]
-}
-`;
+    "pages": ${JSON.stringify(pages, null, 4)}
+}`;
 }
 
 export function oakConfigContentWithWeb() {

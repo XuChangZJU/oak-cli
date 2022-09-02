@@ -41,7 +41,7 @@ module.exports = () => {
                         'app.json'
                     ));
                     const objs = pages.map((ele) => {
-                        const relPath = ele
+                        const relPath = ele.replace(/\\/g, '/')
                             .replace('@project', AppPaths.appRootSrc)
                             .replace(
                                 '@oak-general-business',
