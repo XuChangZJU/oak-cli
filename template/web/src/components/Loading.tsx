@@ -1,10 +1,10 @@
-
-import React, { useEffect } from 'react';
+import React, { useEffect, memo } from 'react';
 
 import NProgress from 'nprogress';
 import 'nprogress/nprogress.css';
 
-function Loading() {
+
+export default memo(() => {
     //componentDidMount
     useEffect(() => {
         NProgress.start();
@@ -17,6 +17,4 @@ function Loading() {
     }, []);
 
     return null;
-}
-
-export default Loading
+});
