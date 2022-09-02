@@ -21,11 +21,11 @@ export function packageJsonContent({
     }
     else {
         oakDependencyStr = `"oak-common-aspect": "^1.0.0",
-        "oak-domain": "^1.0.0",
-        "oak-frontend-base": "^1.0.0",
-        "oak-general-business": "^1.0.0",
-        "oak-external-sdk": "^1.0.0",
-        "oak-memory-tree-store": "^1.0.0",`;
+        "oak-domain": "^1.1.0",
+        "oak-frontend-base": "^1.0.4",
+        "oak-general-business": "^1.0.5",
+        "oak-external-sdk": "^1.0.3",
+        "oak-memory-tree-store": "^1.0.3",`;
         oakDevDependencyStr = `"${cliName}": "^${cliVersion}",`
     }
 
