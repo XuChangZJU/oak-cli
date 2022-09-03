@@ -50,7 +50,6 @@ export function packageJsonContent({
     "author": "",
     "license": "",
     "dependencies": {
-        "@reduxjs/toolkit": "^1.7.2",
         "classnames": "^2.3.1",
         "crypto-browserify": "^3.12.0",
         "dayjs": "^1.11.5",
