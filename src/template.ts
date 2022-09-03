@@ -72,7 +72,7 @@ export function packageJsonContent({
         "rmc-pull-to-refresh": "^1.0.13",
         "tdesign-icons-react": "^0.1.4",
         "tdesign-mobile-react": "^0.2.0",
-        "tdesign-react": "^0.38.0",
+        "tdesign-react": "^0.40.5",
         "url": "^0.11.0",
         "uuid": "^8.3.2"
     },
