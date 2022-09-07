@@ -5,7 +5,7 @@ const Path = require('path');
 const { merge, get, set, setWith } = require('lodash');
 
 const oakRegex =
-    /(\/*[a-zA-Z0-9_-])*\/app\/(pages|components|locales)+\/|(\\*[a-zA-Z0-9_-])*\\app\\(pages|components|locales)+\\/;
+    /(\/*[a-zA-Z0-9_-])*\/lib\/(pages|components|locales)+\/|(\\*[a-zA-Z0-9_-])*\\lib\\(pages|components|locales)+\\/;
 const localRegex =
     /(\/*[a-zA-Z0-9_-])*\/src\/(pages|components|locales)+\/|(\\*[a-zA-Z0-9_-])*\\src\/(pages|components|locales)+\\/;
 
@@ -39,14 +39,12 @@ function getNameAndLng(path) {
 }
 
 function buildLocales({
-    projectPath,
-    businessProjectPath,
+    projectPaths,
     buildPath,
     nodeEnv,
     platform,
 }) {
     const dataJson = {};
-    const projectPaths = [projectPath, businessProjectPath];
     projectPaths.forEach((path) => {
         readProject(dataJson, path, buildPath, nodeEnv, platform);
     });

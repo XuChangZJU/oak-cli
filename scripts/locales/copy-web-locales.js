@@ -16,8 +16,11 @@ function copyLocaleFiles() {
         const buildPath = Path.resolve(paths.appPublic, Locales);
         consola.success(`${chalk.greenBright('读取locales，生成json数据')}`);
         const json = buildLocales({
-            projectPath: paths.appRootSrc,
-            businessProjectPath: paths.oakGeneralBusinessAppPath,
+            projectPaths: [
+                paths.appRootSrc,
+                paths.oakGeneralBusinessAppPath,
+                paths.appSrc,
+            ],
             buildPath,
             nodeEnv: env.raw.NODE_ENV,
             platform: env.raw.OAK_PLATFORM,
