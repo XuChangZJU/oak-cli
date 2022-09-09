@@ -136,7 +136,10 @@ module.exports = () => {
                             const elements = init && init.elements;
 
                             for (let node2 of elements) {
-                                const project = node2.elements[0].value;
+                                if (!node2.elements) {
+                                    continue;
+                                }
+                                const projectOrPath = node2.elements[0].value;
                                 const path = node2.elements[1].value;
                                 const namespaceArr =
                                     node2.elements[2] &&
@@ -153,26 +156,18 @@ module.exports = () => {
                                         );
                                         if (fIndex < 0) {
                                             //找不到
-                                            let relPath = resolve(
-                                                filename
-                                                    .replace(/\\/g, '/')
-                                                    .slice(
-                                                        0,
-                                                        filename.lastIndexOf('/')
-                                                    ),
-                                                namespaces[namespace]
-                                            ).replace(/\\/g, '/');
-                                            if (!relPath.endsWith('/index')) {
-                                                relPath = relPath + '/index';
-                                            }
-                                            const router = getNamespaceRouter(namespaces, namespace, relPath);
+                                            const router = getNamespaceRouter({
+                                                namespaces,
+                                                namespace,
+                                                filename,
+                                            });
                                             const children = [
-                                                getRouter(
-                                                    project,
+                                                getRouter({
+                                                    projectOrPath,
                                                     path,
+                                                    disableAssemble,
                                                     namespace,
-                                                    disableAssemble
-                                                ),
+                                                }),
                                             ];
                                             router.properties.push(
                                                 t.objectProperty(
@@ -182,12 +177,12 @@ module.exports = () => {
                                             );
                                             allRouters.push(router);
                                         } else {
-                                            const router = getRouter(
-                                                project,
+                                            const router = getRouter({
+                                                projectOrPath,
                                                 path,
+                                                disableAssemble,
                                                 namespace,
-                                                disableAssemble
-                                            );
+                                            });
                                             const properties = allRouters[fIndex].properties;
 
                                             if (properties && properties.length > 0) {
@@ -211,12 +206,11 @@ module.exports = () => {
                                         }
                                     }
                                 } else {
-                                    const router = getRouter(
-                                        project,
+                                    const router = getRouter({
+                                        projectOrPath,
                                         path,
-                                        undefined,
-                                        disableAssemble
-                                    );
+                                        disableAssemble,
+                                    });
                                     allRouters.push(router);
                                 }
                             }
@@ -246,8 +240,12 @@ module.exports = () => {
     };
 };
 
-function getRouter(projectOrPath, path, namespace, disableAssemble) {
-    const filePath = disableAssemble ? projectOrPath : `${projectOrPath}/pages${path.startsWith('/') ? path : `/${path}`}/index`;
+function getRouter({ projectOrPath, path, namespace, disableAssemble }) {
+    const filePath = disableAssemble
+        ? projectOrPath
+        : `${projectOrPath}/pages${
+              path.startsWith('/') ? path : `/${path}`
+          }/index`;
     const relPath = filePath
         .replace(/\\/g, '/')
         .replace('@project', AppPaths.appRootSrc)
@@ -300,7 +298,14 @@ function getRouter(projectOrPath, path, namespace, disableAssemble) {
 }
 
 
-function getNamespaceRouter(namespaces, namespace, relPath) {
+function getNamespaceRouter({ namespaces, namespace, filename }) {
+    let relPath = resolve(
+        filename.replace(/\\/g, '/').slice(0, filename.lastIndexOf('/')),
+        namespaces[namespace]
+    ).replace(/\\/g, '/');
+    if (!relPath.endsWith('/index')) {
+        relPath = relPath + '/index';
+    }
     const filePath = namespaces[namespace];
     const jsonFileExists = fs.existsSync(`${relPath}.json`);
     let meta = [];
