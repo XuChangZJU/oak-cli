@@ -29,6 +29,7 @@ const useTypeScript = fs.existsSync(paths.appTsConfig);
 const createEnvironmentHash = require('./webpack/persistentCache/createEnvironmentHash');
 
 const oakI18nPlugin = require('../babel-plugin/oakI18n');
+const oakPathPlugin = require('../babel-plugin/oakPath');
 
 const shouldUseSourceMap = process.env.GENERATE_SOURCEMAP !== 'false';
 const shouldAnalyze = process.env.COMPILE_ANALYZE === 'true';
@@ -278,7 +279,7 @@ module.exports = function (webpackEnv) {
                     //exclude: /node_modules/,
                     loader: 'babel-loader',
                     options: {
-                        plugins: [oakI18nPlugin],
+                        plugins: [oakI18nPlugin, oakPathPlugin],
                         //开启缓存
                         // cacheDirectory: false,
                     },
@@ -293,7 +294,7 @@ module.exports = function (webpackEnv) {
                         {
                             loader: 'babel-loader',
                             options: {
-                                plugins: [oakI18nPlugin],
+                                plugins: [oakI18nPlugin, oakPathPlugin],
                                 //开启缓存
                                 // cacheDirectory: false,
                             },
