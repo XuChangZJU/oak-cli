@@ -166,6 +166,34 @@ module.exports = (babel) => {
                     }
                 }
             },
+            Identifier(path, state) {
+                const { cwd, filename } = state;
+                const rel = relative(cwd, filename).replace(/\\/g, '/');
+                
+                const { node, parent } = path;
+                if (node.name === 'OakPage' && /pages[\w|\W]+index\.ts$/.test(rel)) {
+                    console.log(rel);
+                    const relativePath = rel.slice(9, rel.length - 9);
+                    console.log(relativePath);
+
+                    assert(t.isCallExpression(parent));
+                    const { arguments } = parent;
+                    assert(arguments.length === 1 && t.isObjectExpression(arguments[0]));
+                    const { properties } = arguments[0];
+                    const pathProperty = properties.find(
+                        ele => t.isObjectProperty(ele) && t.isIdentifier(ele.key) && ele.key.name === 'path'
+                    );
+                    if (pathProperty) {
+                        console.warn(`${rel}页面的OakPage中还是定义了path，可以删除掉了`);
+                        pathProperty.value = t.stringLiteral(relativePath);
+                    }
+                    else {
+                        properties.push(
+                            t.objectProperty(t.identifier('path'), t.stringLiteral(relativePath))
+                        );
+                    }
+                }
+            },
         },
     };
 };

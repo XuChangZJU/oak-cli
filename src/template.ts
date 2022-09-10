@@ -20,12 +20,12 @@ export function packageJsonContent({
         oakDevDependencyStr = `"${cliName}": "file:../oak-cli",`
     }
     else {
-        oakDependencyStr = `"oak-common-aspect": "^1.0.0",
-        "oak-domain": "^1.0.0",
-        "oak-frontend-base": "^1.0.0",
-        "oak-general-business": "^1.0.0",
-        "oak-external-sdk": "^1.0.0",
-        "oak-memory-tree-store": "^1.0.0",`;
+        oakDependencyStr = `"oak-common-aspect": "^1.0.2",
+        "oak-domain": "^1.1.0",
+        "oak-frontend-base": "^1.0.4",
+        "oak-general-business": "^1.0.5",
+        "oak-external-sdk": "^1.0.2",
+        "oak-memory-tree-store": "^1.0.2",`;
         oakDevDependencyStr = `"${cliName}": "^${cliVersion}",`
     }
 
@@ -50,7 +50,6 @@ export function packageJsonContent({
     "author": "",
     "license": "",
     "dependencies": {
-        "@reduxjs/toolkit": "^1.7.2",
         "classnames": "^2.3.1",
         "crypto-browserify": "^3.12.0",
         "dayjs": "^1.11.5",
@@ -72,7 +71,7 @@ export function packageJsonContent({
         "rmc-pull-to-refresh": "^1.0.13",
         "tdesign-icons-react": "^0.1.4",
         "tdesign-mobile-react": "^0.2.0",
-        "tdesign-react": "^0.38.0",
+        "tdesign-react": "^0.40.5",
         "url": "^0.11.0",
         "uuid": "^8.3.2"
     },

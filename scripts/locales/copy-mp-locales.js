@@ -15,8 +15,7 @@ function copyLocaleFiles() {
     // locales到mp/dist下
     const buildPath = Path.resolve(paths.appSrc, Locales);
     const json = buildLocales({
-        projectPath: paths.appRootSrc,
-        businessProjectPath: paths.oakGeneralBusinessAppPath,
+        projectPaths: [paths.appRootSrc, paths.oakGeneralBusinessAppPath],
         buildPath,
         nodeEnv: env.raw.NODE_ENV,
         platform: env.raw.OAK_PLATFORM,
