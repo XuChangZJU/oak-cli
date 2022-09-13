@@ -171,7 +171,7 @@ module.exports = (babel) => {
                 const rel = relative(cwd, filename).replace(/\\/g, '/');
                 
                 const { node, parent } = path;
-                if (node.name === 'OakPage' && /pages[\w|\W]+index\.ts$/.test(rel)) {
+                if (node.name === 'OakPage' && /pages[\w|\W]+index\.(ts|js)$/.test(rel)) {
                     console.log(rel);
                     const relativePath = rel.slice(9, rel.length - 9);
                     console.log(relativePath);
