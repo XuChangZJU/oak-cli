@@ -41,19 +41,19 @@ export default function initialize(
         >,
         context: RuntimeContext
     ) => {
-        const { token, extraFile, application } = initializeGeneralFeatures<
+        const generalFeatures = initializeGeneralFeatures<
             EntityDict,
             RuntimeContext,
             AspectDict
         >(aspectWrapper, basicFeatures, type, context);
 
-        const features = initializeFeatures(aspectWrapper, basicFeatures);
+        const features = initializeFeatures(
+            aspectWrapper,
+            basicFeatures,
+            generalFeatures
+        );
         const features2 = Object.assign(
-            {
-                token,
-                extraFile,
-                application,
-            },
+            generalFeatures,
             features
         );
 

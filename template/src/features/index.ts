@@ -1,5 +1,6 @@
 import { EntityDict } from 'oak-app-domain';
 import { BasicFeatures } from 'oak-frontend-base/lib/features';
+import { GeneralFeatures } from 'oak-general-business/lib/features';
 import { CommonAspectDict } from 'oak-common-aspect';
 import * as Sample from './Sample';
 import { AspectDict } from '../aspects/AspectDict';
@@ -13,6 +14,11 @@ export function initialize(
         AspectDict & CommonAspectDict<EntityDict, RuntimeContext>
     >,
     basicFeatures: BasicFeatures<
+        EntityDict,
+        RuntimeContext,
+        AspectDict & CommonAspectDict<EntityDict, RuntimeContext>
+    >,
+    generalFeatures: GeneralFeatures<
         EntityDict,
         RuntimeContext,
         AspectDict & CommonAspectDict<EntityDict, RuntimeContext>
