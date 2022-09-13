@@ -122,7 +122,7 @@ function replaceT(str) {
 function getWxsCode() {
     const BASE_PATH = path.dirname(
         require.resolve(
-            `${process.cwd()}/node_modules/oak-frontend-base/src/platforms/wechatMp/i18n/wxs/wxs.js`
+            `${process.cwd()}/node_modules/oak-frontend-base/lib/platforms/wechatMp/i18n/wxs/wxs.js`
         )
     );
     const code = fs.readFileSync(path.join(BASE_PATH, '/wxs.js'), 'utf-8');

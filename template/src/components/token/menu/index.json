@@ -1,0 +1,6 @@
+{
+  "component": true,
+  "usingComponents": {
+      "t-cell": "@oak-general-business/miniprogram_npm/tdesign/cell/cell"
+  }
+}

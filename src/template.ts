@@ -21,7 +21,7 @@ export function packageJsonContent({
     }
     else {
         oakDependencyStr = `"oak-common-aspect": "^1.0.2",
-        "oak-domain": "^1.1.4",
+        "oak-domain": "^1.1.6",
         "oak-frontend-base": "^1.0.7",
         "oak-general-business": "^1.0.7",
         "oak-external-sdk": "^1.0.2",
