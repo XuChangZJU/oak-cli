@@ -2,7 +2,7 @@
     "host": "localhost",
     "user": "root",
     "password": "",
-    "database": "bangzuxia",
+    "database": "",
     "charset": "utf8mb4_general_ci",
     "connectionLimit": 5
 }

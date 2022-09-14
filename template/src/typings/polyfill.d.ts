@@ -4,7 +4,7 @@ import {
     MakeOakPage,
 } from 'oak-frontend-base/lib/types/Page';
 import { EntityDict } from 'oak-app-domain';
-import { RuntimeContext } from '../RuntimeContext';
+import { RuntimeContext } from '../context/RuntimeContext';
 import { aspectDict } from '../aspects';
 import { initialize } from '../initialize';
 

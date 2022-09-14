@@ -5,9 +5,9 @@ import { SimpleConnector } from 'oak-domain/lib/utils/SimpleConnector';
 import { AspectWrapper } from 'oak-domain/lib/types';
 import { EntityDict, storageSchema, ActionDefDict } from 'oak-app-domain';
 import { CommonAspectDict } from 'oak-common-aspect';
-import { RuntimeContext } from './RuntimeContext';
-
-import { initialize as initializeGeneralFeatures } from 'oak-general-business/lib/features';
+import { RuntimeContext } from './context/RuntimeContext';
+import { BackendRuntimeContext } from './context/BackendRuntimeContext';
+import { FrontendRuntimeContext } from './context/FrontendRuntimeContext';
 
 import { initialize as initializeFeatures } from './features';
 import { routers } from './exceptionRouters';
@@ -23,40 +23,6 @@ export default function initialize(
     url: string,
     i18nOptions?: Record<string, any>
 ) {
-    let wholeFeatures = {};
-    const createFeatures = (
-        aspectWrapper: AspectWrapper<
-            EntityDict,
-            RuntimeContext,
-            AspectDict & CommonAspectDict<EntityDict, RuntimeContext>
-        >,
-        basicFeatures: BasicFeatures<
-            EntityDict,
-            RuntimeContext,
-            AspectDict & CommonAspectDict<EntityDict, RuntimeContext>
-        >,
-        context: RuntimeContext
-    ) => {
-        const generalFeatures = initializeGeneralFeatures<
-            EntityDict,
-            RuntimeContext,
-            AspectDict
-        >(aspectWrapper, basicFeatures, type, context);
-
-        const features = initializeFeatures(
-            aspectWrapper,
-            basicFeatures,
-            generalFeatures
-        );
-        const features2 = Object.assign(
-            generalFeatures,
-            features
-        );
-
-        Object.assign(wholeFeatures, features2, basicFeatures);
-        return features2;
-    };
-
     let URL: string;
     /**
      * 如果是本地前后端联调，可以显示import initialize.prod走到这里
@@ -77,17 +43,17 @@ export default function initialize(
     const connector = new SimpleConnector(
         URL,
         makeException,
-        RuntimeContext.FromCxtStr
+        BackendRuntimeContext.FromSerializedString
     );
-    const { i18n } = init<
+    const { i18n, features } = init<
         EntityDict,
         RuntimeContext,
         AspectDict,
-        ReturnType<typeof createFeatures>
+        ReturnType<typeof initializeFeatures>
     >(
         storageSchema,
-        createFeatures,
-        RuntimeContext.FromCxtStr,
+        (wrapper, basicFeatures) => initializeFeatures(wrapper, basicFeatures, type),
+        (features) => (store) => new FrontendRuntimeContext(store, features.application, features.token),
         routers,
         connector,
         checkers,
@@ -97,11 +63,6 @@ export default function initialize(
 
     return {
         i18n,
-        features: wholeFeatures as BasicFeatures<
-            EntityDict,
-            RuntimeContext,
-            AspectDict & CommonAspectDict<EntityDict, RuntimeContext>
-        > &
-            ReturnType<typeof createFeatures>,
+        features,
     };
 }

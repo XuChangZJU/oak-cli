@@ -1,6 +1,6 @@
 import { EntityDict } from "oak-app-domain";
 import { Trigger } from "oak-domain/lib/types";
-import { RuntimeContext } from "../RuntimeContext";
+import { RuntimeContext } from '../context/RuntimeContext';
 
 export const triggers: Trigger<EntityDict, 'book', RuntimeContext>[] = [
     {

@@ -4,7 +4,7 @@ import { BasicFeatures } from 'oak-frontend-base/lib/features';
 import { Feature } from 'oak-frontend-base/lib/types/Feature';
 import { CommonAspectDict } from 'oak-common-aspect';
 import { AspectDict } from '../aspects/AspectDict';
-import { RuntimeContext } from '../RuntimeContext';
+import { RuntimeContext } from '../context/RuntimeContext';
 
 type DoSthAcion = {
     type: 'doSth';
