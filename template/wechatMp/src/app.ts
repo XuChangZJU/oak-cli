@@ -29,9 +29,9 @@ App<IAppOption>({
         features,
     },
     async onLaunch() {
-        // 等application初始化完成后进行登录
+        // 首先获取app信息，登录由用户逻辑主宰
         await features.application.getApplication();
-        features.token.loginWechatMp();
+        // features.token.loginWechatMp();
     },
 
     onHide() {
