@@ -148,6 +148,7 @@ module.exports = () => {
                                         (ele) => ele.value
                                     );
                                 const disableAssemble = node2.elements[3] && node2.elements[3].value;
+                                const isFirst = node2.elements[4] && node2.elements[4].value;
 
                                 if (namespaceArr && namespaceArr.length > 0) {
                                     for (let namespace of namespaceArr) {
@@ -167,6 +168,7 @@ module.exports = () => {
                                                     path,
                                                     disableAssemble,
                                                     namespace,
+                                                    isFirst,
                                                 }),
                                             ];
                                             router.properties.push(
@@ -182,6 +184,7 @@ module.exports = () => {
                                                 path,
                                                 disableAssemble,
                                                 namespace,
+                                                isFirst,
                                             });
                                             const properties = allRouters[fIndex].properties;
 
@@ -210,6 +213,7 @@ module.exports = () => {
                                         projectOrPath,
                                         path,
                                         disableAssemble,
+                                        isFirst,
                                     });
                                     allRouters.push(router);
                                 }
@@ -240,7 +244,7 @@ module.exports = () => {
     };
 };
 
-function getRouter({ projectOrPath, path, namespace, disableAssemble }) {
+function getRouter({ projectOrPath, path, namespace, disableAssemble, isFirst }) {
     const filePath = disableAssemble
         ? projectOrPath
         : `${projectOrPath}/pages${
@@ -254,12 +258,12 @@ function getRouter({ projectOrPath, path, namespace, disableAssemble }) {
     let meta = [];
     if (jsonFileExists) {
         const { navigationBarTitleText } = require(`${relPath}.json`);
-        meta = [
+        meta.push(
             t.objectProperty(
                 t.identifier('title'),
                 t.stringLiteral(navigationBarTitleText || '')
-            ),
-        ];
+            )
+        );
     }
 
     const path2 =
@@ -285,6 +289,11 @@ function getRouter({ projectOrPath, path, namespace, disableAssemble }) {
         ),
         t.objectProperty(t.identifier('meta'), t.objectExpression(meta)),
     ];
+    if (isFirst) {
+        properties.push(
+            t.objectProperty(t.identifier('isFirst'), t.booleanLiteral(isFirst))
+        );
+    }
     if (namespace) {
         properties.push(
             t.objectProperty(
