@@ -1,11 +1,11 @@
 import './utils/polyfill';
 import { initialize as init } from 'oak-frontend-base/lib/initialize.dev';
 
-import { EntityDict, storageSchema, ActionDefDict } from 'oak-app-domain';
+import { EntityDict, storageSchema, ActionDefDict } from './oak-app-domain';
 import { CommonAspectDict } from 'oak-common-aspect';
-import { RuntimeContext } from './RuntimeContext';
-
-import { initialize as initializeGeneralFeatures } from 'oak-general-business/lib/features';
+import { RuntimeContext } from './context/RuntimeContext';
+import { BackendRuntimeContext } from './context/BackendRuntimeContext';
+import { FrontendRuntimeContext } from './context/FrontendRuntimeContext';
 
 import { initialize as initializeFeatures } from './features';
 import { data } from './data';
@@ -18,7 +18,6 @@ import { aspectDict } from './aspects';
 import { triggers } from './triggers';
 import { watchers } from './watchers';
 
-import { AspectWrapper } from 'oak-domain/lib/types';
 import { BasicFeatures } from 'oak-frontend-base/lib/features';
 import { AppType } from 'oak-app-domain/Application/Schema';
 
@@ -27,49 +26,16 @@ export default function initialize(
     url?: string,
     i18nOptions?: Record<string, any>
 ) {
-    let wholeFeatures = {};
-    const createFeatures = (
-        aspectWrapper: AspectWrapper<
-            EntityDict,
-            RuntimeContext,
-            AspectDict & CommonAspectDict<EntityDict, RuntimeContext>
-        >,
-        basicFeatures: BasicFeatures<
-            EntityDict,
-            RuntimeContext,
-            AspectDict & CommonAspectDict<EntityDict, RuntimeContext>
-        >,
-        context: RuntimeContext
-    ) => {
-        const { token, extraFile, application } = initializeGeneralFeatures<
-            EntityDict,
-            RuntimeContext,
-            AspectDict
-        >(aspectWrapper, basicFeatures, type, context);
-
-        const features = initializeFeatures(aspectWrapper, basicFeatures);
-        const features2 = Object.assign(
-            {
-                token,
-                extraFile,
-                application,
-            },
-            features
-        );
-
-        Object.assign(wholeFeatures, features2, basicFeatures);
-        return features2;
-    };
-
-    const { i18n } = init<
+    const { i18n, features } = init<
         EntityDict,
         RuntimeContext,
         AspectDict,
-        ReturnType<typeof createFeatures>
+        ReturnType<typeof initializeFeatures>
     >(
         storageSchema,
-        createFeatures,
-        RuntimeContext.FromCxtStr,
+        (wrapper, basicFeatures) => initializeFeatures(wrapper, basicFeatures, type),
+        (features) => (store) => new FrontendRuntimeContext(store, features.application, features.token),
+        (str) => BackendRuntimeContext.FromSerializedString(str),
         aspectDict,
         routers,
         triggers,
@@ -82,11 +48,6 @@ export default function initialize(
 
     return {
         i18n,
-        features: wholeFeatures as BasicFeatures<
-            EntityDict,
-            RuntimeContext,
-            AspectDict & CommonAspectDict<EntityDict, RuntimeContext>
-        > &
-            ReturnType<typeof createFeatures>,
+        features,
     };
 }

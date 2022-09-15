@@ -1,4 +1,4 @@
-import { RuntimeContext } from "../RuntimeContext";
+import { RuntimeContext } from "../context/RuntimeContext";
 import { AspectDict as GeneralAspectDict } from 'oak-general-business/lib/aspects/AspectDict';
 import { EntityDict } from "oak-app-domain";
 

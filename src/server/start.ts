@@ -10,7 +10,7 @@ import { MySQLConfiguration } from 'oak-db/lib/MySQL/types/Configuration';
 
 export async function startup<ED extends EntityDict & BaseEntityDict, Cxt extends Context<ED>>(
     path: string,
-    contextBuilder: (scene?: string) => (store: RowStore<ED, Cxt>) => Cxt,
+    contextBuilder: (scene?: string) => (store: RowStore<ED, Cxt>) => Promise<Cxt>,
     dbConfig: MySQLConfiguration,
     connector: Connector<ED, Cxt>) {
     const appLoader = new AppLoader(path, contextBuilder, dbConfig);
@@ -38,7 +38,7 @@ export async function startup<ED extends EntityDict & BaseEntityDict, Cxt extend
     router.post(connector.getRouter(), async (ctx) => {
         console.log('aspect called');
         const { request } = ctx;
-        const { name, params, context } = connector.parseRequest(request.headers, request.body, appLoader.getStore());
+        const { name, params, context } = await connector.parseRequest(request.headers, request.body, appLoader.getStore());
         await context.begin();
         let result: any;
         try {

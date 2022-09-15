@@ -6,7 +6,7 @@ import { MySQLConfiguration } from 'oak-db/lib/MySQL/types/Configuration';
 
 export async function initialize<ED extends EntityDict & BaseEntityDict, Cxt extends Context<ED>>(
     path: string,
-    contextBuilder: (scene?: string) => (store: RowStore<ED, Cxt>) => Cxt,
+    contextBuilder: (scene?: string) => (store: RowStore<ED, Cxt>) => Promise<Cxt>,
     dbConfig: MySQLConfiguration,
     dropIfExists?: boolean) {
     const appLoader = new AppLoader(path, contextBuilder, dbConfig);

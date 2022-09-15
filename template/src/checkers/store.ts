@@ -1,6 +1,6 @@
 import { EntityDict } from 'oak-app-domain';
 import { Checker, UpdateChecker } from 'oak-domain/lib/types';
-import { RuntimeContext } from '../RuntimeContext';
+import { RuntimeContext } from "../context/RuntimeContext";
 import { checkAttributesNotNull } from 'oak-domain/lib/utils/validator';
 import { CreateOperationData as CreateStoreData } from 'oak-app-domain/Store/Schema';
 
