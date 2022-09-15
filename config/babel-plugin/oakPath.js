@@ -172,9 +172,7 @@ module.exports = (babel) => {
                 
                 const { node, parent } = path;
                 if (node.name === 'OakPage' && /pages[\w|\W]+index\.(ts|js)$/.test(rel)) {
-                    console.log(rel);
                     const relativePath = rel.slice(9, rel.length - 9);
-                    console.log(relativePath);
 
                     assert(t.isCallExpression(parent));
                     const { arguments } = parent;
