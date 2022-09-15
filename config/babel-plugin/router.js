@@ -147,8 +147,8 @@ module.exports = () => {
                                     node2.elements[2].elements.map(
                                         (ele) => ele.value
                                     );
-                                const disableAssemble = node2.elements[3] && node2.elements[3].value;
-                                const isFirst = node2.elements[4] && node2.elements[4].value;
+                                const isFirst = node2.elements[3] && node2.elements[3].value;
+                                const disableAssemble = node2.elements[4] && node2.elements[4].value;
 
                                 if (namespaceArr && namespaceArr.length > 0) {
                                     for (let namespace of namespaceArr) {
