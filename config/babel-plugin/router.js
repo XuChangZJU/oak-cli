@@ -259,7 +259,7 @@ function getRouter({ projectOrPath, path, namespace, disableAssemble, isFirst })
     if (jsonFileExists) {
         const {
             navigationBarTitleText,
-            enablePullDownRefresh,
+            enablePullDownRefresh = true,
         } = require(`${relPath}.json`);
         meta.push(
             t.objectProperty(
@@ -270,7 +270,7 @@ function getRouter({ projectOrPath, path, namespace, disableAssemble, isFirst })
         meta.push(
             t.objectProperty(
                 t.identifier('enablePullDownRefresh'),
-                t.booleanLiteral(enablePullDownRefresh || true) //默认启用下拉刷新
+                t.booleanLiteral(enablePullDownRefresh) //默认启用下拉刷新
             )
         );
     }
@@ -330,11 +330,18 @@ function getNamespaceRouter({ namespaces, namespace, filename }) {
     if (jsonFileExists) {
         const {
             navigationBarTitleText,
+            enablePullDownRefresh = false,
         } = require(`${relPath}.json`);
         meta.push(
             t.objectProperty(
                 t.identifier('title'),
                 t.stringLiteral(navigationBarTitleText || '')
+            )
+        );
+        meta.push(
+            t.objectProperty(
+                t.identifier('enablePullDownRefresh'),
+                t.booleanLiteral(enablePullDownRefresh) // 嵌套路由顶层默认不启用下拉刷新
             )
         );
     }
