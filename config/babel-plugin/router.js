@@ -257,11 +257,20 @@ function getRouter({ projectOrPath, path, namespace, disableAssemble, isFirst })
     const jsonFileExists = fs.existsSync(`${relPath}.json`);
     let meta = [];
     if (jsonFileExists) {
-        const { navigationBarTitleText } = require(`${relPath}.json`);
+        const {
+            navigationBarTitleText,
+            enablePullDownRefresh,
+        } = require(`${relPath}.json`);
         meta.push(
             t.objectProperty(
                 t.identifier('title'),
                 t.stringLiteral(navigationBarTitleText || '')
+            )
+        );
+        meta.push(
+            t.objectProperty(
+                t.identifier('enablePullDownRefresh'),
+                t.booleanLiteral(enablePullDownRefresh || true) //默认启用下拉刷新
             )
         );
     }
@@ -319,13 +328,15 @@ function getNamespaceRouter({ namespaces, namespace, filename }) {
     const jsonFileExists = fs.existsSync(`${relPath}.json`);
     let meta = [];
     if (jsonFileExists) {
-        const { navigationBarTitleText } = require(`${relPath}.json`);
-        meta = [
+        const {
+            navigationBarTitleText,
+        } = require(`${relPath}.json`);
+        meta.push(
             t.objectProperty(
                 t.identifier('title'),
                 t.stringLiteral(navigationBarTitleText || '')
-            ),
-        ];
+            )
+        );
     }
     const properties = [
         t.objectProperty(t.identifier('path'), t.stringLiteral(namespace)),
