@@ -42,8 +42,8 @@ export function packageJsonContent({
         "build:web": "${cliBinName} build --target web --mode production",
         "build-analyze:web": "${cliBinName} build --target web --mode production --analyze",
         "build": "tsc",
-        "server:init": "cross-env NODE_ENV=development; cross-env OAK_PLATFORM=server ts-node scripts/initServer.ts",
-        "server:start": "cross-env NODE_ENV=development; cross-env OAK_PLATFORM=server ts-node scripts/startServer.ts",
+        "server:init": "cross-env NODE_ENV=development; cross-env OAK_PLATFORM=server ts-node scripts/initServer.js",
+        "server:start": "cross-env NODE_ENV=development; cross-env OAK_PLATFORM=server ts-node scripts/startServer.js",
         "postinstall": "npm run make:domain"
     },
     "keywords": [],

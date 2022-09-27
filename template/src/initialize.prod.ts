@@ -33,12 +33,12 @@ export default function initialize(
             process.env.NODE_ENV === 'development' ? '3001' : '/oak-api'; // 生产环境通过路径映射增加oak-api
         const protocol =
             process.env.NODE_ENV === 'development' ? 'http://' : 'https://';
-        URL = `${protocol}${url}${apiPath}/aspect`;
+        URL = `${protocol}${url}${apiPath}`;
     } else if (process.env.NODE_ENV === 'development') {
-        URL = 'http://localhost:3001/aspect';
+        URL = 'http://localhost:3001';
     } else {
         // web和public环境只需要传相对路径
-        URL = `/oak-api/aspect`;
+        URL = `/oak-api`;
     }
     const connector = new SimpleConnector(
         URL,
