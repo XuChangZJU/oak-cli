@@ -1,35 +1,37 @@
 import { PackageJsonInput } from './interface'
 export function packageJsonContent({
-    name,
-    version,
-    description,
-    cliVersion,
-    cliName,
-    cliBinName,
-    isDev,
+	name,
+	version,
+	description,
+	cliVersion,
+	cliName,
+	cliBinName,
+	isDev,
 }: PackageJsonInput) {
-    let oakDependencyStr;
-    let oakDevDependencyStr;
-    if (isDev) {
-        oakDependencyStr = `"oak-common-aspect": "file:../oak-common-aspect",
+	let oakDependencyStr;
+	let oakDevDependencyStr;
+	if (isDev) {
+		oakDependencyStr = `"oak-common-aspect": "file:../oak-common-aspect",
         "oak-domain": "file:../oak-domain",
         "oak-frontend-base": "file:../oak-frontend-base",
         "oak-external-sdk": "file:../oak-external-sdk",
         "oak-general-business": "file:../oak-general-business",
         "oak-memory-tree-store": "file:../oak-memory-tree-store",`;
-        oakDevDependencyStr = `"${cliName}": "file:../oak-cli",`
-    }
-    else {
-        oakDependencyStr = `"oak-common-aspect": "^1.0.2",
-        "oak-domain": "^1.1.7",
-        "oak-frontend-base": "^1.0.7",
-        "oak-general-business": "^1.0.8",
-        "oak-external-sdk": "^1.0.2",
-        "oak-memory-tree-store": "^1.0.4",`;
-        oakDevDependencyStr = `"${cliName}": "^${cliVersion}",`
-    }
+		oakDevDependencyStr = `"${cliName}": "file:../oak-cli",`
+	}
+	else {
+		oakDependencyStr = `"oak-common-aspect": "^1.0.3",
+        "oak-domain": "^1.1.10",
+        "oak-frontend-base": "^1.0.13",
+        "oak-general-business": "^1.0.12",
+        "oak-external-sdk": "^1.0.3",
+        "oak-memory-tree-store": "^1.0.5",`;
+		oakDevDependencyStr = `"${cliName}": "^${cliVersion}",`
+	}
 
-    return `{
+	const serverInitScript = isDev ? "cross-env NODE_ENV=development cross-env OAK_PLATFORM=server ts-node scripts/initServer.js" : "cross-env OAK_PLATFORM=server ts-node scripts/initServer.js";
+	const serverStartScript = isDev ? "cross-env NODE_ENV=development cross-env OAK_PLATFORM=server ts-node scripts/startServer.js" : "cross-env OAK_PLATFORM=server ts-node scripts/startServer.js";
+	return `{
     "name": "${name}",
     "version": "${version}",
     "description": "${description}",
@@ -42,8 +44,8 @@ export function packageJsonContent({
         "build:web": "${cliBinName} build --target web --mode production",
         "build-analyze:web": "${cliBinName} build --target web --mode production --analyze",
         "build": "tsc",
-        "server:init": "cross-env NODE_ENV=development; cross-env OAK_PLATFORM=server ts-node scripts/initServer.ts",
-        "server:start": "cross-env NODE_ENV=development; cross-env OAK_PLATFORM=server ts-node scripts/startServer.ts",
+        "server:init": ${serverInitScript},
+        "server:start": ${serverStartScript},
         "postinstall": "npm run make:domain"
     },
     "keywords": [],
@@ -188,7 +190,7 @@ export function packageJsonContent({
 }
 
 export function tsConfigJsonContent() {
-    return `{
+	return `{
   "extends": "./tsconfig.paths.json",
   "compilerOptions": {
     "jsx": "react-jsx",
@@ -232,7 +234,7 @@ export function tsConfigJsonContent() {
 }
 
 export function tsConfigBuildJsonContent() {
-    return `{
+	return `{
   "extends": "./tsconfig.paths.json",
    "compilerOptions": {
      "jsx": "react-jsx",
@@ -269,7 +271,7 @@ export function tsConfigBuildJsonContent() {
 }
 
 export function tsConfigPathsJsonContent() {
-    return `{
+	return `{
     "compilerOptions": {
         "baseUrl": "./",
         "paths": {
@@ -285,7 +287,7 @@ export function tsConfigPathsJsonContent() {
 }
 
 export function tsConfigMpJsonContent() {
-    return `{
+	return `{
    "extends": "./tsconfig.paths.json",
    "compilerOptions": {
     "module": "commonjs",
@@ -323,7 +325,7 @@ export function tsConfigMpJsonContent() {
 }
 
 export function tsConfigWebJsonContent() {
-    return `{
+	return `{
   "extends": "./tsconfig.paths.json",
    "compilerOptions": {
     "module": "commonjs",
@@ -366,11 +368,11 @@ export function tsConfigWebJsonContent() {
 
 
 export function projectConfigContentWithWeChatMp(
-    oakConfigName: string,
-    projectname: string,
-    miniVersion: string
+	oakConfigName: string,
+	projectname: string,
+	miniVersion: string
 ) {
-    return `{
+	return `{
     "description": "项目配置文件",
     "packOptions": {
         "ignore": [{
@@ -446,12 +448,12 @@ export function projectConfigContentWithWeChatMp(
 }
 
 export function appJsonContentWithWeChatMp(isDev: boolean) {
-    const pages = [
-        '@project/pages/book/list/index',
-        '@project/pages/book/upsert/index',
-        '@project/pages/book/detail/index',
-    ];
-    return `{
+	const pages = [
+		'@project/pages/book/list/index',
+		'@project/pages/book/upsert/index',
+		'@project/pages/book/detail/index',
+	];
+	return `{
   "pages":${JSON.stringify(pages, null, 4)},
   "window":{
     "backgroundTextStyle":"light",
@@ -470,29 +472,29 @@ export function appJsonContentWithWeChatMp(isDev: boolean) {
 }
 
 export function oakConfigContentWithWeChatMp() {
-    return `{
+	return `{
     "theme": {
     }
 }`;
 }
 
 export function appJsonContentWithWeb(isDev: boolean) {
-    const pages = [
-        '@project/pages/store/list/index',
-        '@project/pages/store/upsert/index',
-        '@project/pages/store/detail/index',
-        '@project/pages/book/list/index',
-        '@project/pages/book/upsert/index',
-        '@project/pages/book/detail/index',
-        '@oak-general-business/pages/login/index',
-    ];
-    return `{
+	const pages = [
+		'@project/pages/store/list/index',
+		'@project/pages/store/upsert/index',
+		'@project/pages/store/detail/index',
+		'@project/pages/book/list/index',
+		'@project/pages/book/upsert/index',
+		'@project/pages/book/detail/index',
+		'@oak-general-business/pages/login/index',
+	];
+	return `{
     "pages": ${JSON.stringify(pages, null, 4)}
 }`;
 }
 
 export function oakConfigContentWithWeb() {
-    return `{
+	return `{
     "theme": {
     }
 }`;

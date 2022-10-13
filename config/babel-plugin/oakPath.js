@@ -11,6 +11,9 @@ function isOakNamespaceIdentifier(node, name) {
     return false;
 }
 
+const Regex =
+    /(\/*[a-zA-Z0-9_-])*\/(lib|src)\/(pages|components)+\/|(\\*[a-zA-Z0-9_-])*\\(lib|src)\\(pages|components)+\\|[a-zA-Z]:(\/*[a-zA-Z0-9_-])*\/(lib|src)\/(pages|components)+\/|[a-zA-Z]:(\\*[a-zA-Z0-9_-])*\\(lib|src)\\(pages|components)+\\/;
+
 module.exports = (babel) => {
     return {
         visitor: {
@@ -168,14 +171,11 @@ module.exports = (babel) => {
             },
             Identifier(path, state) {
                 const { cwd, filename } = state;
-                const rel = relative(cwd, filename).replace(/\\/g, '/');
-                
+                const resolvePath = resolve(cwd, filename).replace(/\\/g, '/');
                 const { node, parent } = path;
-                if (node.name === 'OakPage' && /pages[\w|\W]+index\.(ts|js)$/.test(rel)) {
-                    console.log(rel);
-                    const relativePath = rel.slice(9, rel.length - 9);
-                    console.log(relativePath);
-
+                if (node.name === 'OakPage' && /pages[\w|\W]+index\.(ts|js)$/.test(resolvePath)) {
+                    const regexStr = resolvePath.replace(Regex, '/');
+                    const relativePath = regexStr.slice(0, regexStr.length - 9);
                     assert(t.isCallExpression(parent));
                     const { arguments } = parent;
                     assert(arguments.length === 1 && t.isObjectExpression(arguments[0]));

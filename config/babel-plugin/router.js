@@ -147,8 +147,8 @@ module.exports = () => {
                                     node2.elements[2].elements.map(
                                         (ele) => ele.value
                                     );
-                                const disableAssemble = node2.elements[3] && node2.elements[3].value;
-                                const isFirst = node2.elements[4] && node2.elements[4].value;
+                                const isFirst = node2.elements[3] && node2.elements[3].value;
+                                const disableAssemble = node2.elements[4] && node2.elements[4].value;
 
                                 if (namespaceArr && namespaceArr.length > 0) {
                                     for (let namespace of namespaceArr) {
@@ -257,11 +257,20 @@ function getRouter({ projectOrPath, path, namespace, disableAssemble, isFirst })
     const jsonFileExists = fs.existsSync(`${relPath}.json`);
     let meta = [];
     if (jsonFileExists) {
-        const { navigationBarTitleText } = require(`${relPath}.json`);
+        const {
+            navigationBarTitleText,
+            enablePullDownRefresh = true,
+        } = require(`${relPath}.json`);
         meta.push(
             t.objectProperty(
                 t.identifier('title'),
                 t.stringLiteral(navigationBarTitleText || '')
+            )
+        );
+        meta.push(
+            t.objectProperty(
+                t.identifier('enablePullDownRefresh'),
+                t.booleanLiteral(enablePullDownRefresh) //默认启用下拉刷新
             )
         );
     }
@@ -319,13 +328,22 @@ function getNamespaceRouter({ namespaces, namespace, filename }) {
     const jsonFileExists = fs.existsSync(`${relPath}.json`);
     let meta = [];
     if (jsonFileExists) {
-        const { navigationBarTitleText } = require(`${relPath}.json`);
-        meta = [
+        const {
+            navigationBarTitleText,
+            enablePullDownRefresh = false,
+        } = require(`${relPath}.json`);
+        meta.push(
             t.objectProperty(
                 t.identifier('title'),
                 t.stringLiteral(navigationBarTitleText || '')
-            ),
-        ];
+            )
+        );
+        meta.push(
+            t.objectProperty(
+                t.identifier('enablePullDownRefresh'),
+                t.booleanLiteral(enablePullDownRefresh) // 嵌套路由顶层默认不启用下拉刷新
+            )
+        );
     }
     const properties = [
         t.objectProperty(t.identifier('path'), t.stringLiteral(namespace)),
