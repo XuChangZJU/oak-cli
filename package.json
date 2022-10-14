@@ -1,6 +1,6 @@
 {
     "name": "@xuchangzju/oak-cli",
-    "version": "1.1.4",
+    "version": "1.1.5",
     "description": "oak-cli脚手架",
     "main": "lib/index.js",
     "scripts": {
