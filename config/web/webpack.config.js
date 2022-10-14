@@ -159,7 +159,6 @@ module.exports = function (webpackEnv) {
                                   // so that it honors browserslist config in package.json
                                   // which in turn let's users customize the target behavior as per their needs.
                                   'postcss-normalize',
-                                  oakRpxToPxPlugin,
                               ]
                             : [
                                   'tailwindcss',
@@ -173,7 +172,6 @@ module.exports = function (webpackEnv) {
                                           stage: 3,
                                       },
                                   ],
-                                  oakRpxToPxPlugin,
                               ],
                     },
                     sourceMap: isEnvProduction
@@ -498,7 +496,7 @@ module.exports = function (webpackEnv) {
                                             oakRenderTsxPlugin,
                                             oakRouterPlugin,
                                             oakI18nPlugin,
-                                        ],
+                                        ].filter(Boolean),
                                         // This is a feature of `babel-loader` for webpack (not Babel itself).
                                         // It enables caching results in ./node_modules/.cache/babel-loader/
                                         // directory for faster rebuilds.
