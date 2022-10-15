@@ -50,6 +50,7 @@ program
     .action(make);
 program
     .command('start')
+    .option('--sourceMap', 'sourceMap')
     .option('--analyze', 'analyze')
     .option('-t, --target <target>', 'target')
     .option('-m, --mode <mode>', 'mode')
@@ -59,6 +60,7 @@ program
     .action(build);
 program
     .command('build')
+    .option('--sourcemap', 'sourcemap')
     .option('--analyze', 'analyze')
     .option('-t, --target <target>', 'target')
     .option('-m, --mode <mode>', 'mode')
