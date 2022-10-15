@@ -328,16 +328,10 @@ module.exports = function (webpackEnv) {
             splitChunks: {
                 chunks: 'async',
                 cacheGroups: {
-                    echarts: {
-                        name: 'echarts',
-                        test: /echarts-for-react\/esm/,
+                    '@wangeditor/basic-modules': {
+                        name: 'wangeditor_basic_modules',
+                        test: /@wangeditor\/basic-modules/,
                         priority: 30,
-                        reuseExistingChunk: true,
-                    },                    
-                    lodash: {
-                        name: 'lodash',
-                        test: /lodash/,
-                        priority: 40,
                         reuseExistingChunk: true,
                     },
                     tdesign_icons: {
@@ -346,15 +340,15 @@ module.exports = function (webpackEnv) {
                         priority: 30,
                         reuseExistingChunk: true,
                     },
-                    tdesign_mobile: {
-                        name: 'tdesign_mobile',
-                        test: /tdesign-mobile-react/,
+                    tdesign: {
+                        name: 'tdesign',
+                        test: /tdesign-react/,
                         priority: 20,
                         reuseExistingChunk: true,
                     },
-                    wangeditor: {
-                        name: 'wangeditor',
-                        test: /@wangeditor/,
+                    tdesign_mobile: {
+                        name: 'tdesign_mobile',
+                        test: /tdesign-mobile-react/,
                         priority: 20,
                         reuseExistingChunk: true,
                     },
@@ -980,9 +974,16 @@ module.exports = function (webpackEnv) {
         // our own hints via the FileSizeReporter
         performance: false,
         externals: {
-            tdesign: 'TDesign',
+            echarts: 'echarts',
+            lodash: '_',
             react: 'React',
-            'react-dom': 'ReactDOM'
+            'react-dom': 'ReactDOM',
+            '@wangeditor/editor': 'wangEditor',
+            // '@wangeditor/basic-modules': 'WangEditorBasicModules',       这里跑起来初始化会有个BUG，先不弄了
+            '@fingerprintjs/fingerprintjs': 'FingerprintJS',
+            i18next: 'i18next',
+            'react-i18next': 'ReactI18next',
+            'bn.js': 'BN',
         }
     };
 };
