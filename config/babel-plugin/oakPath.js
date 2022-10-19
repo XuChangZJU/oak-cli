@@ -173,7 +173,7 @@ module.exports = (babel) => {
                 const { cwd, filename } = state;
                 const resolvePath = resolve(cwd, filename).replace(/\\/g, '/');
                 const { node, parent } = path;
-                if (node.name === 'OakPage' && /pages[\w|\W]+index\.(ts|js)$/.test(resolvePath)) {
+                if (node.name === 'OakComponent' && /pages[\w|\W]+index\.(ts|js)$/.test(resolvePath)) {
                     const regexStr = resolvePath.replace(Regex, '/');
                     const relativePath = regexStr.slice(0, regexStr.length - 9);
                     assert(t.isCallExpression(parent));
