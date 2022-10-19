@@ -73,7 +73,6 @@ export function packageJsonContent({
         "react-scripts": "5.0.1",
         "rmc-pull-to-refresh": "^1.0.13",
         "tdesign-icons-react": "^0.1.6",
-        "tdesign-mobile-react": "^0.2.0",
         "tdesign-react": "^0.42.2",
         "url": "^0.11.0",
         "uuid": "^8.3.2"
