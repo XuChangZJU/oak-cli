@@ -27,6 +27,8 @@ const ForkTsCheckerWebpackPlugin =
 const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin');
 const BundleAnalyzerPlugin =
     require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+const CompressionWebpackPlugin = require('compression-webpack-plugin');
+
 const createEnvironmentHash = require('./webpack/persistentCache/createEnvironmentHash');
 
 const oakPathTsxPlugin = require('../babel-plugin/oakPath');
@@ -145,36 +147,34 @@ module.exports = function (webpackEnv) {
                         config: false,
                         plugins: !useTailwind
                             ? [
-                                  'postcss-flexbugs-fixes',
-                                  [
-                                      'postcss-preset-env',
-                                      {
-                                          autoprefixer: {
-                                              flexbox: 'no-2009',
-                                          },
-                                          stage: 3,
-                                      },
-                                  ],
-                                  // Adds PostCSS Normalize as the reset css with default options,
-                                  // so that it honors browserslist config in package.json
-                                  // which in turn let's users customize the target behavior as per their needs.
-                                  'postcss-normalize',
-                                  oakRpxToPxPlugin,
-                              ]
+                                'postcss-flexbugs-fixes',
+                                [
+                                    'postcss-preset-env',
+                                    {
+                                        autoprefixer: {
+                                            flexbox: 'no-2009',
+                                        },
+                                        stage: 3,
+                                    },
+                                ],
+                                // Adds PostCSS Normalize as the reset css with default options,
+                                // so that it honors browserslist config in package.json
+                                // which in turn let's users customize the target behavior as per their needs.
+                                'postcss-normalize',
+                            ]
                             : [
-                                  'tailwindcss',
-                                  'postcss-flexbugs-fixes',
-                                  [
-                                      'postcss-preset-env',
-                                      {
-                                          autoprefixer: {
-                                              flexbox: 'no-2009',
-                                          },
-                                          stage: 3,
-                                      },
-                                  ],
-                                  oakRpxToPxPlugin,
-                              ],
+                                'tailwindcss',
+                                'postcss-flexbugs-fixes',
+                                [
+                                    'postcss-preset-env',
+                                    {
+                                        autoprefixer: {
+                                            flexbox: 'no-2009',
+                                        },
+                                        stage: 3,
+                                    },
+                                ],
+                            ],
                     },
                     sourceMap: isEnvProduction
                         ? shouldUseSourceMap
@@ -208,13 +208,13 @@ module.exports = function (webpackEnv) {
         return isEnvProduction
             ? [/oak-general-business/, /oak-frontend-base/]
             : [
-                  /oak-domain/,
-                  /oak-external-sdk/,
-                  /oak-frontend-base/,
-                  /oak-general-business/,
-                  /oak-memory-tree-store/,
-                  /oak-common-aspect/,
-              ];
+                /oak-domain/,
+                /oak-external-sdk/,
+                /oak-frontend-base/,
+                /oak-general-business/,
+                /oak-memory-tree-store/,
+                /oak-common-aspect/,
+            ];
     };
 
     return {
@@ -327,6 +327,41 @@ module.exports = function (webpackEnv) {
                 // This is only used in production mode
                 new CssMinimizerPlugin(),
             ],
+            splitChunks: {
+                chunks: 'async',
+                cacheGroups: {
+                    '@wangeditor/basic-modules': {
+                        name: 'wangeditor_basic_modules',
+                        test: /@wangeditor\/basic-modules/,
+                        priority: 30,
+                        reuseExistingChunk: true,
+                    },
+                    tdesign_icons: {
+                        name: 'tdesign_icon',
+                        test: /tdesign-icons-react/,
+                        priority: 30,
+                        reuseExistingChunk: true,
+                    },
+                    tdesign: {
+                        name: 'tdesign',
+                        test: /tdesign-react/,
+                        priority: 20,
+                        reuseExistingChunk: true,
+                    },
+                    tdesign_mobile: {
+                        name: 'tdesign_mobile',
+                        test: /tdesign-mobile-react/,
+                        priority: 20,
+                        reuseExistingChunk: true,
+                    },
+                    vendor: {
+                        name: 'vendor',
+                        test: /node_modules/,
+                        priority: 10,
+                        reuseExistingChunk: true,
+                    },
+                },
+            },
         },
         resolve: {
             fallback: {
@@ -498,7 +533,7 @@ module.exports = function (webpackEnv) {
                                             oakRenderTsxPlugin,
                                             oakRouterPlugin,
                                             oakI18nPlugin,
-                                        ],
+                                        ].filter(Boolean),
                                         // This is a feature of `babel-loader` for webpack (not Babel itself).
                                         // It enables caching results in ./node_modules/.cache/babel-loader/
                                         // directory for faster rebuilds.
@@ -703,6 +738,15 @@ module.exports = function (webpackEnv) {
             ].filter(Boolean),
         },
         plugins: [
+            isEnvProduction &&
+                new CompressionWebpackPlugin({
+                    filename: '[path][base].gz', //压缩后的文件名
+                    algorithm: 'gzip', //压缩格式 有：gzip、brotliCompress
+                    test: /\.(js|css|svg)$/,
+                    threshold: 10240, // 只处理比这个值大的资源，按字节算
+                    minRatio: 0.8, //只有压缩率比这个值小的文件才会被处理，压缩率=压缩大小/原始大小，如果压缩后和原始文件大小没有太大区别，就不用压缩
+                    deleteOriginalAssets: false, //是否删除原文件，最好不删除，服务器会自动优先返回同名的.gzip资源，如果找不到还可以拿原始文件
+                }),
             // Generates an `index.html` file with the <script> injected.
             new HtmlWebpackPlugin(
                 Object.assign(
@@ -940,5 +984,17 @@ module.exports = function (webpackEnv) {
         // Turn off performance processing because we utilize
         // our own hints via the FileSizeReporter
         performance: false,
+        externals: {
+            echarts: 'echarts',
+            lodash: '_',
+            react: 'React',
+            'react-dom': 'ReactDOM',
+            '@wangeditor/editor': 'wangEditor',
+            // '@wangeditor/basic-modules': 'WangEditorBasicModules',       这里跑起来初始化会有个BUG，先不弄了
+            '@fingerprintjs/fingerprintjs': 'FingerprintJS',
+            i18next: 'i18next',
+            'react-i18next': 'ReactI18next',
+            'bn.js': 'BN',
+        },
     };
 };
