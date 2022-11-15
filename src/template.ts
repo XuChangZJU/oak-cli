@@ -109,6 +109,7 @@ export function packageJsonContent({
         "babel-preset-react-app": "^10.0.1",
         "bfj": "^7.0.2",
         "browserslist": "^4.18.1",
+        "browserify-zlib": "^0.2.0",
         "camelcase": "^6.2.1",
         "case-sensitive-paths-webpack-plugin": "^2.4.0",
         "chalk": "^4.1.2",
