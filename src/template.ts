@@ -54,7 +54,7 @@ export function packageJsonContent({
     "license": "",
     "dependencies": {
         "@ant-design/icons": "^4.7.0",
-        "antd": "^4.24.2",
+        "antd": "^5.0.0",
         "antd-mobile": "^5.24.1",
         "antd-mobile-icons": "^0.3.0",
         "classnames": "^2.3.1",
