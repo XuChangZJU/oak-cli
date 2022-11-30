@@ -1,6 +1,6 @@
 {
     "name": "@xuchangzju/oak-cli",
-    "version": "1.1.5",
+    "version": "2.0.1",
     "description": "oak-cli脚手架",
     "main": "lib/index.js",
     "scripts": {
@@ -43,6 +43,7 @@
         "babel-plugin-named-asset-import": "^0.3.8",
         "babel-preset-react-app": "^10.0.1",
         "bfj": "^7.0.2",
+        "browserify-zlib": "^0.2.0",
         "browserslist": "^4.18.1",
         "buffer": "^6.0.3",
         "camelcase": "^6.2.1",
@@ -84,9 +85,9 @@
         "loader-utils": "^3.2.0",
         "lodash": "^4.17.21",
         "mini-css-extract-plugin": "^2.5.3",
-        "oak-backend-base": "^1.0.8",
-        "oak-db": "^1.0.6",
-        "oak-domain": "^1.1.14",
+        "oak-backend-base": "^2.0.2",
+        "oak-db": "^2.0.2",
+        "oak-domain": "^2.0.1",
         "postcss": "^8.4.4",
         "postcss-flexbugs-fixes": "^5.0.2",
         "postcss-less": "^6.0.0",

@@ -61,13 +61,7 @@ module.exports = (babel) => {
                             ),
                         ]),
                         t.returnStatement(
-                            t.callExpression(
-                                t.memberExpression(
-                                    t.identifier('render'),
-                                    t.identifier('call')
-                                ),
-                                [t.thisExpression()]
-                            )
+                            t.identifier('render')
                         ),
                     ];
                     const renderJsStatements = [
@@ -83,13 +77,7 @@ module.exports = (babel) => {
                             ),
                         ]),
                         t.returnStatement(
-                            t.callExpression(
-                                t.memberExpression(
-                                    t.identifier('render'),
-                                    t.identifier('call')
-                                ),
-                                [t.thisExpression()]
-                            )
+                            t.identifier('render')
                         ),
                     ];
                     const renderPcTsxStatements = [
@@ -107,13 +95,7 @@ module.exports = (babel) => {
                             ),
                         ]),
                         t.returnStatement(
-                            t.callExpression(
-                                t.memberExpression(
-                                    t.identifier('render'),
-                                    t.identifier('call')
-                                ),
-                                [t.thisExpression()]
-                            )
+                            t.identifier('render')
                         ),
                     ];
                     const renderPcJsStatements = [
@@ -129,13 +111,7 @@ module.exports = (babel) => {
                              ),
                          ]),
                          t.returnStatement(
-                             t.callExpression(
-                                 t.memberExpression(
-                                     t.identifier('render'),
-                                     t.identifier('call')
-                                 ),
-                                 [t.thisExpression()]
-                             )
+                            t.identifier('render')
                          ),
                     ];
                     const getStatements = () => {
@@ -236,15 +212,13 @@ module.exports = (babel) => {
                             node2 &&
                             node2.declaration &&
                             node2.declaration.callee &&
-                            (node2.declaration.callee.name === 'OakPage' ||
-                                node2.declaration.callee.name ===
-                                    'OakComponent')
+                            node2.declaration.callee.name === 'OakComponent'
                         ) {
                             const statements = getStatements();
                             node2.declaration.arguments.forEach((node3) => {
                                 if (t.isObjectExpression(node3)) {
                                     const propertyRender = t.objectProperty(
-                                        t.identifier('render'),
+                                        t.identifier('getRender'),
                                         t.functionExpression(
                                             null,
                                             [],
@@ -261,16 +235,13 @@ module.exports = (babel) => {
                              node2 &&
                              node2.expression &&
                              node2.expression.right &&
-                             node2.expression.right.callee &&
-                             (node2.expression.right.callee.name === 'OakPage' ||
-                                 node2.expression.right.callee.name ===
-                                     'OakComponent')
+                             node2.expression.right.callee && node2.expression.right.callee.name === 'OakComponent'
                          ) {
                              const statements = getStatements();
                              node2.expression.right.arguments.forEach((node3) => {
                                  if (t.isObjectExpression(node3)) {
                                      const propertyRender = t.objectProperty(
-                                         t.identifier('render'),
+                                         t.identifier('getRender'),
                                          t.functionExpression(
                                              null,
                                              [],

@@ -7,11 +7,13 @@ import KoaBody from 'koa-body';
 import { AppLoader } from 'oak-backend-base';
 import { OakException, Connector, EntityDict, Context, RowStore } from 'oak-domain/lib/types';
 import { EntityDict as BaseEntityDict } from 'oak-domain/lib/base-app-domain';
+import { AsyncContext, AsyncRowStore } from 'oak-domain/lib/store/AsyncRowStore';
+import { SyncContext } from 'oak-domain/lib/store/SyncRowStore';
 
-export async function startup<ED extends EntityDict & BaseEntityDict, Cxt extends Context<ED>>(
+export async function startup<ED extends EntityDict & BaseEntityDict, Cxt extends AsyncContext<ED>, FrontCxt extends SyncContext<ED>>(
     path: string,
-    contextBuilder: (scene?: string) => (store: RowStore<ED, Cxt>) => Promise<Cxt>,
-    connector: Connector<ED, Cxt>) {
+    contextBuilder: (scene?: string) => (store: AsyncRowStore<ED, Cxt>) => Promise<Cxt>,
+    connector: Connector<ED, Cxt, FrontCxt>) {
     const dbConfig = require(PathLib.join(path, '/configuration/mysql.json'));
     const appLoader = new AppLoader(path, contextBuilder, dbConfig);
     await appLoader.mount();

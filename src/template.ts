@@ -53,6 +53,10 @@ export function packageJsonContent({
     "author": "",
     "license": "",
     "dependencies": {
+        "@ant-design/icons": "^4.7.0",
+        "antd": "^5.0.0",
+        "antd-mobile": "^5.24.1",
+        "antd-mobile-icons": "^0.3.0",
         "classnames": "^2.3.1",
         "crypto-browserify": "^3.12.0",
         "dayjs": "^1.11.5",
@@ -72,8 +76,6 @@ export function packageJsonContent({
         "react-router-dom": "^6.3.0",
         "react-scripts": "5.0.1",
         "rmc-pull-to-refresh": "^1.0.13",
-        "tdesign-icons-react": "^0.1.6",
-        "tdesign-react": "^0.42.2",
         "url": "^0.11.0",
         "uuid": "^8.3.2"
     },
@@ -109,6 +111,7 @@ export function packageJsonContent({
         "babel-preset-react-app": "^10.0.1",
         "bfj": "^7.0.2",
         "browserslist": "^4.18.1",
+        "browserify-zlib": "^0.2.0",
         "camelcase": "^6.2.1",
         "case-sensitive-paths-webpack-plugin": "^2.4.0",
         "chalk": "^4.1.2",

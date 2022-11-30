@@ -1,5 +1,7 @@
 /// <reference path="../../src/typings/polyfill.d.ts" />
 import './polyfill';
-import { Connector, EntityDict, Context, RowStore } from 'oak-domain/lib/types';
+import { Connector, EntityDict } from 'oak-domain/lib/types';
 import { EntityDict as BaseEntityDict } from 'oak-domain/lib/base-app-domain';
-export declare function startup<ED extends EntityDict & BaseEntityDict, Cxt extends Context<ED>>(path: string, contextBuilder: (scene?: string) => (store: RowStore<ED, Cxt>) => Promise<Cxt>, connector: Connector<ED, Cxt>): Promise<void>;
+import { AsyncContext, AsyncRowStore } from 'oak-domain/lib/store/AsyncRowStore';
+import { SyncContext } from 'oak-domain/lib/store/SyncRowStore';
+export declare function startup<ED extends EntityDict & BaseEntityDict, Cxt extends AsyncContext<ED>, FrontCxt extends SyncContext<ED>>(path: string, contextBuilder: (scene?: string) => (store: AsyncRowStore<ED, Cxt>) => Promise<Cxt>, connector: Connector<ED, Cxt, FrontCxt>): Promise<void>;
