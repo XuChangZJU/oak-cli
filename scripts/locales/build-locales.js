@@ -5,9 +5,9 @@ const Path = require('path');
 const { merge, get, set, setWith } = require('lodash');
 
 const oakRegex =
-    /(\/*[a-zA-Z0-9_-])*\/lib\/(pages|components|locales)+\/|(\\*[a-zA-Z0-9_-])*\\lib\\(pages|components|locales)+\\/;
+    /(\/*[a-zA-Z0-9_-])*\/lib(\/*[a-zA-Z0-9_-])*\/(pages|components|locales)+\/|(\\*[a-zA-Z0-9_-])*\\lib(\\*[a-zA-Z0-9_-])*\\(pages|components|locales)+\\/;
 const localRegex =
-    /(\/*[a-zA-Z0-9_-])*\/src\/(pages|components|locales)+\/|(\\*[a-zA-Z0-9_-])*\\src\/(pages|components|locales)+\\/;
+    /(\/*[a-zA-Z0-9_-])*\/src(\/*[a-zA-Z0-9_-])*\/(pages|components|locales)+\/|(\\*[a-zA-Z0-9_-])*\\src(\\*[a-zA-Z0-9_-])*\\(pages|components|locales)+\\/;
 
 function getName(val) {
     const name = val.substring(0, 1).toLowerCase() + val.substring(1);

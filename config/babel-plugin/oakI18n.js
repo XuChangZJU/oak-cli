@@ -4,7 +4,7 @@ const t = require('@babel/types');
 const { assert } = require('console');
 
 const Regex =
-    /(\/*[a-zA-Z0-9_-])*\/(lib|src)\/(pages|components)+\/|(\\*[a-zA-Z0-9_-])*\\(lib|src)\\(pages|components)+\\|[a-zA-Z]:(\/*[a-zA-Z0-9_-])*\/(lib|src)\/(pages|components)+\/|[a-zA-Z]:(\\*[a-zA-Z0-9_-])*\\(lib|src)\\(pages|components)+\\/;
+    /(\/*[a-zA-Z0-9_-])*\/(lib|src)(\/*[a-zA-Z0-9_-])*\/(pages|components)+\/|(\\*[a-zA-Z0-9_-])*\\(lib|src)(\\*[a-zA-Z0-9_-])*\\(pages|components)+\\|[a-zA-Z]:(\/*[a-zA-Z0-9_-])*\/(lib|src)(\/*[a-zA-Z0-9_-])*\/(pages|components)+\/|[a-zA-Z]:(\\*[a-zA-Z0-9_-])*\\(lib|src)(\\*[a-zA-Z0-9_-])*\\(pages|components)+\\/;
 
 module.exports = (babel) => {
     return {

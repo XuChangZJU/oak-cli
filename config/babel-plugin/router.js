@@ -10,100 +10,10 @@ module.exports = () => {
             Program(path, state) {
                 const { cwd, filename } = state;
                 const rel = relative(cwd, filename).replace(/\\/g, '/');
-                // if (rel.endsWith(`/src/App.tsx`)) {
-                //     const appDir = rel.slice(0, rel.indexOf('/'));
-                //     const { body } = path.node;
-                //     // 在Function App前面插入router的相关代码
-                //     const functionAppNode = body[body.length - 2];
-                //     const routerDelarationNode = body[body.length - 3];
-                //     assert(
-                //         t.isFunctionDeclaration(functionAppNode) &&
-                //             t.isIdentifier(functionAppNode.id) &&
-                //             functionAppNode.id.name === 'App'
-                //     );
-                //     assert(
-                //         t.isVariableDeclaration(routerDelarationNode) &&
-                //             routerDelarationNode.kind === 'let' &&
-                //             t.isVariableDeclarator(
-                //                 routerDelarationNode.declarations[0]
-                //             ) &&
-                //             t.isIdentifier(
-                //                 routerDelarationNode.declarations[0].id
-                //             ) &&
-                //             routerDelarationNode.declarations[0].id.name ===
-                //                 'routers'
-                //     );
-
-                //     const { pages } = require(join(
-                //         cwd,
-                //         appDir,
-                //         'src',
-                //         'app.json'
-                //     ));
-                //     const objs = pages.map((ele) => {
-                //         const relPath = ele.replace(/\\/g, '/')
-                //             .replace('@project', AppPaths.appRootSrc)
-                //             .replace(
-                //                 '@oak-general-business',
-                //                 AppPaths.oakGeneralBusinessAppPath
-                //             );
-                //         const jsonFileExists = fs.existsSync(`${relPath}.json`);
-                //         const pagePath = ele.slice(
-                //             ele.indexOf('pages/') + 6,
-                //             ele.length - 6
-                //         );
-                //         const params = [
-                //             t.objectProperty(
-                //                 t.identifier('path'),
-                //                 t.stringLiteral(pagePath)
-                //             ),
-                //             t.objectProperty(
-                //                 t.identifier('element'),
-                //                 t.callExpression(
-                //                     t.memberExpression(
-                //                         t.identifier('React'),
-                //                         t.identifier('lazy')
-                //                     ),
-                //                     [
-                //                         t.arrowFunctionExpression(
-                //                             [],
-                //                             t.callExpression(t.import(), [
-                //                                 t.stringLiteral(ele),
-                //                             ])
-                //                         ),
-                //                     ]
-                //                 )
-                //             ),
-                //         ];
-                //         if (jsonFileExists) {
-                //             const {
-                //                 navigationBarTitleText,
-                //             } = require(`${relPath}.json`);
-                //             params.unshift(
-                //                 t.objectProperty(
-                //                     t.identifier('title'),
-                //                     t.stringLiteral(
-                //                         navigationBarTitleText || ''
-                //                     )
-                //                 )
-                //             );
-                //         }
-                //         return t.objectExpression(params);
-                //     });
-
-                //     body.splice(
-                //         body.length - 2,
-                //         0,
-                //         t.expressionStatement(
-                //             t.assignmentExpression(
-                //                 '=',
-                //                 t.identifier('routers'),
-                //                 t.arrayExpression(objs)
-                //             )
-                //         )
-                //     );
-                // }
-                if (rel.endsWith(`/src/router/index.ts`)) {
+                if (
+                    /(\/*[a-zA-Z0-9_-])*\/src\/app(\/*[a-zA-Z0-9_-])*\/router\/index.ts$/.test(rel) &&
+                    rel.endsWith(`/router/index.ts`)
+                ) {
                     const { body } = path.node;
                     const appDir = rel.slice(0, rel.indexOf('/'));
                     const allRouters = [];
@@ -123,9 +33,8 @@ module.exports = () => {
                                     namespaces[property.key.value] =
                                         property.value.value;
                                 }
-                            } 
-                        }
-                        else if (
+                            }
+                        } else if (
                             node &&
                             node.declarations &&
                             node.declarations[0] &&
@@ -147,13 +56,22 @@ module.exports = () => {
                                     node2.elements[2].elements.map(
                                         (ele) => ele.value
                                     );
-                                const isFirst = node2.elements[3] && node2.elements[3].value;
-                                const disableAssemble = node2.elements[4] && node2.elements[4].value;
+                                const isFirst =
+                                    node2.elements[3] &&
+                                    node2.elements[3].value;
+                                const disableAssemble =
+                                    node2.elements[4] &&
+                                    node2.elements[4].value;
 
                                 if (namespaceArr && namespaceArr.length > 0) {
                                     for (let namespace of namespaceArr) {
                                         const fIndex = allRouters.findIndex(
-                                            (ele) => !!ele.properties.find(property => property.value.value === namespace)
+                                            (ele) =>
+                                                !!ele.properties.find(
+                                                    (property) =>
+                                                        property.value.value ===
+                                                        namespace
+                                                )
                                         );
                                         if (fIndex < 0) {
                                             //找不到
@@ -186,22 +104,30 @@ module.exports = () => {
                                                 namespace,
                                                 isFirst,
                                             });
-                                            const properties = allRouters[fIndex].properties;
+                                            const properties =
+                                                allRouters[fIndex].properties;
 
-                                            if (properties && properties.length > 0) {
+                                            if (
+                                                properties &&
+                                                properties.length > 0
+                                            ) {
                                                 for (let property of properties) {
-                                                    if (property.key.name === 'children') {
-                                                        if (property.value.elements) {
+                                                    if (
+                                                        property.key.name ===
+                                                        'children'
+                                                    ) {
+                                                        if (
+                                                            property.value
+                                                                .elements
+                                                        ) {
                                                             property.value.elements.push(
                                                                 router
                                                             );
-                                                        }
-                                                        else {
+                                                        } else {
                                                             property.value =
                                                                 t.arrayExpression(
                                                                     [router]
                                                                 );
-
                                                         }
                                                     }
                                                 }
@@ -219,14 +145,14 @@ module.exports = () => {
                                 }
                             }
                         }
-                    }     
-                      body.unshift(
-                          t.importDeclaration(
-                              [t.importDefaultSpecifier(t.identifier('React'))],
-                              t.stringLiteral('react')
-                          )
-                      ); 
-                    
+                    }
+                    body.unshift(
+                        t.importDeclaration(
+                            [t.importDefaultSpecifier(t.identifier('React'))],
+                            t.stringLiteral('react')
+                        )
+                    );
+
                     body.splice(
                         body.length - 1,
                         0,
