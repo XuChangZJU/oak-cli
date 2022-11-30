@@ -4,10 +4,17 @@ const Path = require('path');
 
 const { merge, get, set, setWith } = require('lodash');
 
-const oakRegex =
-    /(\/*[a-zA-Z0-9_-])*\/lib(\/*[a-zA-Z0-9_-])*\/(pages|components|locales)+\/|(\\*[a-zA-Z0-9_-])*\\lib(\\*[a-zA-Z0-9_-])*\\(pages|components|locales)+\\/;
-const localRegex =
-    /(\/*[a-zA-Z0-9_-])*\/src(\/*[a-zA-Z0-9_-])*\/(pages|components|locales)+\/|(\\*[a-zA-Z0-9_-])*\\src(\\*[a-zA-Z0-9_-])*\\(pages|components|locales)+\\/;
+const OakRegex =
+    /(\/*[a-zA-Z0-9_-])*\/(lib|src)(\/*[a-zA-Z0-9_-])*\/(pages|components|locales)+\/|(\\*[a-zA-Z0-9_-])*\\(lib|src)(\\*[a-zA-Z0-9_-])*\\(pages|components|locales)+\\/;
+
+const PageAndComponentRegex =
+    /(\/*[a-zA-Z0-9_-])*\/(lib|src)(\/*[a-zA-Z0-9_-])*\/(pages|components)+\/|(\\*[a-zA-Z0-9_-])*\\(lib|src)(\\*[a-zA-Z0-9_-])*\\(pages|components)+\\/; 
+    
+const DomainRegex =
+    /(\/*[a-zA-Z0-9_-])*\/(lib|src)(\/*[a-zA-Z0-9_-])*\/(oak-app-domain|general-app-domain)+\/|(\\*[a-zA-Z0-9_-])*\\(lib|src)(\\*[a-zA-Z0-9_-])*\\(oak-app-domain|general-app-domain)+\\/;        
+
+const CommonRegex =
+        /(\/*[a-zA-Z0-9_-])*\/(lib|src)\/(locales)+\/|(\\*[a-zA-Z0-9_-])*\\(lib|src)\\(locales)+\\/;
 
 function getName(val) {
     const name = val.substring(0, 1).toLowerCase() + val.substring(1);
@@ -46,36 +53,18 @@ function buildLocales({
 }) {
     const dataJson = {};
     projectPaths.forEach((path) => {
-        readProject(dataJson, path, buildPath, nodeEnv, platform);
+         findLocaleFiles(dataJson, path, buildPath, nodeEnv, platform);
     });
     return dataJson;
 }
 
-function readProject(json, projectPath, buildPath, nodeEnv, platform) {
-    ['oak-app-domain', 'pages', 'components', 'locales'].forEach((ele) => {
-        const path = Path.resolve(projectPath, ele).replace(/\\/g, '/');
-        findLocaleFiles(json, path, '', buildPath, nodeEnv, platform);
-    });
-}
-
-function readLocaleFiles(json, path, name) {
-    if (!fs.existsSync(path)) {
-        return;
-    }
-    const files = fs.readdirSync(path);
-    files.forEach((val, index) => {
-        const lng = val.substring(val, val.indexOf('.'));
-        const fPath = Path.resolve(path, val).replace(/\\/g, '/');
-        const dataJson = fs.readJsonSync(fPath);
-        setWith(json, name ? `${lng}.${name}` : lng, dataJson, Object);
-    });
-}
-
 // pages /house/locales/zh-CN.json 或者 /house/list/locales/zh-CN.json  或者 oak-app-domain
-function findLocaleFiles(json, path, name = '', buildPath, nodeEnv, platform) {
+function findLocaleFiles(json, path, buildPath, nodeEnv, platform) {
     if (!fs.existsSync(path)) {
         return;
     }
+    let stats = fs.statSync(path);
+    if (stats.isDirectory()) {
     const files = fs.readdirSync(path);
     files
         .filter(
@@ -89,24 +78,75 @@ function findLocaleFiles(json, path, name = '', buildPath, nodeEnv, platform) {
             if (stats.isDirectory()) {
                 // 文件夹
                 if (val === 'locales') {
-                    readLocaleFiles(json, fPath, name);
                     //监听locales文件夹
                     if (nodeEnv !== 'production') {
-                        listenerLocaleFiles(fPath, buildPath, nodeEnv, platform);
+                        listenerLocaleFiles(
+                            fPath,
+                            buildPath,
+                            nodeEnv,
+                            platform
+                        );
                     }
-                } else {
-                    const name2 = getName(val);
-                    findLocaleFiles(
-                        json,
-                        fPath,
-                        name ? `${name}-${name2}` : name2,
-                        buildPath,
-                        nodeEnv,
-                        platform
-                    );
+                }
+                const name2 = getName(val);
+                findLocaleFiles(
+                    json,
+                    fPath,
+                    buildPath,
+                    nodeEnv,
+                    platform
+                );
+            }
+            else {
+                let fPath = Path.resolve(path, val).replace(/\\/g, '/');
+
+                if (/(\/locales\/)/.test(fPath) && /\.(json)$/.test(fPath)) {
+                    if (PageAndComponentRegex.test(fPath)) {
+                        const newFilename = fPath.replace(
+                            PageAndComponentRegex,
+                            ''
+                        );
+                        const { name, lng } = getNameAndLng(newFilename);
+                        const dataJson = fs.readJsonSync(fPath);
+                        setWith(
+                            json,
+                            name ? `${lng}.${name}` : lng,
+                            dataJson,
+                            Object
+                        );
+                    } else if (DomainRegex.test(fPath)) {
+                        const newFilename = fPath.replace(DomainRegex, '');
+
+                        const { name, lng } = getNameAndLng(newFilename);
+
+                        const dataJson = fs.readJsonSync(fPath);
+                        setWith(
+                            json,
+                            name ? `${lng}.${name}` : lng,
+                            dataJson,
+                            Object
+                        );
+                    }
+                    else if (CommonRegex.test(fPath)) {
+                        const newFilename = fPath.replace(CommonRegex, '');
+                        const { name, lng } = getNameAndLng(newFilename);
+
+                        const dataJson = fs.readJsonSync(fPath);
+                        setWith(
+                            json,
+                            name ? `${lng}.${name}` : lng,
+                            dataJson,
+                            Object
+                        );
+                    }
                 }
             }
         });
+    }
+    else {
+        //主入口 应该是文件夹
+
+    }
 }
 
 function listenerLocaleFiles(path, buildPath, nodeEnv, platform) {
@@ -116,12 +156,10 @@ function listenerLocaleFiles(path, buildPath, nodeEnv, platform) {
         console.log('\nThe file', fPath, 'was modified!');
         console.log('The type of change was:', eventType);
 
-        if (/(\/locales\/)|/.test(filename) && /\.(json)$/.test(filename)) {
+        if (/(\/locales\/)/.test(filename) && /\.(json)$/.test(filename)) {
             if (eventType === 'change') {
                 //文件内容改变
-                const newFilename = fPath
-                    .replace(oakRegex, '')
-                    .replace(localRegex, '');
+                const newFilename = fPath.replace(OakRegex, '');
                
                 const { name, lng } = getNameAndLng(newFilename);
 
