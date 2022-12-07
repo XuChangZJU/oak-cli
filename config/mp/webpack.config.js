@@ -42,23 +42,11 @@ const copyPatterns = [].concat(pkg.copyWebpack || []).map((pattern) =>
           }
         : pattern
 );
-const oakRegex = /(\/*[a-zA-Z0-9_-])*\/lib\/|(\\*[a-zA-Z0-9_-])*\\lib\\/;
-const localRegex = /(\/*[a-zA-Z0-9_-])*\/src+\/|(\\*[a-zA-Z0-9_-])*\\src+\\/;
+const oakRegex = /(\/*[a-zA-Z0-9_-])*\/(lib|src)\/|(\\*[a-zA-Z0-9_-])*\\(lib|src)\\/;
 
 module.exports = function (webpackEnv) {
     const isEnvDevelopment = webpackEnv === 'development';
     const isEnvProduction = webpackEnv === 'production';
-
-    const relativeFileLoader = (ext = '[ext]') => {
-        return {
-            loader: 'file-loader',
-            options: {
-                useRelativePath: true,
-                name: `[path][name].${ext}`,
-                context: paths.appSrc,
-            },
-        };
-    };
 
     const oakFileLoader = (ext = '[ext]') => {
         return {
@@ -68,21 +56,6 @@ module.exports = function (webpackEnv) {
                 name: `[path][name].${ext}`,
                 outputPath: (url, resourcePath, context) => {
                     const outputPath = url.replace(oakRegex, '');
-                    return outputPath;
-                },
-                context: paths.appSrc,
-            },
-        };
-    };
-
-    const localFileLoader = (ext = '[ext]') => {
-        return {
-            loader: 'file-loader',
-            options: {
-                useRelativePath: true,
-                name: `[path][name].${ext}`,
-                outputPath: (url, resourcePath, context) => {
-                    const outputPath = url.replace(localRegex, '');
                     return outputPath;
                 },
                 context: paths.appSrc,
@@ -183,80 +156,25 @@ module.exports = function (webpackEnv) {
             rules: [
                 {
                     test: /\.wxs$/,
-                    include: paths.appSrc,
-                    type: 'javascript/auto',
-                    use: [relativeFileLoader()],
-                },
-                {
-                    test: /\.wxs$/,
                     include: oakRegex,
-                    exclude: paths.appSrc,
-                    type: 'javascript/auto',
-                    use: [oakFileLoader('wxs')],
-                },
-                {
-                    test: /\.wxs$/,
-                    include: paths.appRootSrc,
+                    exclude: /node_modules/,
                     type: 'javascript/auto',
                     use: [oakFileLoader('wxs')],
                 },
                 {
                     test: /\.(png|jpg|gif|svg)$/,
-                    include: paths.appSrc,
-                    type: 'javascript/auto',
-                    use: relativeFileLoader(),
-                },
-                {
-                    test: /\.(png|jpg|gif|svg)$/,
                     include: oakRegex,
-                    exclude: paths.appSrc,
+                    exclude: /node_modules/,
                     type: 'javascript/auto',
                     use: oakFileLoader(),
                 },
                 {
-                    test: /\.(png|jpg|gif|svg)$/,
-                    include: paths.appRootSrc,
-                    type: 'javascript/auto',
-                    use: localFileLoader(),
-                },
-                {
-                    test: /\.less$/,
-                    include: paths.appSrc,
-                    exclude: /node_modules/,
-                    use: [
-                        relativeFileLoader('wxss'),
-                        {
-                            loader: 'less-loader',
-                        },
-                    ],
-                },
-                {
                     test: /\.less$/,
                     include: oakRegex,
-                    exclude: paths.appSrc,
+                    exclude: /node_modules/,
                     type: 'javascript/auto',
                     use: [
                         oakFileLoader('wxss'),
-                        {
-                            loader: 'less-loader',
-                            options: {
-                                lessOptions: () => {
-                                    const oakConfigJson = require(paths.oakConfigJson);
-                                    return {
-                                        javascriptEnabled: true,
-                                        modifyVars: oakConfigJson.theme,
-                                    };
-                                },
-                            },
-                        },
-                    ],
-                },
-                {
-                    test: /\.less$/,
-                    include: paths.appRootSrc,
-                    type: 'javascript/auto',
-                    use: [
-                        localFileLoader('wxss'),
                         {
                             loader: 'less-loader',
                             options: {
@@ -285,7 +203,7 @@ module.exports = function (webpackEnv) {
                     },
                 },
                 {
-                    test: /\.((?!tsx)ts)$/,
+                    test: /\.ts$/,
                     include: [paths.appSrc, paths.appRootSrc].concat(
                         getOakInclude()
                     ),
@@ -322,42 +240,11 @@ module.exports = function (webpackEnv) {
                 // },
                 {
                     test: /\.(xml|wxml)$/,
-                    include: paths.appSrc,
+                    include: oakRegex,
                     exclude: /node_modules/,
                     type: 'javascript/auto',
                     use: [
-                        relativeFileLoader('wxml'),
-                        {
-                            loader: 'wxml-loader',
-                            options: {
-                                context: paths.appSrc,
-                                cacheDirectory: false,
-                            },
-                        },
-                    ],
-                },
-                {
-                    test: /\.(xml|wxml)$/,
-                    include: oakRegex,
-                    exclude: paths.appSrc,
-                    type: 'javascript/auto',
-                    use: [
                         oakFileLoader('wxml'),
-                        {
-                            loader: 'wxml-loader',
-                            options: {
-                                context: paths.appSrc,
-                                cacheDirectory: false,
-                            },
-                        },
-                    ],
-                },
-                {
-                    test: /\.(xml|wxml)$/,
-                    include: paths.appRootSrc,
-                    type: 'javascript/auto',
-                    use: [
-                        localFileLoader('wxml'),
                         {
                             loader: 'wxml-loader',
                             options: {
