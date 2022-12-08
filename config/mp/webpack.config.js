@@ -261,7 +261,7 @@ module.exports = function (webpackEnv) {
             new OakWeChatMpPlugin({
                 context: paths.appSrc,
                 extensions: paths.moduleFileExtensions.map((ext) => `.${ext}`),
-                exclude: ['*/weui-miniprogram/*'],
+                exclude: ['*/weui-miniprogram/*', '**/*.module.less'],
                 include: ['project.config.json', 'sitemap.json'],
                 split: isEnvProduction,
                 debugPanel: {
