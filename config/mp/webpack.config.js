@@ -239,7 +239,7 @@ module.exports = function (webpackEnv) {
                 //     // use: [relativeFileLoader('json')],
                 // },
                 {
-                    test: /\.(xml|wxml)$/,
+                    test: /\.xml$/,
                     include: oakRegex,
                     exclude: /node_modules/,
                     type: 'javascript/auto',
@@ -252,6 +252,15 @@ module.exports = function (webpackEnv) {
                                 cacheDirectory: false,
                             },
                         },
+                    ],
+                },
+                {
+                    test: /\.wxml$/,
+                    include: oakRegex,
+                    exclude: /node_modules/,
+                    type: 'javascript/auto',
+                    use: [
+                        oakFileLoader('wxml'),
                     ],
                 },
             ],
