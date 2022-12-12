@@ -13,7 +13,9 @@ import { SyncContext } from 'oak-domain/lib/store/SyncRowStore';
 export async function startup<ED extends EntityDict & BaseEntityDict, Cxt extends AsyncContext<ED>, FrontCxt extends SyncContext<ED>>(
     path: string,
     contextBuilder: (scene?: string) => (store: AsyncRowStore<ED, Cxt>) => Promise<Cxt>,
-    connector: Connector<ED, Cxt, FrontCxt>) {
+    connector: Connector<ED, Cxt, FrontCxt>,
+    omitWatchers?: boolean
+) {
     const dbConfig = require(PathLib.join(path, '/configuration/mysql.json'));
     const appLoader = new AppLoader(path, contextBuilder, dbConfig);
     await appLoader.mount();
@@ -78,4 +80,8 @@ export async function startup<ED extends EntityDict & BaseEntityDict, Cxt extend
         throw err;
     });
     koa.listen(serverConfig.port);
+
+    if (!omitWatchers) {
+        appLoader.startWatchers();
+    }
 }

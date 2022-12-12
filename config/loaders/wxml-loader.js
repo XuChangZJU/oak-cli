@@ -85,12 +85,9 @@ const isSrc = (name) => name === 'src';
 const isDynamicSrc = (src) => /\{\{/.test(src);
 const oakMessage = 'oak-message';
 const oakDebugPanel = 'oak-debugPanel';
-const oakRegex = /(\/*[a-zA-Z0-9_-])*\/lib\/|(\\*[a-zA-Z0-9_-])*\\lib\\/;
-const localRegex = /(\/*[a-zA-Z0-9_-])*\/src+\/|(\\*[a-zA-Z0-9_-])*\\src+\\/;
+const oakRegex = /(\/*[a-zA-Z0-9_-])*\/(lib|src)\/|(\\*[a-zA-Z0-9_-])*\\(lib|src)\\/;
 const oakPagesOrComponentsRegex =
-    /(\/*[a-zA-Z0-9_-])*\/lib\/(pages|components)\/|(\\*[a-zA-Z0-9_-])*\\lib\\(pages|components)\\/;
-const localPagesOrComponentsRegex =
-    /(\/*[a-zA-Z0-9_-])*\/src\/(pages|components)+\/|(\\*[a-zA-Z0-9_-])*\\src\/(pages|components)+\\/;
+    /(\/*[a-zA-Z0-9_-])*\/(lib|src)\/(pages|components)\/|(\\*[a-zA-Z0-9_-])*\\(lib|src)\\(pages|components)\\/;
 
 const TranslationFunction = 't';
 const I18nModuleName = 'i18n';
@@ -178,12 +175,6 @@ module.exports = async function (content) {
                     projectContext + '/' + p,
                     projectContext + '/' + WXS_PATH
                 ).replace(/\\/g, '/');
-            } else if (localRegex.test(context)) {
-                const p2 = context.replace(localRegex, '');
-                wxsRelativePath = relative(
-                    projectContext + '/' + p2,
-                    projectContext + '/' + WXS_PATH
-                ).replace(/\\/g, '/');
             }
         }
 
@@ -230,7 +221,7 @@ module.exports = async function (content) {
     traverse(doc, (node) => {
         if (node.nodeType === node.ATTRIBUTE_NODE) {
             if (existsT(node.value)) {
-                const newVal = formatT(node.value, resourcePath);
+                const newVal = formatI18nT(node.value, resourcePath);
                 node.value = newVal;
             }
         }
@@ -257,79 +248,10 @@ module.exports = async function (content) {
                     }
                 }
             }
-            if (node.hasAttribute('oak:value')) {
-                // oak:value声明的属性加上value、focus和data-attr
-                const oakValue = node.getAttribute('oak:value');
-                node.removeAttribute('oak:value');
-                node.setAttribute(
-                    'value',
-                    `{{${oakValue} !== undefined && ${oakValue} !== null ? ${oakValue} : ''}}`
-                );
-                node.setAttribute('data-attr', oakValue);
-                if (node.hasAttribute('oak:forbidFocus')) {
-                    node.removeAttribute('oak:forbidFocus');
-                } else {
-                    node.setAttribute('focus', `{{!!oakFocused.${oakValue}}}`);
-                }
-            } else if (node.hasAttribute('oak:path')) {
-                // oak:path声明的属性加上oakPath和oakParent
-                const oakValue = node.getAttribute('oak:path');
-                node.removeAttribute('oak:path');
-                node.setAttribute('oakPath', oakValue);
-                node.setAttribute('oakParent', `{{oakFullpath}}`);
-            }
         }
         if (node.nodeType === node.TEXT_NODE) {
             if (existsT(node.nodeValue)) {
-                // const p = replaceDoubleSlash(resourcePath)
-                //     .replace(oakPagesOrComponentsRegex, '')
-                //     .replace(localPagesOrComponentsRegex, '');
-                // const eP = p.substring(0, p.lastIndexOf('/'));
-                // const ns = eP
-                //     .split('/')
-                //     .filter((ele) => !!ele)
-                //     .join('-');
-                // const val = replaceT(node.nodeValue); // {{i18n.t()}}
-                // const valArr = val.split('}}');
-                // let newVal = '';
-                // valArr.forEach((ele, index) => {
-                //     if (existsT(ele)) {
-                //         const head = ele.substring(
-                //             0,
-                //             ele.indexOf('i18n.t(') + 7
-                //         );
-                //         let argsStr = ele.substring(ele.indexOf('i18n.t(') + 7);
-                //         argsStr = argsStr.substring(0, argsStr.indexOf(')'));
-                //         const end = ele.substring(ele.indexOf(')'));
-                //         const arguments = argsStr
-                //             .split(',')
-                //             .filter((ele2) => !!ele2);
-                //         arguments &&
-                //             arguments.forEach((nodeVal, index) => {
-                //                 if (
-                //                     index === 0 &&
-                //                     nodeVal.indexOf(':') === -1
-                //                 ) {
-                //                     arguments.splice(
-                //                         index,
-                //                         1,
-                //                         `'${ns}:' + ` + nodeVal
-                //                     );
-                //                 }
-                //             });
-                //         newVal +=
-                //             head +
-                //             arguments.join(',') +
-                //             `,${CURRENT_LOCALE_KEY},${CURRENT_LOCALE_DATA} || ''` +
-                //             end +
-                //             '}}';
-                //     } else if (ele && ele.indexOf('{{') !== -1) {
-                //         newVal += ele + '}}';
-                //     } else {
-                //         newVal += ele;
-                //     }
-                // });
-                const newVal = formatT(node.nodeValue, resourcePath);
+                const newVal = formatI18nT(node.nodeValue, resourcePath);
                 node.deleteData(0, node.nodeValue.length);
                 node.insertData(0, newVal);
             }
@@ -363,11 +285,12 @@ module.exports = async function (content) {
 };
 
 
-function formatT(value, resourcePath) {
+function formatI18nT(value, resourcePath) {
     // 处理i18n 把t()转成i18n.t()
-    const p = replaceDoubleSlash(resourcePath)
-        .replace(oakPagesOrComponentsRegex, '')
-        .replace(localPagesOrComponentsRegex, '');
+    const p = replaceDoubleSlash(resourcePath).replace(
+        oakPagesOrComponentsRegex,
+        ''
+    );
     const eP = p.substring(0, p.lastIndexOf('/'));
     const ns = eP
         .split('/')
