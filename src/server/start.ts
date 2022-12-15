@@ -14,11 +14,13 @@ export async function startup<ED extends EntityDict & BaseEntityDict, Cxt extend
     path: string,
     contextBuilder: (scene?: string) => (store: AsyncRowStore<ED, Cxt>) => Promise<Cxt>,
     connector: Connector<ED, Cxt, FrontCxt>,
-    omitWatchers?: boolean
+    omitWatchers?: boolean,
+    omitTimers?: boolean,
 ) {
     const dbConfig = require(PathLib.join(path, '/configuration/mysql.json'));
     const appLoader = new AppLoader(path, contextBuilder, dbConfig);
     await appLoader.mount();
+    await appLoader.execStartRoutines();
     const koa = new Koa();
     koa.use(async (ctx, next) => {
         try {
@@ -83,5 +85,8 @@ export async function startup<ED extends EntityDict & BaseEntityDict, Cxt extend
 
     if (!omitWatchers) {
         appLoader.startWatchers();
+    }
+    if (!omitTimers) {
+        appLoader.startTimers();
     }
 }
