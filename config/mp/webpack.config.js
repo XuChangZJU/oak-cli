@@ -112,6 +112,7 @@ module.exports = function (webpackEnv) {
                 crypto: require.resolve('crypto-browserify'),
                 buffer: require.resolve('safe-buffer'),
                 stream: require.resolve('stream-browserify'),
+                events: require.resolve("events/"),
             },
         },
         resolveLoader: {
