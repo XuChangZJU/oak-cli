@@ -112,7 +112,7 @@ module.exports = function (webpackEnv) {
                 crypto: require.resolve('crypto-browserify'),
                 buffer: require.resolve('safe-buffer'),
                 stream: require.resolve('stream-browserify'),
-                events: require.resolve("events/"),
+                events: require.resolve('events/'),
             },
         },
         resolveLoader: {
@@ -260,9 +260,7 @@ module.exports = function (webpackEnv) {
                     include: oakRegex,
                     exclude: /node_modules/,
                     type: 'javascript/auto',
-                    use: [
-                        oakFileLoader('wxml'),
-                    ],
+                    use: [oakFileLoader('wxml')],
                 },
             ],
         },
@@ -271,7 +269,12 @@ module.exports = function (webpackEnv) {
             new OakWeChatMpPlugin({
                 context: paths.appSrc,
                 extensions: paths.moduleFileExtensions.map((ext) => `.${ext}`),
-                exclude: ['*/weui-miniprogram/*', '**/*.module.less'],
+                exclude: [
+                    '*/weui-miniprogram/*',
+                    '**/*.module.less',
+                    '**/web.less',
+                    '**/fontawesome.less',
+                ],
                 include: ['project.config.json', 'sitemap.json'],
                 split: isEnvProduction,
                 debugPanel: {
