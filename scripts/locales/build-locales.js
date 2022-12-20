@@ -5,16 +5,16 @@ const Path = require('path');
 const { merge, get, set, setWith } = require('lodash');
 
 const OakRegex =
-    /(\/*[a-zA-Z0-9_-])*\/(lib|src)(\/*[a-zA-Z0-9_-])*\/(pages|components|locales)+\/|(\\*[a-zA-Z0-9_-])*\\(lib|src)(\\*[a-zA-Z0-9_-])*\\(pages|components|locales)+\\/;
+    /(\/*[a-zA-Z0-9_-]|\/*[a-zA-Z0-9_-]:)*\/(lib|src)(\/*[a-zA-Z0-9_-])*\/(pages|components|locales)+\/|(\\*[a-zA-Z0-9_-]|\\*[a-zA-Z0-9_-]:)*\\(lib|src)(\\*[a-zA-Z0-9_-])*\\(pages|components|locales)+\\/;
 
 const PageAndComponentRegex =
-    /(\/*[a-zA-Z0-9_-])*\/(lib|src)(\/*[a-zA-Z0-9_-])*\/(pages|components)+\/|(\\*[a-zA-Z0-9_-])*\\(lib|src)(\\*[a-zA-Z0-9_-])*\\(pages|components)+\\/; 
+    /(\/*[a-zA-Z0-9_-]|\/*[a-zA-Z0-9_-]:)*\/(lib|src)(\/*[a-zA-Z0-9_-])*\/(pages|components)+\/|(\\*[a-zA-Z0-9_-]|\\*[a-zA-Z0-9_-]:)*\\(lib|src)(\\*[a-zA-Z0-9_-])*\\(pages|components)+\\/; 
     
 const DomainRegex =
-    /(\/*[a-zA-Z0-9_-])*\/(lib|src)(\/*[a-zA-Z0-9_-])*\/(oak-app-domain)+\/|(\\*[a-zA-Z0-9_-])*\\(lib|src)(\\*[a-zA-Z0-9_-])*\\(oak-app-domain)+\\/;        
+    /(\/*[a-zA-Z0-9_-]|\/*[a-zA-Z0-9_-]:)*\/(lib|src)(\/*[a-zA-Z0-9_-])*\/(oak-app-domain)+\/|(\\*[a-zA-Z0-9_-]|\\*[a-zA-Z0-9_-]:)*\\(lib|src)(\\*[a-zA-Z0-9_-])*\\(oak-app-domain)+\\/;        
 
 const CommonRegex =
-        /(\/*[a-zA-Z0-9_-])*\/(lib|src)\/(locales)+\/|(\\*[a-zA-Z0-9_-])*\\(lib|src)\\(locales)+\\/;
+    /(\/*[a-zA-Z0-9_-]|\/*[a-zA-Z0-9_-]:)*\/(lib|src)\/(locales)+\/|(\\*[a-zA-Z0-9_-]|\\*[a-zA-Z0-9_-]:)*\\(lib|src)\\(locales)+\\/;
 
 function getName(val) {
     const name = val.substring(0, 1).toLowerCase() + val.substring(1);
