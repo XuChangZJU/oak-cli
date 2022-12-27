@@ -177,7 +177,7 @@ module.exports = function (webpackEnv) {
                     use: [oakFileLoader('wxss')],
                 },
                 {
-                    test: /\.(less|sass|scss|css)$/,
+                    test: /\.less$/,
                     include: oakRegex,
                     exclude: /node_modules/,
                     type: 'javascript/auto',
