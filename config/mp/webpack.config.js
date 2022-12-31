@@ -104,6 +104,7 @@ module.exports = function (webpackEnv) {
                 '@': paths.appSrc,
                 '@project': paths.appRootSrc,
                 '@oak-general-business': paths.oakGeneralBusinessAppPath,
+                '@oak-app-domain': paths.oakAppDomainAppPath,
                 'bn.js': require.resolve('bn.js'),
             },
             extensions: paths.moduleFileExtensions.map((ext) => `.${ext}`),
