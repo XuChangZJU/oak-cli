@@ -273,9 +273,9 @@ export async function create(dirName: string, cmd: any) {
             Warn(warn('Sorry, this script requires npm! Please install npm!'));
             shell.exit(1);
         }
-        Success(`${success(`Waiting...`)}`);
+        /* Success(`${success(`Waiting...`)}`);
         Success(`${success(`Dependencies are now being installed`)}`);
-        shell.cd(dirName).exec('npm install');
+        shell.cd(dirName).exec('npm install'); */
 
         Success(
             `${success(

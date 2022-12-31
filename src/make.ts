@@ -29,7 +29,7 @@ export default async function make() {
         process.exit(1);
     }
 
-    Success(`${success(`npm link oak-app-domain`)}`);
+   /*  Success(`${success(`npm link oak-app-domain`)}`);
 
     const isWin = process.platform === 'win32';
     const result2 = !isWin ? spawn.sync(
@@ -53,5 +53,5 @@ export default async function make() {
     } else {
         Error(`${error(`link 执行失败`)}`);
         process.exit(1);
-    }
+    } */
 }
