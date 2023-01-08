@@ -622,9 +622,10 @@ class OakWeChatMpPlugin {
         let alias = '';
         // 获取路径 别名
         for (const k of Object.keys(this.alias)) {
-            if (resource.includes(this.alias[k])) {
+            const prefix = replaceDoubleSlash(this.alias[k]);
+            if (resource.includes(prefix)) {
                 alias = k;
-                prefixPath = this.alias[k];
+                prefixPath = prefix;
                 break;
             }
         }
