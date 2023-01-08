@@ -282,9 +282,10 @@ module.exports = function (webpackEnv) {
                     '**/*.module.less',
                     '**/web.less',
                     '**/fontawesome.less',
+                    '**/pages/**/locales/**/*',
+                    '**/components/**/locales/**/*',
                 ],
                 include: ['project.config.json', 'sitemap.json'],
-                split: isEnvProduction,
                 debugPanel: {
                     name: 'oak-debugPanel',
                     show: !isEnvProduction,
