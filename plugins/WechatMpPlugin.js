@@ -410,39 +410,54 @@ class OakWeChatMpPlugin {
             cacheGroups: {
                 default: false,
 
-                // oak_app_domain: {
+                oak_app_domain: {
+                    chunks: 'all',
+                    test: /[\\/]oak-app-domain[\\/]/,
+                    name: 'oak_app_domain',
+                    minChunks: 0,
+                },
+
+                oak_domain: {
+                    chunks: 'all',
+                    test: /[\\/]oak-domain[\\/]/,
+                    name: 'oak_domain',
+                    minChunks: 0,
+                },
+
+                oak_external_sdk: {
+                    chunks: 'all',
+                    test: /[\\/]oak-external-sdk[\\/]/,
+                    name: 'oak_external_sdk',
+                    minChunks: 0,
+                },
+
+                oak_frontend_base: {
+                    chunks: 'all',
+                    test: /[\\/]oak-frontend-base[\\/]/,
+                    name: 'oak_frontend_base',
+                    minChunks: 0,
+                },
+
+                // oak_memory_tree_store: {
                 //     chunks: 'all',
-                //     test: /[\\/]oak-app-domain[\\/]/,
-                //     name: 'oak_app_domain',
+                //     test: /[\\/]oak-memory-tree-store[\\/]/,
+                //     name: 'oak_memory_tree_store',
                 //     minChunks: 0,
                 // },
 
-                // oak_domain: {
-                //     chunks: 'all',
-                //     test: /[\\/]oak-domain[\\/]/,
-                //     name: 'oak_domain',
-                //     minChunks: 0,
-                // },
-
-                // oak_external_sdk: {
-                //     chunks: 'all',
-                //     test: /[\\/]oak-external-sdk[\\/]/,
-                //     name: 'oak_external_sdk',
-                //     minChunks: 0,
-                // },
-
-                // oak_frontend_base: {
-                //     chunks: 'all',
-                //     test: /[\\/]oak-frontend-base[\\/]/,
-                //     name: 'oak_frontend_base',
-                //     minChunks: 0,
-                // },
+                echarts: {
+                    chunks: 'all',
+                    test: /[\\/]miniprogram_npm\/ec-canvas\/echarts\.js$/,
+                    name: 'echarts',
+                    minChunks: 0,
+                },
 
                 vendor: {
                     chunks: 'all',
                     test: /[\\/]node_modules[\\/]/,
                     name: vendorChunkName,
                     minChunks: 0,
+                    reuseExistingChunk: true,
                 },
 
                 // 其他公用代码
