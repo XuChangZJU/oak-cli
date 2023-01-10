@@ -316,11 +316,17 @@ class OakWeChatMpPlugin {
             });
     }
 
+
     // add assets entry
     async addAssetsEntries(compiler) {
         const { include, exclude, extensions, assetsChunkName } = this.options;
         const patterns = this.appEntries
-            .map((resource) => `${resource}.*`)
+            .map((resource) => {
+                if (/\/miniprogram_npm\//.test(resource)) {
+                    return `${path.parse(resource).dir}/**/*.*`;
+                }
+                return `${resource}.*`
+            })
             .concat(include);
 
         const entries = await globby(patterns, {
