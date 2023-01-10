@@ -188,7 +188,7 @@ class OakWeChatMpPlugin {
 
         // resolve page components
         for (const page of pages) {
-            const { aliasPath } = this.getAliasAndPath(page);
+            const aliasPath = this.getAliasPath(page);
             if (aliasPath) {
                 realPages.push(aliasPath);
                 await this.getComponents(components, aliasPath);
@@ -257,7 +257,7 @@ class OakWeChatMpPlugin {
                     continue;
                 }
 
-                const { aliasPath } = this.getAliasAndPath(c);
+                const aliasPath = this.getAliasPath(c);
                 if (aliasPath) {
                     if (!components.has(aliasPath)) {
                         components.add(aliasPath);
@@ -293,7 +293,7 @@ class OakWeChatMpPlugin {
                         resource.replace(/node_modules/, 'npm_components')
                     ).apply(compiler);
                 } else {
-                    const { prefixPath, alias } = this.getPrefixPath(resource);
+                    const prefixPath = this.getPrefixPath(resource);
                     if (prefixPath) {
                         new EntryPlugin(
                             this.basePath,
@@ -377,7 +377,7 @@ class OakWeChatMpPlugin {
 
     // code splite
     applyPlugin(compiler) {
-        const that = this;
+        const _this = this;
         const { runtimeChunkName, commonsChunkName, vendorChunkName } =
             this.options;
         const subpackRoots = this.appEntries.subPageRoots;
@@ -386,13 +386,13 @@ class OakWeChatMpPlugin {
         new optimize.RuntimeChunkPlugin({
             name({ name }) {
                 const index = independentPageRoots.findIndex((item) => {
-                    return name.includes(item);
+                    const item2 = _this.getReplaceAlias(item);
+                    return name.includes(item2);
                 });
                 if (index !== -1) {
-                    return path.join(
-                        independentPageRoots[index],
-                        runtimeChunkName
-                    );
+                    const item = independentPageRoots[index];
+                    const item2 = _this.getReplaceAlias(item);
+                    return path.join(item2, runtimeChunkName);
                 }
                 return runtimeChunkName;
             },
@@ -467,19 +467,13 @@ class OakWeChatMpPlugin {
                     minChunks: 2,
                     name({ context }) {
                         const index = subpackRoots.findIndex((item) => {
-                            const { aliasPath, alias } =
-                                that.getAliasAndPath(item);
-                            let item2 = item;
-                            if (aliasPath) {
-                                item2 = item.replace(`${alias}/`, '');
-                            }
+                            const item2 = _this.getReplaceAlias(item);
                             return context.includes(item2);
                         });
                         if (index !== -1) {
-                            return path.join(
-                                subpackRoots[index],
-                                commonsChunkName
-                            );
+                            const item = subpackRoots[index];
+                            const item2 = _this.getReplaceAlias(item);
+                            return path.join(item2, commonsChunkName);
                         }
                         return commonsChunkName;
                     },
@@ -492,9 +486,7 @@ class OakWeChatMpPlugin {
     async emitAssetsFile(compilation) {
         const emitAssets = [];
         for (let entry of this.assetsEntry) {
-            const { prefixPath, alias } = this.getPrefixPath(
-                replaceDoubleSlash(entry)
-            );
+            const prefixPath = this.getPrefixPath(replaceDoubleSlash(entry));
 
             if (prefixPath) {
                 const assets = entry;
@@ -532,10 +524,7 @@ class OakWeChatMpPlugin {
             let pages = [];
             if (appJson.pages) {
                 for (let page of appJson.pages) {
-                    const { aliasPath, alias } = this.getAliasAndPath(page);
-                    if (aliasPath) {
-                        page = page.replace(`${alias}/`, '');
-                    }
+                    page = this.getReplaceAlias(page);
                     pages.push(page);
                 }
                 appJson.pages = pages;
@@ -545,15 +534,10 @@ class OakWeChatMpPlugin {
             if (appJson.usingComponents) {
                 for (let ck of Object.keys(appJson.usingComponents)) {
                     let component = appJson.usingComponents[ck];
-                    if (
-                        ck === debugPanel.name && !debugPanel.show
-                    ) {
+                    if (ck === debugPanel.name && !debugPanel.show) {
                         continue;
                     }
-                    const { aliasPath, alias } = this.getAliasAndPath(component);
-                    if (aliasPath) {
-                        component = component.replace(`${alias}/`, '');
-                    }
+                    component = this.getReplaceAlias(component);
                     usingComponents[ck] = component;
                 }
                 appJson.usingComponents = usingComponents;
@@ -563,10 +547,7 @@ class OakWeChatMpPlugin {
                 const subPackages = appJson.subpackages;
                 for (const subPage of subPackages) {
                     const root = subPage.root;
-                    const { aliasPath, alias } = this.getAliasAndPath(root);
-                    if (aliasPath) {
-                        subPage.root = root.replace(`${alias}/`, '');
-                    }
+                    subPage.root = this.getReplaceAlias(root);
                 }
                 appJson.subpackages = subPackages;
             }
@@ -580,9 +561,9 @@ class OakWeChatMpPlugin {
                 for (let ck of Object.keys(json.usingComponents)) {
                     let component = json.usingComponents[ck];
 
-                    const { aliasPath, alias } = this.getAliasAndPath(component);
-                    if (aliasPath) {
-                        component = component.replace(`${alias}/`, '');
+                    const alias = this.getAlias(component);
+                    if (alias) {
+                        component = this.getReplaceAlias(component);
 
                         const parentPath = path.resolve(this.basePath, entry);
                         const parentDir = path.parse(parentPath).dir;
@@ -615,39 +596,51 @@ class OakWeChatMpPlugin {
         this.alias = compiler.options.resolve.alias || {};
     }
 
-    getAliasAndPath(path) {
-        let aliasPath = '';
+    getAlias(path) {
         let alias = '';
-        // 处理下别名 返回真实path
+        // 返回 alias key
         for (const k of Object.keys(this.alias)) {
             if (path.includes(`${k}/`)) {
-                aliasPath = replaceDoubleSlash(path.replace(k, this.alias[k]));
                 alias = k;
                 break;
             }
         }
-        return {
-            aliasPath,
-            alias,
-        };
+        return alias;
+    }
+
+    getReplaceAlias(path) {
+        // 处理 @project/xx/xx路径 转换成编译下路径
+        const alias = this.getAlias(path);
+        let path2 = path;
+        if (alias) {
+            path2 = path.replace(`${alias}/`, '');
+        }
+        return path2;
+    }
+
+    getAliasPath(path) {
+        let aliasPath = '';
+        const alias = this.getAlias(path);
+        // 处理下别名 返回真实path
+        if (alias) {
+            aliasPath = replaceDoubleSlash(
+                path.replace(alias, this.alias[alias])
+            );
+        }
+        return aliasPath;
     }
 
     getPrefixPath(resource) {
         let prefixPath = '';
-        let alias = '';
         // 获取路径 别名
         for (const k of Object.keys(this.alias)) {
             const prefix = replaceDoubleSlash(this.alias[k]);
             if (resource.includes(prefix)) {
-                alias = k;
                 prefixPath = prefix;
                 break;
             }
         }
-        return {
-            prefixPath,
-            alias,
-        };
+        return prefixPath;
     }
 
     // script full path
