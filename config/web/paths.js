@@ -101,6 +101,7 @@ module.exports = {
     oakGeneralBusinessAppPath: resolveRoot(
         'node_modules/oak-general-business/lib'
     ),
+    oakAppDomainAppPath: resolveRoot('src/oak-app-domain'),
 };
 
 

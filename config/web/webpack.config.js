@@ -336,24 +336,6 @@ module.exports = function (webpackEnv) {
                         priority: 30,
                         reuseExistingChunk: true,
                     },
-                    tdesign_icons: {
-                        name: 'tdesign_icon',
-                        test: /tdesign-icons-react/,
-                        priority: 30,
-                        reuseExistingChunk: true,
-                    },
-                    tdesign: {
-                        name: 'tdesign',
-                        test: /tdesign-react/,
-                        priority: 20,
-                        reuseExistingChunk: true,
-                    },
-                    tdesign_mobile: {
-                        name: 'tdesign_mobile',
-                        test: /tdesign-mobile-react/,
-                        priority: 20,
-                        reuseExistingChunk: true,
-                    },
                     vendor: {
                         name: 'vendor',
                         test: /node_modules/,
@@ -399,6 +381,7 @@ module.exports = function (webpackEnv) {
                 '@': paths.appSrc,
                 '@project': paths.appRootSrc,
                 '@oak-general-business': paths.oakGeneralBusinessAppPath,
+                '@oak-app-domain': paths.oakAppDomainAppPath,
                 'bn.js': require.resolve('bn.js'),
             },
             plugins: [
@@ -534,6 +517,16 @@ module.exports = function (webpackEnv) {
                                             oakRenderTsxPlugin,
                                             oakRouterPlugin,
                                             oakI18nPlugin,
+                                            // [
+                                            //     'import',
+                                            //     {
+                                            //         libraryName:
+                                            //             '@icon-park/react',
+                                            //         libraryDirectory:
+                                            //             'es/icons',
+                                            //         camel2DashComponentName: false, // default: true,
+                                            //     },
+                                            // ],
                                         ].filter(Boolean),
                                         // This is a feature of `babel-loader` for webpack (not Babel itself).
                                         // It enables caching results in ./node_modules/.cache/babel-loader/
@@ -542,12 +535,6 @@ module.exports = function (webpackEnv) {
                                         // See #6846 for context on why cacheCompression is disabled
                                         cacheCompression: false,
                                         compact: isEnvProduction,
-                                        // overrides: [
-                                        //     {
-                                        //         include: /oak-general-business/,
-                                        //         sourceType: 'unambiguous',
-                                        //     },
-                                        // ],
                                     },
                                 },
                             ],

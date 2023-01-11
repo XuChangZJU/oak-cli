@@ -1,37 +1,39 @@
 import { PackageJsonInput } from './interface'
 export function packageJsonContent({
-	name,
-	version,
-	description,
-	cliVersion,
-	cliName,
-	cliBinName,
-	isDev,
+  name,
+  version,
+  description,
+  cliVersion,
+  cliName,
+  cliBinName,
+  isDev,
 }: PackageJsonInput) {
-	let oakDependencyStr;
-	let oakDevDependencyStr;
-	if (isDev) {
-		oakDependencyStr = `"oak-common-aspect": "file:../oak-common-aspect",
+  let oakDependencyStr;
+  let oakDevDependencyStr;
+  if (isDev) {
+    oakDependencyStr = `"oak-common-aspect": "file:../oak-common-aspect",
+        "oak-db": "file:../oak-db",
         "oak-domain": "file:../oak-domain",
-        "oak-frontend-base": "file:../oak-frontend-base",
         "oak-external-sdk": "file:../oak-external-sdk",
+        "oak-frontend-base": "file:../oak-frontend-base",
         "oak-general-business": "file:../oak-general-business",
         "oak-memory-tree-store": "file:../oak-memory-tree-store",`;
-		oakDevDependencyStr = `"${cliName}": "file:../oak-cli",`
-	}
-	else {
-		oakDependencyStr = `"oak-common-aspect": "^1.0.3",
-        "oak-domain": "^1.1.10",
-        "oak-frontend-base": "^1.0.13",
-        "oak-general-business": "^1.0.12",
-        "oak-external-sdk": "^1.0.3",
-        "oak-memory-tree-store": "^1.0.5",`;
-		oakDevDependencyStr = `"${cliName}": "^${cliVersion}",`
-	}
+    oakDevDependencyStr = `"${cliName}": "file:../oak-cli",`
+  }
+  else {
+    oakDependencyStr = `"oak-common-aspect": "^2.1.0",
+        "oak-db": "^2.1.1",
+        "oak-domain": "^2.1.0",
+        "oak-external-sdk": "^1.0.5",
+        "oak-frontend-base": "^2.1.0",
+        "oak-general-business": "^2.1.0",
+        "oak-memory-tree-store": "^2.1.0",`;
+    oakDevDependencyStr = `"${cliName}": "^${cliVersion}",`
+  }
 
-	const serverInitScript = isDev ? "cross-env NODE_ENV=development cross-env OAK_PLATFORM=server ts-node scripts/initServer.js" : "cross-env OAK_PLATFORM=server ts-node scripts/initServer.js";
-	const serverStartScript = isDev ? "cross-env NODE_ENV=development cross-env OAK_PLATFORM=server ts-node scripts/startServer.js" : "cross-env OAK_PLATFORM=server ts-node scripts/startServer.js";
-	return `{
+  const serverInitScript = isDev ? "cross-env NODE_ENV=development cross-env OAK_PLATFORM=server ts-node scripts/initServer.js" : "cross-env OAK_PLATFORM=server ts-node scripts/initServer.js";
+  const serverStartScript = isDev ? "cross-env NODE_ENV=development cross-env OAK_PLATFORM=server ts-node scripts/startServer.js" : "cross-env OAK_PLATFORM=server ts-node scripts/startServer.js";
+  return `{
     "name": "${name}",
     "version": "${version}",
     "description": "${description}",
@@ -45,64 +47,83 @@ export function packageJsonContent({
         "build-analyze:web": "${cliBinName} build --target web --mode production --analyze",
         "build-sourcemap-analyze:web": "${cliBinName} build --target web --mode production --sourcemap --analyze",
         "build": "tsc",
-        "server:init": ${serverInitScript},
-        "server:start": ${serverStartScript},
+        "server:init": "${serverInitScript}",
+        "server:start": "${serverStartScript}",
         "postinstall": "npm run make:domain"
     },
     "keywords": [],
     "author": "",
     "license": "",
+    "typings": "typings/index.d.ts",
     "dependencies": {
-        "@ant-design/icons": "^4.7.0",
-        "antd": "^5.0.0",
-        "antd-mobile": "^5.24.1",
-        "antd-mobile-icons": "^0.3.0",
-        "classnames": "^2.3.1",
-        "crypto-browserify": "^3.12.0",
-        "dayjs": "^1.11.5",
-        "i18next": "^20.6.1",
-        "i18next-browser-languagedetector": "^6.1.4",
-        "i18next-chained-backend": "^3.0.2",
-        "i18next-http-backend": "^1.4.1",
-        "i18next-localstorage-backend": "^3.1.3",
-        "i18next-resource-store-loader": "^0.1.2",
-        "lodash": "^4.17.21",
-        "nprogress": "^0.2.0",
+      "@ant-design/cssinjs": "^1.1.0",
+      "@ant-design/icons": "^4.7.0",
+      "@icon-park/react": "^1.4.2",
+      "@wangeditor/basic-modules": "^1.1.3",
+      "@wangeditor/editor": "^5.1.14",
+      "@wangeditor/editor-for-react": "^1.0.4",
+      "antd": "^5.0.3",
+      "antd-mobile": "^5.26.0",
+      "antd-mobile-icons": "^0.3.0",
+      "classnames": "^2.3.1",
+      "crypto-browserify": "^3.12.0",
+      "crypto-js": "^4.1.1",
+      "dayjs": "^1.11.5",
+      "echarts": "^5.3.0",
+      "echarts-for-react": "^3.0.2",
+      "history": "^5.3.0",
+      "hmacsha1": "^1.0.0",
+      "i18next": "^20.6.1",
+      "i18next-browser-languagedetector": "^6.1.4",
+      "i18next-chained-backend": "^3.0.2",
+      "i18next-http-backend": "^1.4.1",
+      "i18next-localstorage-backend": "^3.1.3",
+      "i18next-resource-store-loader": "^0.1.2",
+      "js-base64": "^3.7.2",
+      "lodash": "^4.17.21",
+      "nprogress": "^0.2.0",
         ${oakDependencyStr}
         "react": "^18.2.0",
         "react-dom": "^18.1.0",
         "react-i18next": "^11.18.0",
+        "react-image-gallery": "^1.2.11",
         "react-responsive": "^9.0.0-beta.10",
-        "react-router-dom": "^6.3.0",
+        "react-router-dom": "^6.4.0",
         "react-scripts": "5.0.1",
+        "react-slick": "^0.29.0",
         "rmc-pull-to-refresh": "^1.0.13",
+        "slick-carousel": "^1.8.1",
         "url": "^0.11.0",
         "uuid": "^8.3.2"
     },
     "devDependencies": {
-        "@babel/cli": "^7.12.13",
-        "@babel/core": "^7.12.13",
-        "@babel/plugin-proposal-class-properties": "^7.12.13",
-        "@babel/preset-env": "^7.12.13",
-        "@babel/preset-typescript": "^7.12.13",
-        "@pmmmwh/react-refresh-webpack-plugin": "^0.5.3",
-        "@svgr/webpack": "^5.5.0",
-        "@testing-library/jest-dom": "^5.16.4",
-        "@testing-library/react": "^13.3.0",
-        "@testing-library/user-event": "^13.5.0",
-        "@types/assert": "^1.5.6",
-        "@types/fs-extra": "^9.0.13",
-        "@types/jest": "^27.5.2",
-        "@types/lodash": "^4.14.179",
-        "@types/luxon": "^2.3.2",
-        "@types/mocha": "^8.2.0",
-        "@types/node": "^16.11.38",
-        "@types/nprogress": "^0.2.0",
-        "@types/react": "^18.0.12",
-        "@types/react-dom": "^18.0.5",
-        "@types/shelljs": "^0.8.11",
-        "@types/uuid": "^8.3.0",
-        "@types/wechat-miniprogram": "^3.4.0",
+      "@babel/cli": "^7.12.13",
+      "@babel/core": "^7.12.13",
+      "@babel/plugin-proposal-class-properties": "^7.12.13",
+      "@babel/preset-env": "^7.12.13",
+      "@babel/preset-typescript": "^7.12.13",
+      "@pmmmwh/react-refresh-webpack-plugin": "^0.5.3",
+      "@svgr/webpack": "^5.5.0",
+      "@testing-library/jest-dom": "^5.16.4",
+      "@testing-library/react": "^13.3.0",
+      "@testing-library/user-event": "^13.5.0",
+      "@types/assert": "^1.5.6",
+      "@types/crypto-js": "^4.1.1",
+      "@types/fs-extra": "^9.0.13",
+      "@types/isomorphic-fetch": "^0.0.36",
+      "@types/jest": "^27.5.2",
+      "@types/lodash": "^4.14.179",
+      "@types/luxon": "^2.3.2",
+      "@types/mocha": "^8.2.0",
+      "@types/node": "^16.11.38",
+      "@types/nprogress": "^0.2.0",
+      "@types/react": "^18.0.12",
+      "@types/react-dom": "^18.0.5",
+      "@types/react-image-gallery": "^1.2.0",
+      "@types/shelljs": "^0.8.11",
+      "@types/urlsafe-base64": "^1.0.28",
+      "@types/uuid": "^8.3.0",
+      "@types/wechat-miniprogram": "^3.4.0",
         ${oakDevDependencyStr}
         "assert": "^2.0.0",
         "babel-jest": "^27.4.2",
@@ -110,8 +131,8 @@ export function packageJsonContent({
         "babel-plugin-named-asset-import": "^0.3.8",
         "babel-preset-react-app": "^10.0.1",
         "bfj": "^7.0.2",
-        "browserslist": "^4.18.1",
         "browserify-zlib": "^0.2.0",
+        "browserslist": "^4.18.1",
         "camelcase": "^6.2.1",
         "case-sensitive-paths-webpack-plugin": "^2.4.0",
         "chalk": "^4.1.2",
@@ -167,6 +188,7 @@ export function packageJsonContent({
         "terser-webpack-plugin": "^5.2.5",
         "ts-loader": "^9.3.0",
         "ts-node": "^10.8.1",
+        "tslib": "^2.4.0",
         "typescript": "^4.7.3",
         "ui-extract-webpack-plugin": "^1.0.0",
         "web-vitals": "^2.1.4",
@@ -193,7 +215,7 @@ export function packageJsonContent({
 }
 
 export function tsConfigJsonContent() {
-	return `{
+  return `{
   "extends": "./tsconfig.paths.json",
   "compilerOptions": {
     "jsx": "react-jsx",
@@ -237,7 +259,7 @@ export function tsConfigJsonContent() {
 }
 
 export function tsConfigBuildJsonContent() {
-	return `{
+  return `{
   "extends": "./tsconfig.paths.json",
    "compilerOptions": {
      "jsx": "react-jsx",
@@ -249,6 +271,7 @@ export function tsConfigBuildJsonContent() {
     "experimentalDecorators": true,   
     "skipLibCheck": true,
     "strict": true,
+    "importHelpers": true,
     "lib": [
       "dom",
       "dom.iterable",
@@ -274,7 +297,7 @@ export function tsConfigBuildJsonContent() {
 }
 
 export function tsConfigPathsJsonContent() {
-	return `{
+  return `{
     "compilerOptions": {
         "baseUrl": "./",
         "paths": {
@@ -290,7 +313,7 @@ export function tsConfigPathsJsonContent() {
 }
 
 export function tsConfigMpJsonContent() {
-	return `{
+  return `{
    "extends": "./tsconfig.paths.json",
    "compilerOptions": {
     "module": "commonjs",
@@ -302,6 +325,7 @@ export function tsConfigMpJsonContent() {
     "experimentalDecorators": true,
     "strict": true,
     "downlevelIteration": true,
+    "importHelpers": true,
     "lib": [
       "dom",
       "dom.iterable",
@@ -328,7 +352,7 @@ export function tsConfigMpJsonContent() {
 }
 
 export function tsConfigWebJsonContent() {
-	return `{
+  return `{
   "extends": "./tsconfig.paths.json",
    "compilerOptions": {
     "module": "commonjs",
@@ -371,11 +395,11 @@ export function tsConfigWebJsonContent() {
 
 
 export function projectConfigContentWithWeChatMp(
-	oakConfigName: string,
-	projectname: string,
-	miniVersion: string
+  oakConfigName: string,
+  projectname: string,
+  miniVersion: string
 ) {
-	return `{
+  return `{
     "description": "项目配置文件",
     "packOptions": {
         "ignore": [{
@@ -451,12 +475,12 @@ export function projectConfigContentWithWeChatMp(
 }
 
 export function appJsonContentWithWeChatMp(isDev: boolean) {
-	const pages = [
-		'@project/pages/book/list/index',
-		'@project/pages/book/upsert/index',
-		'@project/pages/book/detail/index',
-	];
-	return `{
+  const pages = [
+    '@project/pages/book/list/index',
+    '@project/pages/book/upsert/index',
+    '@project/pages/book/detail/index',
+  ];
+  return `{
   "pages":${JSON.stringify(pages, null, 4)},
   "window":{
     "backgroundTextStyle":"light",
@@ -475,29 +499,29 @@ export function appJsonContentWithWeChatMp(isDev: boolean) {
 }
 
 export function oakConfigContentWithWeChatMp() {
-	return `{
+  return `{
     "theme": {
     }
 }`;
 }
 
 export function appJsonContentWithWeb(isDev: boolean) {
-	const pages = [
-		'@project/pages/store/list/index',
-		'@project/pages/store/upsert/index',
-		'@project/pages/store/detail/index',
-		'@project/pages/book/list/index',
-		'@project/pages/book/upsert/index',
-		'@project/pages/book/detail/index',
-		'@oak-general-business/pages/login/index',
-	];
-	return `{
+  const pages = [
+    '@project/pages/store/list/index',
+    '@project/pages/store/upsert/index',
+    '@project/pages/store/detail/index',
+    '@project/pages/book/list/index',
+    '@project/pages/book/upsert/index',
+    '@project/pages/book/detail/index',
+    '@oak-general-business/pages/login/index',
+  ];
+  return `{
     "pages": ${JSON.stringify(pages, null, 4)}
 }`;
 }
 
 export function oakConfigContentWithWeb() {
-	return `{
+  return `{
     "theme": {
     }
 }`;

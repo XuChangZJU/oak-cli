@@ -5,16 +5,16 @@ const Path = require('path');
 const { merge, get, set, setWith } = require('lodash');
 
 const OakRegex =
-    /(\/*[a-zA-Z0-9_-])*\/(lib|src)(\/*[a-zA-Z0-9_-])*\/(pages|components|locales)+\/|(\\*[a-zA-Z0-9_-])*\\(lib|src)(\\*[a-zA-Z0-9_-])*\\(pages|components|locales)+\\/;
+    /(\/*[a-zA-Z0-9_-]|\/*[a-zA-Z0-9_-]:)*\/(lib|src)(\/*[a-zA-Z0-9_-])*\/(pages|components|locales)+\/|(\\*[a-zA-Z0-9_-]|\\*[a-zA-Z0-9_-]:)*\\(lib|src)(\\*[a-zA-Z0-9_-])*\\(pages|components|locales)+\\/;
 
 const PageAndComponentRegex =
-    /(\/*[a-zA-Z0-9_-])*\/(lib|src)(\/*[a-zA-Z0-9_-])*\/(pages|components)+\/|(\\*[a-zA-Z0-9_-])*\\(lib|src)(\\*[a-zA-Z0-9_-])*\\(pages|components)+\\/; 
+    /(\/*[a-zA-Z0-9_-]|\/*[a-zA-Z0-9_-]:)*\/(lib|src)(\/*[a-zA-Z0-9_-])*\/(pages|components)+\/|(\\*[a-zA-Z0-9_-]|\\*[a-zA-Z0-9_-]:)*\\(lib|src)(\\*[a-zA-Z0-9_-])*\\(pages|components)+\\/; 
     
 const DomainRegex =
-    /(\/*[a-zA-Z0-9_-])*\/(lib|src)(\/*[a-zA-Z0-9_-])*\/(oak-app-domain|general-app-domain)+\/|(\\*[a-zA-Z0-9_-])*\\(lib|src)(\\*[a-zA-Z0-9_-])*\\(oak-app-domain|general-app-domain)+\\/;        
+    /(\/*[a-zA-Z0-9_-]|\/*[a-zA-Z0-9_-]:)*\/(lib|src)(\/*[a-zA-Z0-9_-])*\/(oak-app-domain)+\/|(\\*[a-zA-Z0-9_-]|\\*[a-zA-Z0-9_-]:)*\\(lib|src)(\\*[a-zA-Z0-9_-])*\\(oak-app-domain)+\\/;        
 
 const CommonRegex =
-        /(\/*[a-zA-Z0-9_-])*\/(lib|src)\/(locales)+\/|(\\*[a-zA-Z0-9_-])*\\(lib|src)\\(locales)+\\/;
+    /(\/*[a-zA-Z0-9_-]|\/*[a-zA-Z0-9_-]:)*\/(lib|src)\/(locales)+\/|(\\*[a-zA-Z0-9_-]|\\*[a-zA-Z0-9_-]:)*\\(lib|src)\\(locales)+\\/;
 
 function getName(val) {
     const name = val.substring(0, 1).toLowerCase() + val.substring(1);
@@ -70,7 +70,8 @@ function findLocaleFiles(json, path, buildPath, nodeEnv, platform) {
         .filter(
             (ele) =>
                 !['.DS_Store', 'package.json'].includes(ele) &&
-                !/\.(ts|less|jsx|tsx|wxml)$/.test(ele)
+                !/\.(ts|less|jsx|tsx|wxml|js)$/.test(ele) &&
+                !/general-app-domain/.test(ele)
         )
         .forEach((val, index) => {
             let fPath = Path.resolve(path, val).replace(/\\/g, '/');
@@ -88,56 +89,31 @@ function findLocaleFiles(json, path, buildPath, nodeEnv, platform) {
                         );
                     }
                 }
-                const name2 = getName(val);
-                findLocaleFiles(
-                    json,
-                    fPath,
-                    buildPath,
-                    nodeEnv,
-                    platform
-                );
-            }
-            else {
-                let fPath = Path.resolve(path, val).replace(/\\/g, '/');
-
+                findLocaleFiles(json, fPath, buildPath, nodeEnv, platform);
+            } else {
+                const fPath = Path.resolve(path, val).replace(/\\/g, '/');
                 if (/(\/locales\/)/.test(fPath) && /\.(json)$/.test(fPath)) {
+                    let newFilename = '';
                     if (PageAndComponentRegex.test(fPath)) {
-                        const newFilename = fPath.replace(
-                            PageAndComponentRegex,
-                            ''
-                        );
-                        const { name, lng } = getNameAndLng(newFilename);
-                        const dataJson = fs.readJsonSync(fPath);
-                        setWith(
-                            json,
-                            name ? `${lng}.${name}` : lng,
-                            dataJson,
-                            Object
-                        );
+                        newFilename = fPath.replace(PageAndComponentRegex, '');
                     } else if (DomainRegex.test(fPath)) {
-                        const newFilename = fPath.replace(DomainRegex, '');
-
-                        const { name, lng } = getNameAndLng(newFilename);
-
-                        const dataJson = fs.readJsonSync(fPath);
-                        setWith(
-                            json,
-                            name ? `${lng}.${name}` : lng,
-                            dataJson,
-                            Object
-                        );
+                        newFilename = fPath.replace(DomainRegex, '');
+                    } else if (CommonRegex.test(fPath)) {
+                        newFilename = fPath.replace(CommonRegex, '');
                     }
-                    else if (CommonRegex.test(fPath)) {
-                        const newFilename = fPath.replace(CommonRegex, '');
+                    if (newFilename) {
                         const { name, lng } = getNameAndLng(newFilename);
-
                         const dataJson = fs.readJsonSync(fPath);
-                        setWith(
-                            json,
-                            name ? `${lng}.${name}` : lng,
-                            dataJson,
-                            Object
-                        );
+
+                        const path = name ? `${lng}.${name}` : lng;
+                        const data = get(json, path);
+
+                        // 处理locales出现相同路径合并下
+                        if (data) {
+                            merge(dataJson, data);
+                        }
+
+                        setWith(json, path, dataJson, Object);
                     }
                 }
             }
@@ -160,9 +136,7 @@ function listenerLocaleFiles(path, buildPath, nodeEnv, platform) {
             if (eventType === 'change') {
                 //文件内容改变
                 const newFilename = fPath.replace(OakRegex, '');
-               
                 const { name, lng } = getNameAndLng(newFilename);
-
                 const dataJson = fs.readJsonSync(fPath);
                 const newJson = {};
                 setWith(
@@ -172,9 +146,9 @@ function listenerLocaleFiles(path, buildPath, nodeEnv, platform) {
                     Object
                 );
                 if (platform === 'wechatMp') {
-                    mergeMpJsonFiles(newJson, buildPath, true);
+                    mergeMpJsonFiles(newJson, buildPath);
                 } else {
-                    mergeWebJsonFiles(newJson, buildPath, true);
+                    mergeWebJsonFiles(newJson, buildPath);
                 }
                 
             }
@@ -183,7 +157,7 @@ function listenerLocaleFiles(path, buildPath, nodeEnv, platform) {
 }
 
 //
-function mergeWebJsonFiles(json, buildPath, isMerge) {
+function mergeWebJsonFiles(json, buildPath, isMerge = true) {
     for (let lng in json) {
         // lng生成文件夹
         const lngPath = Path.resolve(buildPath, lng);
@@ -208,20 +182,20 @@ function mergeWebJsonFiles(json, buildPath, isMerge) {
     }
 }
 
-function mergeMpJsonFiles(json, buildPath, isMerge) {
+function mergeMpJsonFiles(json, buildPath, isMerge = true) {
     for (let lng in json) {
         // lng生成文件夹
         const lngPath = Path.resolve(buildPath, `${lng}.json`);
 
         const data = json[lng] || {};
-         let dataJson = {};
-         if (isMerge) {
-             if (fs.existsSync(lngPath)) {
-                 dataJson = fs.readJSONSync(lngPath);
-             }
-         }
-         merge(dataJson, data);
-         fs.writeFileSync(lngPath, JSON.stringify(dataJson, null, 2));
+        let dataJson = {};
+        if (isMerge) {
+            if (fs.existsSync(lngPath)) {
+                dataJson = fs.readJSONSync(lngPath);
+            }
+        }
+        merge(dataJson, data);
+        fs.writeFileSync(lngPath, JSON.stringify(dataJson, null, 2));
     }
 }
 

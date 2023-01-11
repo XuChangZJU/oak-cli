@@ -189,7 +189,7 @@ function getRouter({ projectOrPath, path, namespace, disableAssemble, isFirst })
         } = require(`${relPath}.json`);
         meta.push(
             t.objectProperty(
-                t.identifier('title'),
+                t.identifier('navigationBarTitleText'),
                 t.stringLiteral(navigationBarTitleText || '')
             )
         );
@@ -260,7 +260,7 @@ function getNamespaceRouter({ namespaces, namespace, filename }) {
         } = require(`${relPath}.json`);
         meta.push(
             t.objectProperty(
-                t.identifier('title'),
+                t.identifier('navigationBarTitleText'),
                 t.stringLiteral(navigationBarTitleText || '')
             )
         );
