@@ -55,7 +55,6 @@ export async function startup<ED extends EntityDict & BaseEntityDict, Cxt extend
     }
 
     router.post(connector.getRouter(), async (ctx) => {
-        console.log('aspect called');
         const { request } = ctx;
         const { name, params, context } = await connector.parseRequest(request.headers, request.body, appLoader.getStore());
         await context.begin();
