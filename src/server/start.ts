@@ -71,8 +71,41 @@ export async function startup<ED extends EntityDict & BaseEntityDict, Cxt extend
         ctx.response.body = body;
         return;
     });
-    koa.use(router.routes());
 
+    // 注入所有的endpoints
+    const endpoints = appLoader.getEndpoints();
+    const endpointsArray: [string, string][] = [];
+    for (const ep in endpoints) {
+        const { method, fn, params, name } = endpoints[ep];
+        let url = `/endpoint/${ep}`;
+        if (params) {
+            for (const p of params) {
+                url += `/:${p}`;
+            }
+        }
+        endpointsArray.push([name, url]);
+        router[method](name, url, async (ctx) => {
+            const { req, request, params } = ctx;
+            const { body, headers } = request;
+            const context = await contextBuilder()(appLoader.getStore());
+            await context.begin();
+            try {
+                const result = await fn(context, params, headers, req, body);
+                await context.commit();
+                ctx.response.body = result;
+                return;
+            }
+            catch(err) {
+                await context.rollback();
+                throw err;
+            }
+        });
+    }
+    router.get('/endpoint', async (ctx) => {
+        ctx.response.body = endpointsArray;
+    });
+
+    koa.use(router.routes());
 
     const serverConfig = require(PathLib.join(path, '/configuration/server.json'));
     console.log(`server will listen on port ${serverConfig.port}`);
