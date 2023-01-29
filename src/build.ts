@@ -32,7 +32,7 @@ export default async function build(cmd: any) {
                 `TSC_COMPILE_ON_ERROR=${TSC_COMPILE_ON_ERROR}`,
                 `COMPILE_ANALYZE=${cmd.analyze}`,
                 `GENERATE_SOURCEMAP=${!!cmd.sourcemap}`,
-                `ts-node`,
+                `node`,
                 require.resolve(
                     `../scripts/${
                         cmd.mode === 'production'
@@ -40,7 +40,7 @@ export default async function build(cmd: any) {
                             : 'start-mp.js'
                     }`
                 ),
-            ],
+            ].filter(Boolean),
             {
                 stdio: 'inherit',
                 shell: true,
@@ -61,7 +61,7 @@ export default async function build(cmd: any) {
                 `TSC_COMPILE_ON_ERROR=${TSC_COMPILE_ON_ERROR}`,
                 `COMPILE_ANALYZE=${cmd.analyze}`,
                 `GENERATE_SOURCEMAP=${!!cmd.sourcemap}`,
-                `ts-node`,
+                `node`,
                 require.resolve(
                     `../scripts/${
                         cmd.mode === 'production'
@@ -69,7 +69,7 @@ export default async function build(cmd: any) {
                             : 'start-web.js'
                     }`
                 ),
-            ],
+            ].filter(Boolean),
             {
                 stdio: 'inherit',
                 shell: true,
