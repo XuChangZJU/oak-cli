@@ -336,6 +336,30 @@ module.exports = function (webpackEnv) {
                         priority: 30,
                         reuseExistingChunk: true,
                     },
+                    icon_park: {
+                        name: 'icon_park',
+                        test: /@icon-park\/react/,
+                        priority: 20,
+                        reuseExistingChunk: true,
+                    },
+                    antd_mobile: {
+                        name: 'antd_mobile',
+                        test: /antd-mobile/,
+                        priority: 20,
+                        reuseExistingChunk: true,
+                    },
+                    antdesign: {
+                        name: 'antdesign',
+                        test: /antd/,
+                        priority: 20,
+                        reuseExistingChunk: true,
+                    },
+                    antdesign_icons: {
+                        name: 'antdesign_icons',
+                        test: /@ant-design\/icons/,
+                        priority: 20,
+                        reuseExistingChunk: true,
+                    },
                     vendor: {
                         name: 'vendor',
                         test: /node_modules/,
