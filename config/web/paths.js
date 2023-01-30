@@ -40,7 +40,7 @@ let moduleFileExtensions = [
     'pc.jsx',
     'jsx',
 ];
-if (process.env.NODE_ENV !== 'production') {
+if (process.env.NODE_ENV !== 'production' && process.env.PROD !== 'true') {
     moduleFileExtensions = [
         'dev.web.js',
         'dev.web.ts',
@@ -49,16 +49,15 @@ if (process.env.NODE_ENV !== 'production') {
         'dev.ts',
         'dev.tsx',
     ].concat(moduleFileExtensions);
-}
-else {
-      moduleFileExtensions = [
-          'prod.web.js',
-          'prod.web.ts',
-          'prod.web.tsx',
-          'prod.js',
-          'prod.ts',
-          'prod.tsx',
-      ].concat(moduleFileExtensions);
+} else {
+    moduleFileExtensions = [
+        'prod.web.js',
+        'prod.web.ts',
+        'prod.web.tsx',
+        'prod.js',
+        'prod.ts',
+        'prod.tsx',
+    ].concat(moduleFileExtensions);
 }
 
 // Resolve file paths in the same order as webpack
