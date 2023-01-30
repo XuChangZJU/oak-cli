@@ -351,6 +351,10 @@ module.exports = function (webpackEnv) {
                 buffer: require.resolve('safe-buffer'),
                 stream: require.resolve('stream-browserify'),
                 zlib: require.resolve('browserify-zlib'),
+                url: false,
+                path: false,
+                fs: false,
+                net: false,
             },
             // This allows you to set a fallback for where webpack should look for modules.
             // We placed these paths second because we want `node_modules` to "win"
