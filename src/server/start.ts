@@ -5,7 +5,7 @@ import Koa from 'koa';
 import KoaRouter from 'koa-router';
 import KoaBody from 'koa-body';
 import { AppLoader } from 'oak-backend-base';
-import { OakException, Connector, EntityDict, Context, RowStore } from 'oak-domain/lib/types';
+import { OakException, Connector, EntityDict, EndpointItem, RowStore } from 'oak-domain/lib/types';
 import { EntityDict as BaseEntityDict } from 'oak-domain/lib/base-app-domain';
 import { AsyncContext, AsyncRowStore } from 'oak-domain/lib/store/AsyncRowStore';
 import { SyncContext } from 'oak-domain/lib/store/SyncRowStore';
@@ -74,32 +74,49 @@ export async function startup<ED extends EntityDict & BaseEntityDict, Cxt extend
 
     // 注入所有的endpoints
     const endpoints = appLoader.getEndpoints();
-    const endpointsArray: [string, string][] = [];
+    const endpointsArray: [string, string, string][] = [];
     for (const ep in endpoints) {
-        const { method, fn, params, name } = endpoints[ep];
-        let url = `/endpoint/${ep}`;
-        if (params) {
-            for (const p of params) {
-                url += `/:${p}`;
+        const useEndpointItem = (item: EndpointItem<ED, Cxt>) => {
+            const { method, fn, params, name } = item;
+            if (endpointsArray.find(
+                ele => ele[0] === ep && ele[1] === method
+            )) {
+                throw new Error(`endpoint中，url为「${ep}」的方法「${method}」存在重复定义`);
             }
+            let url = `/endpoint/${ep}`;
+            if (params) {
+                for (const p of params) {
+                    url += `/:${p}`;
+                }
+            }
+            endpointsArray.push([name, method, url]);
+            router[method](name, url, async (ctx) => {
+                const { req, request, params } = ctx;
+                const { body, headers } = request;
+                const context = await contextBuilder()(appLoader.getStore());
+                await context.begin();
+                try {
+                    const result = await fn(context, params, headers, req, body);
+                    await context.commit();
+                    ctx.response.body = result;
+                    return;
+                }
+                catch(err) {
+                    await context.rollback();
+                    console.error(`endpoint「${ep}」「${method}」出错`, err);
+                    ctx.response.status = 500;
+                    return;
+                }
+            });
+        };
+        if (endpoints[ep] instanceof Array) {
+            (endpoints[ep] as EndpointItem<ED, Cxt>[]).forEach(
+                epi => useEndpointItem(epi)
+            );
         }
-        endpointsArray.push([name, url]);
-        router[method](name, url, async (ctx) => {
-            const { req, request, params } = ctx;
-            const { body, headers } = request;
-            const context = await contextBuilder()(appLoader.getStore());
-            await context.begin();
-            try {
-                const result = await fn(context, params, headers, req, body);
-                await context.commit();
-                ctx.response.body = result;
-                return;
-            }
-            catch(err) {
-                await context.rollback();
-                throw err;
-            }
-        });
+        else {
+            useEndpointItem(endpoints[ep] as EndpointItem<ED, Cxt>);
+        }
     }
     router.get('/endpoint', async (ctx) => {
         ctx.response.body = endpointsArray;
