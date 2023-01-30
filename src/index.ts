@@ -52,6 +52,7 @@ program
     .command('start')
     .option('--sourceMap', 'sourceMap')
     .option('--analyze', 'analyze')
+    .option('--prod', 'prod')
     .option('--memoryLimit <memoryLimit>', 'memoryLimit of node')
     .option('-t, --target <target>', 'target')
     .option('-m, --mode <mode>', 'mode')

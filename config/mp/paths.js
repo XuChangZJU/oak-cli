@@ -17,7 +17,7 @@ let moduleFileExtensions = [
   'mp.ts',
   'ts',
 ];
-if (process.env.NODE_ENV !== 'production') {
+if (process.env.NODE_ENV !== 'production' && process.env.PROD !== 'true') {
     moduleFileExtensions = [
         'dev.mp.js',
         'dev.mp.ts',

@@ -12,6 +12,10 @@ const env = getClientEnvironment();
 
 fs.emptyDirSync(paths.appBuild);
 
+//copy
+const { copyLocaleFiles } = require('./locales/copy-mp-locales');
+copyLocaleFiles();
+
 webpack(config, (err, stats) => {
     if (err) {
         console.log(chalk.red(err.stack || err));
