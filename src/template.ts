@@ -40,9 +40,11 @@ export function packageJsonContent({
     "scripts": {
         "make:domain": "${cliBinName} make",
         "start:mp": "${cliBinName} start --target mp --mode development",
+        "start:mp:prod": "${cliBinName} start --target mp --mode development --prod",
         "build:mp": "${cliBinName} build --target mp --mode production",
         "build-analyze:mp": "${cliBinName} build --target mp --mode production --analyze",
         "start:web": "${cliBinName} start --target web --mode development",
+        "start:web:prod": "${cliBinName} start --target web --mode development --prod",
         "build:web": "${cliBinName} build --target web --mode production",
         "build-analyze:web": "${cliBinName} build --target web --mode production --analyze",
         "build-sourcemap-analyze:web": "${cliBinName} build --target web --mode production --sourcemap --analyze",

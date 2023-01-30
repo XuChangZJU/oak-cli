@@ -1,6 +1,6 @@
 {
     "name": "@xuchangzju/oak-cli",
-    "version": "2.3.1",
+    "version": "2.3.2",
     "description": "oak-cli脚手架",
     "main": "lib/index.js",
     "scripts": {
@@ -86,7 +86,7 @@
         "lodash": "^4.17.21",
         "mini-css-extract-plugin": "^2.5.3",
         "oak-backend-base": "^2.3.2",
-        "oak-domain": "^2.4.0",
+        "oak-domain": "^2.4.1",
         "postcss": "^8.4.4",
         "postcss-flexbugs-fixes": "^5.0.2",
         "postcss-less": "^6.0.0",

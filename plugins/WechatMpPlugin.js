@@ -322,7 +322,7 @@ class OakWeChatMpPlugin {
         const { include, exclude, extensions, assetsChunkName } = this.options;
         const patterns = this.appEntries
             .map((resource) => {
-                if (/\/miniprogram_npm\//.test(resource)) {
+                if (/[\\/]miniprogram_npm[\\/]/.test(resource)) {
                     return `${path.parse(resource).dir}/**/*.*`;
                 }
                 return `${resource}.*`

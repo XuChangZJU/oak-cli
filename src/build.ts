@@ -21,7 +21,7 @@ export default async function build(cmd: any) {
     //ts类型检查 waring 还是error,
     //主要web受影响，error级别的话 控制台和网页都报错，warning级别的话 控制台报错
     const TSC_COMPILE_ON_ERROR = cmd.check !== 'error';
-    Success(`${success(`build ${cmd.target} environment: ${cmd.mode}`)}`);
+    Success(`${success(`build ${cmd.target} environment: ${cmd.mode} prod: ${!!cmd.prod}`)}`);
     if (cmd.target === 'mp' || cmd.target === 'wechatMp') {
         const result = spawn.sync(
             `cross-env`,
@@ -30,9 +30,10 @@ export default async function build(cmd: any) {
                 `NODE_TARGET=${cmd.target}`,
                 `SUB_DIR_NAME=${cmd.subDir || 'wechatMp'}`,
                 `TSC_COMPILE_ON_ERROR=${TSC_COMPILE_ON_ERROR}`,
-                `COMPILE_ANALYZE=${cmd.analyze}`,
+                `COMPILE_ANALYZE=${!!cmd.analyze}`,
                 `GENERATE_SOURCEMAP=${!!cmd.sourcemap}`,
-                `ts-node`,
+                `PROD=${!!cmd.prod}`,
+                `node`,
                 require.resolve(
                     `../scripts/${
                         cmd.mode === 'production'
@@ -40,7 +41,7 @@ export default async function build(cmd: any) {
                             : 'start-mp.js'
                     }`
                 ),
-            ],
+            ].filter(Boolean),
             {
                 stdio: 'inherit',
                 shell: true,
@@ -59,9 +60,10 @@ export default async function build(cmd: any) {
                 `NODE_TARGET=${cmd.target}`,
                 `SUB_DIR_NAME=${cmd.subDir || 'web'}`,
                 `TSC_COMPILE_ON_ERROR=${TSC_COMPILE_ON_ERROR}`,
-                `COMPILE_ANALYZE=${cmd.analyze}`,
+                `COMPILE_ANALYZE=${!!cmd.analyze}`,
                 `GENERATE_SOURCEMAP=${!!cmd.sourcemap}`,
-                `ts-node`,
+                `PROD=${!!cmd.prod}`,
+                `node`,
                 require.resolve(
                     `../scripts/${
                         cmd.mode === 'production'
@@ -69,7 +71,7 @@ export default async function build(cmd: any) {
                             : 'start-web.js'
                     }`
                 ),
-            ],
+            ].filter(Boolean),
             {
                 stdio: 'inherit',
                 shell: true,
