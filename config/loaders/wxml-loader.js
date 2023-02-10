@@ -87,7 +87,7 @@ const oakMessage = 'oak-message';
 const oakDebugPanel = 'oak-debugPanel';
 const oakRegex = /(\/*[a-zA-Z0-9_-])*\/(lib|src)\/|(\\*[a-zA-Z0-9_-])*\\(lib|src)\\/;
 const oakPagesOrComponentsRegex =
-    /(\/*[a-zA-Z0-9_-])*\/(lib|src)\/(pages|components)\/|(\\*[a-zA-Z0-9_-])*\\(lib|src)\\(pages|components)\\/;
+    /(\/*[a-zA-Z0-9_-]|\/*[a-zA-Z0-9_-]:)*\/(lib|src)\/(pages|components)\/|(\\*[a-zA-Z0-9_-]|\\*[a-zA-Z0-9_-]:)*\\(lib|src)\\(pages|components)\\/;
 
 const TranslationFunction = 't';
 const I18nModuleName = 'i18n';
