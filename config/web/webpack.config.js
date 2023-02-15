@@ -379,6 +379,7 @@ module.exports = function (webpackEnv) {
                 path: false,
                 fs: false,
                 net: false,
+                tls: false,
             },
             // This allows you to set a fallback for where webpack should look for modules.
             // We placed these paths second because we want `node_modules` to "win"
@@ -411,6 +412,7 @@ module.exports = function (webpackEnv) {
                 '@oak-general-business': paths.oakGeneralBusinessAppPath,
                 '@oak-app-domain': paths.oakAppDomainAppPath,
                 'bn.js': require.resolve('bn.js'),
+                assert: require.resolve('browser-assert'),
             },
             plugins: [
                 // Prevents users from importing files from outside of src/ (or node_modules/).
