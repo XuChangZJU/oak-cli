@@ -412,6 +412,7 @@ module.exports = function (webpackEnv) {
                 '@oak-general-business': paths.oakGeneralBusinessAppPath,
                 '@oak-app-domain': paths.oakAppDomainAppPath,
                 'bn.js': require.resolve('bn.js'),
+                assert: require.resolve('browser-assert'),
             },
             plugins: [
                 // Prevents users from importing files from outside of src/ (or node_modules/).

@@ -122,15 +122,16 @@ module.exports = function (webpackEnv) {
             },
         },
         resolveLoader: {
-            // 第一种使用别名的方式引入自定义的loader
+            // 第一种方式选查找自己的loaders文件中有没有这个loader再查找node_modules文件
+            // modules: [path.resolve(__dirname, 'loaders'), 'node_modules'],
+            // 第二种使用别名的方式引入自定义的loader
             alias: {
                 'wxml-loader': path.resolve(
                     __dirname,
                     '../loaders/wxml-loader.js'
                 ),
+                assert: require.resolve('browser-assert'),
             },
-            // 第二种方式选查找自己的loaders文件中有没有这个loader再查找node_modules文件
-            // modules: [path.resolve(__dirname, 'loaders'), 'node_modules'],
         },
         cache: {
             type: 'filesystem',
@@ -295,6 +296,7 @@ module.exports = function (webpackEnv) {
                     name: 'oak-debugPanel',
                     show: !isEnvProduction,
                 },
+                split: isEnvProduction,
             }),
             new webpack.DefinePlugin(env.stringified),
             new StylelintPlugin({
