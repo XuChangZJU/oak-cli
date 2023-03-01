@@ -296,7 +296,9 @@ module.exports = function (webpackEnv) {
                     name: 'oak-debugPanel',
                     show: !isEnvProduction,
                 },
-                split: isEnvProduction,
+                split: isEnvProduction
+                    ? true
+                    : isEnvDevelopment && process.env.SPLIT === 'true',
             }),
             new webpack.DefinePlugin(env.stringified),
             new StylelintPlugin({
