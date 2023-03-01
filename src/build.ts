@@ -21,7 +21,7 @@ export default async function build(cmd: any) {
     //ts类型检查 waring 还是error,
     //主要web受影响，error级别的话 控制台和网页都报错，warning级别的话 控制台报错
     const TSC_COMPILE_ON_ERROR = cmd.check !== 'error';
-    Success(`${success(`build ${cmd.target} environment: ${cmd.mode} prod: ${!!cmd.prod}`)}`);
+    Success(`${success(`build ${cmd.target} environment:${cmd.mode} prod:${!!cmd.prod} split:${!!cmd.split}`)}`);
     if (cmd.target === 'mp' || cmd.target === 'wechatMp') {
         const result = spawn.sync(
             `cross-env`,
@@ -33,6 +33,7 @@ export default async function build(cmd: any) {
                 `COMPILE_ANALYZE=${!!cmd.analyze}`,
                 `GENERATE_SOURCEMAP=${!!cmd.sourcemap}`,
                 `PROD=${!!cmd.prod}`,
+                `SPLIT=${!!cmd.split}`,
                 `node`,
                 require.resolve(
                     `../scripts/${
