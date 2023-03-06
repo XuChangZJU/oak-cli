@@ -56,7 +56,7 @@ export async function startup<ED extends EntityDict & BaseEntityDict, Cxt extend
 
     router.post(connector.getRouter(), async (ctx) => {
         const { request } = ctx;
-        const data = Object.assign({}, request.body, request.files);
+        const data = request.files ? Object.assign({}, request.body, request.files) : request.body;     // 这里处理multiPart的文件，不是太好
         const { name, params, context } = await connector.parseRequest(request.headers, data, appLoader.getStore());
         await context.begin();
         let result: any;
