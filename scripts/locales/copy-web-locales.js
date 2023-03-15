@@ -18,8 +18,9 @@ function copyLocaleFiles() {
         const json = buildLocales({
             projectPaths: [
                 paths.appRootSrc,
-                paths.oakGeneralBusinessAppPath,
                 paths.appSrc,
+                paths.oakGeneralBusinessPath,
+                paths.oakFrontendBasePath,
             ],
             buildPath,
             nodeEnv: env.raw.NODE_ENV,

@@ -179,7 +179,7 @@ function getRouter({ projectOrPath, path, namespace, disableAssemble, isFirst })
     const relPath = filePath
         .replace(/\\/g, '/')
         .replace('@project', AppPaths.appRootSrc)
-        .replace('@oak-general-business', AppPaths.oakGeneralBusinessAppPath);
+        .replace('@oak-general-business', AppPaths.oakGeneralBusinessPath);
     const jsonFileExists = fs.existsSync(`${relPath}.json`);
     let meta = [];
     if (jsonFileExists) {

@@ -103,8 +103,9 @@ module.exports = function (webpackEnv) {
             alias: {
                 '@': paths.appSrc,
                 '@project': paths.appRootSrc,
-                '@oak-general-business': paths.oakGeneralBusinessAppPath,
-                '@oak-app-domain': paths.oakAppDomainAppPath,
+                '@oak-general-business': paths.oakGeneralBusinessPath,
+                '@oak-frontend-base': paths.oakFrontendBasePath,
+                '@oak-app-domain': paths.oakAppDomainPath,
                 'bn.js': require.resolve('bn.js'),
             },
             extensions: paths.moduleFileExtensions.map((ext) => `.${ext}`),
@@ -296,7 +297,9 @@ module.exports = function (webpackEnv) {
                     name: 'oak-debugPanel',
                     show: !isEnvProduction,
                 },
-                split: isEnvProduction,
+                split: isEnvProduction
+                    ? true
+                    : isEnvDevelopment && process.env.SPLIT === 'true',
             }),
             new webpack.DefinePlugin(env.stringified),
             new StylelintPlugin({

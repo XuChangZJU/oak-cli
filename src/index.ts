@@ -53,6 +53,7 @@ program
     .option('--sourceMap', 'sourceMap')
     .option('--analyze', 'analyze')
     .option('--prod', 'prod')
+    .option('--split', 'split')
     .option('--memoryLimit <memoryLimit>', 'memoryLimit of node')
     .option('-t, --target <target>', 'target')
     .option('-m, --mode <mode>', 'mode')
