@@ -48,7 +48,7 @@ module.exports = () => {
                                 if (!node2.elements) {
                                     continue;
                                 }
-                                const projectOrPath = node2.elements[0].value;
+                                const projectAlias = node2.elements[0].value;
                                 const path = node2.elements[1].value;
                                 const namespaceArr =
                                     node2.elements[2] &&
@@ -59,7 +59,7 @@ module.exports = () => {
                                 const isFirst =
                                     node2.elements[3] &&
                                     node2.elements[3].value;
-                                const disableAssemble =
+                                const routePath =
                                     node2.elements[4] &&
                                     node2.elements[4].value;
 
@@ -82,9 +82,9 @@ module.exports = () => {
                                             });
                                             const children = [
                                                 getRouter({
-                                                    projectOrPath,
+                                                    projectAlias,
                                                     path,
-                                                    disableAssemble,
+                                                    routePath,
                                                     namespace,
                                                     isFirst,
                                                 }),
@@ -98,9 +98,9 @@ module.exports = () => {
                                             allRouters.push(router);
                                         } else {
                                             const router = getRouter({
-                                                projectOrPath,
+                                                projectAlias,
                                                 path,
-                                                disableAssemble,
+                                                routePath,
                                                 namespace,
                                                 isFirst,
                                             });
@@ -136,9 +136,9 @@ module.exports = () => {
                                     }
                                 } else {
                                     const router = getRouter({
-                                        projectOrPath,
+                                        projectAlias,
                                         path,
-                                        disableAssemble,
+                                        routePath,
                                         isFirst,
                                     });
                                     allRouters.push(router);
@@ -170,12 +170,10 @@ module.exports = () => {
     };
 };
 
-function getRouter({ projectOrPath, path, namespace, disableAssemble, isFirst }) {
-    const filePath = disableAssemble
-        ? projectOrPath
-        : `${projectOrPath}/pages${
-              path.startsWith('/') ? path : `/${path}`
-          }/index`;
+function getRouter({ projectAlias, path, namespace, routePath, isFirst }) {
+    const filePath = `${projectAlias}/pages${
+        path.startsWith('/') ? path : `/${path}`
+    }/index`;
     const relPath = filePath
         .replace(/\\/g, '/')
         .replace('@project', AppPaths.appRootSrc)
@@ -200,11 +198,19 @@ function getRouter({ projectOrPath, path, namespace, disableAssemble, isFirst })
             )
         );
     }
-
-    const path2 =
-        namespace && path.startsWith('/')
-            ? path.substring(path.indexOf('/') + 1)
-            : path;
+    let path2;
+    if (routePath) {
+        path2 =
+            namespace && routePath.startsWith('/')
+                ? routePath.substring(routePath.indexOf('/') + 1)
+                : routePath;
+    }
+    else {
+        path2 =
+            namespace && path.startsWith('/')
+                ? path.substring(path.indexOf('/') + 1)
+                : path;
+    }
 
     const properties = [
         t.objectProperty(t.identifier('path'), t.stringLiteral(path2)),
@@ -234,6 +240,14 @@ function getRouter({ projectOrPath, path, namespace, disableAssemble, isFirst })
             t.objectProperty(
                 t.identifier('namespace'),
                 t.stringLiteral(namespace)
+            )
+        );
+    }
+    if (routePath) {
+        properties.push(
+            t.objectProperty(
+                t.identifier('customRouter'),
+                t.booleanLiteral(!!routePath)
             )
         );
     }
