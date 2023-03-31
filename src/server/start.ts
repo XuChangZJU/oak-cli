@@ -68,7 +68,7 @@ export async function startup<ED extends EntityDict & BaseEntityDict, Cxt extend
             await context.rollback();
             throw err;
         }
-        const { body, headers } = connector.serializeResult(result, context, request.headers, request.body);
+        const { body, headers } = await connector.serializeResult(result, context, request.headers, request.body);
         ctx.response.body = body;
         return;
     });
