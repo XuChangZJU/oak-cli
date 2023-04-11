@@ -1,7 +1,7 @@
 const fs = require('fs');
 const { relative, resolve } = require('path');
 const t = require('@babel/types');
-const { assert } = require('console');
+const assert = require('assert');
 
 module.exports = (babel) => {
     return {
