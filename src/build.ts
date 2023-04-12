@@ -46,7 +46,9 @@ export default async function build(cmd: any) {
                 `GENERATE_SOURCEMAP=${!!cmd.sourcemap}`,
                 `PROD=${!!cmd.prod}`,
                 `SPLIT=${!!cmd.split}`,
+                !!cmd.memoryLimit && `MEMORY_LIMIT=${cmd.memoryLimit}`,
                 `node`,
+                cmd.memoryLimit && `--max_old_space_size=${cmd.memoryLimit}`,
                 require.resolve(
                     `../scripts/${
                         cmd.mode === 'production'
@@ -76,7 +78,9 @@ export default async function build(cmd: any) {
                 `COMPILE_ANALYZE=${!!cmd.analyze}`,
                 `GENERATE_SOURCEMAP=${!!cmd.sourcemap}`,
                 `PROD=${!!cmd.prod}`,
+                !!cmd.memoryLimit && `MEMORY_LIMIT=${cmd.memoryLimit}`,
                 `node`,
+                cmd.memoryLimit && `--max_old_space_size=${cmd.memoryLimit}`,
                 require.resolve(
                     `../scripts/${
                         cmd.mode === 'production'
