@@ -33,6 +33,7 @@ const oakPathPlugin = require('../babel-plugin/oakPath');
 
 const shouldUseSourceMap = process.env.GENERATE_SOURCEMAP !== 'false';
 const shouldAnalyze = process.env.COMPILE_ANALYZE === 'true';
+const memoryLimit = process.env.MEMORY_LIMIT ? Number(process.env.MEMORY_LIMIT) : 4096;
 
 const copyPatterns = [].concat(pkg.copyWebpack || []).map((pattern) =>
     typeof pattern === 'string'
@@ -345,6 +346,7 @@ module.exports = function (webpackEnv) {
                         },
                         mode: 'write-references',
                         // profile: true,
+                        memoryLimit,
                     },
                     issue: {
                         // This one is specifically to match during CI tests,

@@ -1,7 +1,7 @@
 const fs = require('fs');
 const { relative, resolve } = require('path');
 const t = require('@babel/types');
-const { assert } = require('console');
+const assert = require('assert');
 
 module.exports = (babel) => {
     return {
@@ -9,27 +9,25 @@ module.exports = (babel) => {
             Program(path, state) {
                 const { cwd, filename } = state;
                 const rel = relative(cwd, filename).replace(/\\/g, '/');
-                const tsPage = (/oak-general-business\/lib/.test(rel) && /(pages|components)[\w|\W]+index\.(web.ts|ts)$/.test(rel)) ||
-                    (!/node_modules/.test(rel) && /(pages|components)[\w|\W]+index\.(web.ts|ts)$/.test(rel));
-                const jsPage = (/oak-general-business\/lib/.test(rel) && /(pages|components)[\w|\W]+index\.(web.js|js)$/.test(rel)) ||
-                    (!/node_modules/.test(rel) && /(pages|components)[\w|\W]+index\.(web.js|js)$/.test(rel));
+                const tsPage = /(pages|components)\/[\w|\W]+\/index\.ts$/.test(rel);
+                const jsPage = /(pages|components)\/[\w|\W]+\/index\.js$/.test(rel);
                 if (tsPage || jsPage) {
                     const tsxFile = filename.replace(
-                        /index\.(web.ts|ts|web.js|js)$/,
+                        /index\.(ts|js)$/,
                         tsPage ? 'web.tsx' : 'web.jsx'
                     );
                     const jsFile = filename.replace(
-                        /index\.(web.ts|ts|web.js|js)$/,
+                        /index\.(ts|js)$/,
                         'web.js'
                     );
                     const tsxFileExists = fs.existsSync(tsxFile);
                     const jsFileExists = fs.existsSync(jsFile);
                     const pcTsxFile = filename.replace(
-                        /index\.(web.ts|ts|web.js|js)$/,
+                        /index\.(ts|js)$/,
                         tsPage ? 'web.pc.tsx' : 'web.pc.jsx'
                     );
                     const pcJsFile = filename.replace(
-                        /index\.(web.ts|ts|web.js|js)$/,
+                        /index\.(ts|js)$/,
                         'web.pc.js'
                     );
                     const pcTsxFileExists = fs.existsSync(pcTsxFile);
@@ -99,20 +97,20 @@ module.exports = (babel) => {
                         ),
                     ];
                     const renderPcJsStatements = [
-                         t.variableDeclaration('const', [
-                             t.variableDeclarator(
-                                 t.identifier('render'),
-                                 t.memberExpression(
-                                     t.callExpression(t.identifier('require'), [
-                                         t.stringLiteral('./web.pc.js'),
-                                     ]),
-                                     t.identifier('default')
-                                 )
-                             ),
-                         ]),
-                         t.returnStatement(
+                        t.variableDeclaration('const', [
+                            t.variableDeclarator(
+                                t.identifier('render'),
+                                t.memberExpression(
+                                    t.callExpression(t.identifier('require'), [
+                                        t.stringLiteral('./web.pc.js'),
+                                    ]),
+                                    t.identifier('default')
+                                )
+                            ),
+                        ]),
+                        t.returnStatement(
                             t.identifier('render')
-                         ),
+                        ),
                     ];
                     const getStatements = () => {
                         const statements = [];
@@ -207,52 +205,64 @@ module.exports = (babel) => {
                     const node = path.node;
                     const body = node.body;
                     body.forEach((node2) => {
-                        // export default OakPage({})、export default  OakComponent({})
-                        if (
-                            node2 &&
-                            node2.declaration &&
-                            node2.declaration.callee &&
-                            node2.declaration.callee.name === 'OakComponent'
+                        // export default  OakComponent({})
+                        if (t.isExportDefaultDeclaration(node2)) {
+                            let node3 = node2.declaration;
+                            if (node3) {
+                                if (t.isTSAsExpression(node3)) {
+                                    // export default OakComponent({}) as ....
+                                    node3 = node3.expression;
+                                }
+                            }
+
+                            if (t.isCallExpression(node3) && node3.callee.name === 'OakComponent') {
+                                const statements = getStatements();
+                                node3.arguments.forEach((node4) => {
+                                    if (t.isObjectExpression(node4)) {
+                                        const propertyRender = t.objectProperty(
+                                            t.identifier('getRender'),
+                                            t.functionExpression(
+                                                null,
+                                                [],
+                                                t.blockStatement(statements)
+                                            )
+                                        );
+                                        node4.properties.unshift(propertyRender);
+                                    }
+                                    else {
+                                        assert(false, `[${filename}]OakComponent调用参数不是ObjectExpression`);
+                                    }
+                                });
+                            }
+                        }
+                        // exports.default = OakPage({})、exports.default =  OakComponent({})
+                        else if (
+                            t.isExpressionStatement(node2) &&
+                            t.isAssignmentExpression(node2.expression) &&
+                            t.isCallExpression(node2.expression.right) &&
+                            t.isIdentifier(node2.expression.right.callee) &&
+                            node2.expression.right.callee.name ===
+                                'OakComponent'
                         ) {
                             const statements = getStatements();
-                            node2.declaration.arguments.forEach((node3) => {
-                                if (t.isObjectExpression(node3)) {
-                                    const propertyRender = t.objectProperty(
-                                        t.identifier('getRender'),
-                                        t.functionExpression(
-                                            null,
-                                            [],
-                                            t.blockStatement(statements)
-                                        )
-                                    );
-                                    node3.properties.unshift(propertyRender);
+                            node2.expression.right.arguments.forEach(
+                                (node3) => {
+                                    if (t.isObjectExpression(node3)) {
+                                        const propertyRender = t.objectProperty(
+                                            t.identifier('getRender'),
+                                            t.functionExpression(
+                                                null,
+                                                [],
+                                                t.blockStatement(statements)
+                                            )
+                                        );
+                                        node3.properties.unshift(
+                                            propertyRender
+                                        );
+                                    }
                                 }
-                            });
+                            );
                         }
-
-                        // exports.default = OakPage({})、exports.default =  OakComponent({})
-                         if (
-                             node2 &&
-                             node2.expression &&
-                             node2.expression.right &&
-                             node2.expression.right.callee && node2.expression.right.callee.name === 'OakComponent'
-                         ) {
-                             const statements = getStatements();
-                             node2.expression.right.arguments.forEach((node3) => {
-                                 if (t.isObjectExpression(node3)) {
-                                     const propertyRender = t.objectProperty(
-                                         t.identifier('getRender'),
-                                         t.functionExpression(
-                                             null,
-                                             [],
-                                             t.blockStatement(statements)
-                                         )
-                                     );
-                                     node3.properties.unshift(propertyRender);
-                                 }
-                             });
-                         }
-                       
                     });
                 }
             },

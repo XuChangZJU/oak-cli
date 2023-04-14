@@ -40,6 +40,7 @@ const oakRpxToPxPlugin = require('../postcss-plugin/oakRpxToPx');
 
 // Source maps are resource heavy and can cause out of memory issue for large source files.
 const shouldUseSourceMap = process.env.GENERATE_SOURCEMAP !== 'false';
+const memoryLimit = process.env.MEMORY_LIMIT ? Number(process.env.MEMORY_LIMIT) : 4096;
 
 const reactRefreshRuntimeEntry = require.resolve('react-refresh/runtime');
 const reactRefreshWebpackPluginRuntimeEntry = require.resolve(
@@ -908,7 +909,7 @@ module.exports = function (webpackEnv) {
                         },
                         mode: 'write-references',
                         // profile: true,
-                        memoryLimit: 4096,
+                        memoryLimit,
                     },
                     issue: {
                         // This one is specifically to match during CI tests,
