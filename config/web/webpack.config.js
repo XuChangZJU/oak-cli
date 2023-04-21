@@ -523,6 +523,7 @@ module.exports = function (webpackEnv) {
                                 {
                                     loader: require.resolve('babel-loader'),
                                     options: {
+                                        sourceType: 'unambiguous',
                                         customize: require.resolve(
                                             'babel-preset-react-app/webpack-overrides'
                                         ),
