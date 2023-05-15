@@ -16,12 +16,20 @@ export async function startup<ED extends EntityDict & BaseEntityDict, Cxt extend
     connector: Connector<ED, Cxt, FrontCxt>,
     omitWatchers?: boolean,
     omitTimers?: boolean,
+    routine?: (context: Cxt) => Promise<void>,
 ) {
     const dbConfig = require(PathLib.join(path, '/configuration/mysql.json'));
     const appLoader = new AppLoader(path, contextBuilder, dbConfig);
     await appLoader.mount();
     await appLoader.execStartRoutines();
     const koa = new Koa();
+    if (routine) {
+        // 如果传入了routine，执行完成后就结束
+        await appLoader.execRoutine(routine);
+        return;
+    }
+
+    // 否则启动服务器模式
     koa.use(async (ctx, next) => {
         try {
             await next();
