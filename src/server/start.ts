@@ -81,6 +81,17 @@ export async function startup<ED extends EntityDict & BaseEntityDict, Cxt extend
         return;
     });
 
+    // 桥接访问外部资源的入口
+    router.get(connector.getBridgeRouter(), async (ctx) => {
+        const { request: { querystring }, response } = ctx;
+        const { url, headers } = connector.parseBridgeRequestQuery(querystring);
+
+        // headers待处理
+        const res = await fetch(url as string);
+        response.body = res.body;
+        return;
+    });
+
     // 注入所有的endpoints
     const endpoints = appLoader.getEndpoints();
     const endpointsArray: [string, string, string][] = [];
