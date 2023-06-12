@@ -4,7 +4,7 @@ const t = require('@babel/types');
 const { assert } = require('console');
 
 const Regex =
-    /(\/*[a-zA-Z0-9_-])*\/(lib|src)(\/*[a-zA-Z0-9_-])*\/(pages|components)+\/|(\\*[a-zA-Z0-9_-])*\\(lib|src)(\\*[a-zA-Z0-9_-])*\\(pages|components)+\\|[a-zA-Z]:(\/*[a-zA-Z0-9_-])*\/(lib|src)(\/*[a-zA-Z0-9_-])*\/(pages|components)+\/|[a-zA-Z]:(\\*[a-zA-Z0-9_-])*\\(lib|src)(\\*[a-zA-Z0-9_-])*\\(pages|components)+\\/;
+    /([\\/]*[a-zA-Z0-9_-\w\W]|[\\/]*[a-zA-Z0-9_-\w\W]:)*[\\/](lib|src)([\\/]*[a-zA-Z0-9_-])*[\\/](pages|components)+[\\/]/;
 
 module.exports = (babel) => {
     return {
@@ -43,11 +43,49 @@ module.exports = (babel) => {
                                      node2.value &&
                                      node2.value.indexOf(':') === -1
                                  ) {
+                                     // t('d')
                                      arguments.splice(
                                          index,
                                          1,
                                          t.stringLiteral(ns + ':' + node2.value)
                                      );
+                                 } else if (
+                                     index === 0 &&
+                                     t.isIdentifier(node2) &&
+                                     node2.name &&
+                                     node2.name.indexOf(':') === -1
+                                 ) {
+                                     // t(ele)
+                                     arguments.splice(
+                                         index,
+                                         1,
+                                         t.binaryExpression(
+                                             '+',
+                                             t.stringLiteral(ns + ':'),
+                                             t.identifier(node2.name)
+                                         )
+                                     );
+                                 } else if (
+                                     index === 0 &&
+                                     t.isMemberExpression(node2) &&
+                                     node2.object.name &&
+                                     node2.object.name.indexOf(':') === -1
+                                 ) {
+                                      // t(ele.label)
+                                      arguments.splice(
+                                          index,
+                                          1,
+                                          t.binaryExpression(
+                                              '+',
+                                              t.stringLiteral(ns + ':'),
+                                              t.memberExpression(
+                                                  t.identifier(
+                                                      node2.object.name
+                                                  ),
+                                                  t.identifier(node2.property.name)
+                                              )
+                                          )
+                                      );
                                  } else if (
                                      index === 0 &&
                                      t.isTemplateLiteral(node2) &&
@@ -60,6 +98,7 @@ module.exports = (babel) => {
                                              node3.value.raw.indexOf(':') !== -1
                                      )
                                  ) {
+                                     // t(`ele`)
                                      node2.quasis.splice(
                                          0,
                                          1,

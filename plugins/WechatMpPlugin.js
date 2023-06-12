@@ -179,7 +179,7 @@ class OakWeChatMpPlugin {
                 independentPageRoots.push(subPage.root);
             }
             for (const page of subPage.pages || []) {
-                pages.push(path.join(subPage.root, page));
+                pages.push(replaceDoubleSlash(path.join(subPage.root, page)));
             }
         }
 
