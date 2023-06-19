@@ -33,13 +33,14 @@ const createEnvironmentHash = require('./webpack/persistentCache/createEnvironme
 
 const oakPathTsxPlugin = require('../babel-plugin/oakPath');
 const oakRenderTsxPlugin = require('../babel-plugin/oakRender');
-const oakRouterPlugin = require('../babel-plugin/router');
+const oakRouterPlugin = require('../babel-plugin/oakRouter');
 const oakI18nPlugin = require('../babel-plugin/oakI18n');
 const oakStylePlugin = require('../babel-plugin/oakStyle');
 const oakRpxToPxPlugin = require('../postcss-plugin/oakRpxToPx');
 
 // Source maps are resource heavy and can cause out of memory issue for large source files.
 const shouldUseSourceMap = process.env.GENERATE_SOURCEMAP !== 'false';
+const memoryLimit = process.env.MEMORY_LIMIT ? Number(process.env.MEMORY_LIMIT) : 4096;
 
 const reactRefreshRuntimeEntry = require.resolve('react-refresh/runtime');
 const reactRefreshWebpackPluginRuntimeEntry = require.resolve(
@@ -522,6 +523,7 @@ module.exports = function (webpackEnv) {
                                 {
                                     loader: require.resolve('babel-loader'),
                                     options: {
+                                        sourceType: 'unambiguous',
                                         customize: require.resolve(
                                             'babel-preset-react-app/webpack-overrides'
                                         ),
@@ -908,7 +910,7 @@ module.exports = function (webpackEnv) {
                         },
                         mode: 'write-references',
                         // profile: true,
-                        memoryLimit: 4096,
+                        memoryLimit,
                     },
                     issue: {
                         // This one is specifically to match during CI tests,

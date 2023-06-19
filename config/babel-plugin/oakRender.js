@@ -9,8 +9,8 @@ module.exports = (babel) => {
             Program(path, state) {
                 const { cwd, filename } = state;
                 const rel = relative(cwd, filename).replace(/\\/g, '/');
-                const tsPage = /(pages|components)\/[\w|\W]+\/index\.ts$/.test(rel);
-                const jsPage = /(pages|components)\/[\w|\W]+\/index\.js$/.test(rel);
+                const tsPage = /(pages|components)[\\/][\w|\W]+[\\/]index\.ts$/.test(rel);
+                const jsPage = /(pages|components)[\\/][\w|\W]+[\\/]index\.js$/.test(rel);
                 if (tsPage || jsPage) {
                     const tsxFile = filename.replace(
                         /index\.(ts|js)$/,
@@ -236,24 +236,32 @@ module.exports = (babel) => {
                             }
                         }
                         // exports.default = OakPage({})、exports.default =  OakComponent({})
-                        else if (t.isExpressionStatement(node2) && t.isAssignmentExpression(node2.expression) &&
-                            t.isFunctionExpression(node2.expression.right) &&
-                            t.isIdentifier(node2.expression.right.callee) && node2.expression.right.callee.name === 'OakComponent'
+                        else if (
+                            t.isExpressionStatement(node2) &&
+                            t.isAssignmentExpression(node2.expression) &&
+                            t.isCallExpression(node2.expression.right) &&
+                            t.isIdentifier(node2.expression.right.callee) &&
+                            node2.expression.right.callee.name ===
+                                'OakComponent'
                         ) {
                             const statements = getStatements();
-                            node2.expression.right.arguments.forEach((node3) => {
-                                if (t.isObjectExpression(node3)) {
-                                    const propertyRender = t.objectProperty(
-                                        t.identifier('getRender'),
-                                        t.functionExpression(
-                                            null,
-                                            [],
-                                            t.blockStatement(statements)
-                                        )
-                                    );
-                                    node3.properties.unshift(propertyRender);
+                            node2.expression.right.arguments.forEach(
+                                (node3) => {
+                                    if (t.isObjectExpression(node3)) {
+                                        const propertyRender = t.objectProperty(
+                                            t.identifier('getRender'),
+                                            t.functionExpression(
+                                                null,
+                                                [],
+                                                t.blockStatement(statements)
+                                            )
+                                        );
+                                        node3.properties.unshift(
+                                            propertyRender
+                                        );
+                                    }
                                 }
-                            });
+                            );
                         }
                     });
                 }

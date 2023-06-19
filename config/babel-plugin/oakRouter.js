@@ -11,7 +11,9 @@ module.exports = () => {
                 const { cwd, filename } = state;
                 const rel = relative(cwd, filename).replace(/\\/g, '/');
                 if (
-                    /(\/*[a-zA-Z0-9_-])*\/src\/app(\/*[a-zA-Z0-9_-])*\/router\/index.ts$/.test(rel) &&
+                    /([\\/]*[a-zA-Z0-9_-])*[\\/]src[\\/]app([\\/]*[a-zA-Z0-9_-])*[\\/]router[\\/]index.ts$/.test(
+                        rel
+                    ) &&
                     rel.endsWith(`/router/index.ts`)
                 ) {
                     const { body } = path.node;
