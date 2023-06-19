@@ -409,7 +409,7 @@ module.exports = function (webpackEnv) {
                 }),
             ,
         ].filter(Boolean),
-        watch: true,
+        watch: isEnvDevelopment,
         watchOptions: {
             aggregateTimeout: 600,
             ignored: '**/node_modules',
