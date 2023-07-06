@@ -15,6 +15,7 @@ module.exports = (babel) => {
                 // this.props.t/this.t/t
                 // t('common:detail') 不需要处理 t('detail') 需要处理;
                 // t(`${common}:${cc}`) 不需要处理 t(`${common}cc`) 需要处理
+                // 只支持t的参数为字符串或模版字符串
                  if (
                      /(pages|components)[\w|\W]+(.tsx|.ts|.jsx|.js)$/.test(res)
                  ) {
@@ -51,43 +52,6 @@ module.exports = (babel) => {
                                      );
                                  } else if (
                                      index === 0 &&
-                                     t.isIdentifier(node2) &&
-                                     node2.name &&
-                                     node2.name.indexOf(':') === -1
-                                 ) {
-                                     // t(ele)
-                                     arguments.splice(
-                                         index,
-                                         1,
-                                         t.binaryExpression(
-                                             '+',
-                                             t.stringLiteral(ns + ':'),
-                                             t.identifier(node2.name)
-                                         )
-                                     );
-                                 } else if (
-                                     index === 0 &&
-                                     t.isMemberExpression(node2) &&
-                                     node2.object.name &&
-                                     node2.object.name.indexOf(':') === -1
-                                 ) {
-                                      // t(ele.label)
-                                      arguments.splice(
-                                          index,
-                                          1,
-                                          t.binaryExpression(
-                                              '+',
-                                              t.stringLiteral(ns + ':'),
-                                              t.memberExpression(
-                                                  t.identifier(
-                                                      node2.object.name
-                                                  ),
-                                                  t.identifier(node2.property.name)
-                                              )
-                                          )
-                                      );
-                                 } else if (
-                                     index === 0 &&
                                      t.isTemplateLiteral(node2) &&
                                      node2.quasis &&
                                      !node2.quasis.find(
@@ -114,6 +78,46 @@ module.exports = (babel) => {
                                          })
                                      );
                                  }
+                                //   else if (
+                                //      index === 0 &&
+                                //      t.isIdentifier(node2) &&
+                                //      node2.name &&
+                                //      node2.name.indexOf(':') === -1
+                                //  ) {
+                                //      // t(ele)
+                                //      arguments.splice(
+                                //          index,
+                                //          1,
+                                //          t.binaryExpression(
+                                //              '+',
+                                //              t.stringLiteral(ns + ':'),
+                                //              t.identifier(node2.name)
+                                //          )
+                                //      );
+                                //  } else if (
+                                //      index === 0 &&
+                                //      t.isMemberExpression(node2) &&
+                                //      node2.object.name &&
+                                //      node2.object.name.indexOf(':') === -1
+                                //  ) {
+                                //      // t(ele.label)
+                                //      arguments.splice(
+                                //          index,
+                                //          1,
+                                //          t.binaryExpression(
+                                //              '+',
+                                //              t.stringLiteral(ns + ':'),
+                                //              t.memberExpression(
+                                //                  t.identifier(
+                                //                      node2.object.name
+                                //                  ),
+                                //                  t.identifier(
+                                //                      node2.property.name
+                                //                  )
+                                //              )
+                                //          )
+                                //      );
+                                //  } 
                              });
                      }
                  }
