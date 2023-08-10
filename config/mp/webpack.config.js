@@ -415,5 +415,8 @@ module.exports = function (webpackEnv) {
             ignored: '**/node_modules',
             followSymlinks: true,
         },
+        performance: {
+            hints: false,
+        },
     };
 };
