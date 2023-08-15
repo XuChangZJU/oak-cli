@@ -9,7 +9,7 @@ import {
 } from './tip-style';
 import spawn from 'cross-spawn';
 
-export default async function make(watch?: boolean) {
+export default async function make(cmd: any, watch?: boolean) {
     Success(`${success(`make locales`)}`);
     // ts-node scripts/build-app-domain & npm link ./app-domain
     const args = [require.resolve('../scripts/' + 'make-locale.js')];

@@ -20,7 +20,7 @@ export default async function build(cmd: any) {
         return;
     }
     // 先makeLocale
-    makeLocale();
+    makeLocale('', true);
     //ts类型检查 waring 还是error,
     //主要web受影响，error级别的话 控制台和网页都报错，warning级别的话 控制台报错
     const TSC_COMPILE_ON_ERROR = cmd.check !== 'error';
