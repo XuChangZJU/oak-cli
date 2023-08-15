@@ -9,12 +9,16 @@ import {
 } from './tip-style';
 import spawn from 'cross-spawn';
 
-export default async function make() {
+export default async function make(watch?: boolean) {
     Success(`${success(`make locales`)}`);
     // ts-node scripts/build-app-domain & npm link ./app-domain
+    const args = [require.resolve('../scripts/' + 'make-locale.js')];
+    if (watch) {
+        args.push('true');
+    }
     const result = spawn.sync(
         'ts-node',
-        [require.resolve('../scripts/' + 'make-locale.js')],
+        args,
         {
             stdio: 'inherit',
             shell: true,

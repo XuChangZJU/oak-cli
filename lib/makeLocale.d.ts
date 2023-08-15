@@ -1,1 +1,1 @@
-export default function make(): Promise<void>;
+export default function make(watch?: boolean): Promise<void>;
