@@ -14,7 +14,10 @@ function parseFileModuleAndNs(cwd, filename) {
     const relativePath = relative(cwd, filename);
 
     if (relativePath.startsWith('node_modules') || relativePath.startsWith('..')) { // 在测试环境下是相对路径
-        const moduleRelativePath = relativePath.split('\\').slice(0, 2);
+        const moduleRelativePath = relativePath
+            .replace(/\\/g, '/')
+            .split('/')
+            .slice(0, 2);
         const modulePath = join(cwd, ...moduleRelativePath);
         const moduleDir = moduleRelativePath[1];
 
@@ -23,9 +26,10 @@ function parseFileModuleAndNs(cwd, filename) {
             const { name } = require(join(modulePath, 'package.json'));
             ModuleDict[moduleDir] = name;
             moduleName = name;
-            console.log(moduleDir, name);
         }
-        const rel2paths = relative(modulePath, filename).split('\\');
+        const rel2paths = relative(modulePath, filename)
+            .replace(/\\/g, '/')
+            .split('/');
 
         let ns;
         switch (rel2paths[1]) {
@@ -51,10 +55,11 @@ function parseFileModuleAndNs(cwd, filename) {
             const { name } = require(join(cwd, 'package.json'));
             ModuleDict['./'] = name;
             moduleName = name;
-            console.log('./', name);
         }
 
-        const rel2paths = relative(cwd, filename).split('\\');
+        const rel2paths = relative(cwd, filename)
+            .replace(/\\/g, '/')
+            .split('/');
 
         let ns;
         switch (rel2paths[1]) {
