@@ -97,6 +97,9 @@ function parseFileModuleAndNs(cwd, filename) {
     }
 }
 
+const oakNsPropName = '#oakNamespace';
+const oakModulePropName = '#oakModule';
+
 module.exports = (babel) => {
     return {
         visitor: {
@@ -104,9 +107,7 @@ module.exports = (babel) => {
                 const { cwd, filename } = state;
                 const res = resolve(cwd, filename).replace(/\\/g, '/');
                 // this.props.t/this.t/t
-                // t('common:detail') 不需要处理 t('detail') 需要处理;
-                // t(`${common}:${cc}`) 不需要处理 t(`${common}cc`) 需要处理
-                // 只支持t的参数为字符串或模版字符串
+                // 处理策略为给第二个参数中加上'#oakNameSpace, #oakModule两个参数，告知t模块此文件相应的位置，再加以处理寻找
                 if (
                     /(pages|components)[\w|\W]+(.tsx|.ts|.jsx|.js)$/.test(res)
                 ) {
@@ -122,7 +123,57 @@ module.exports = (babel) => {
                     ) {
                         const { moduleName, ns } = parseFileModuleAndNs(cwd, filename);
                         const arguments = node.arguments;
-                        const argu0 = arguments && arguments[0];
+                        const [arg0, arg1] = arguments;
+                        assert(arg0);
+
+                        if (arg1) {
+                            // 一般是对象，也可能是变量，表达式不予考虑
+                            if (t.isObjectExpression(arg1)) {
+                                const { properties } = arg1;
+                                const oakNsProp = properties.find(
+                                    ele => t.isStringLiteral(ele.key) && ele.key.value === oakNsPropName
+                                );
+                                if (!oakNsProp) {
+                                    properties.push(
+                                        t.objectProperty(t.stringLiteral(oakNsPropName), t.stringLiteral(ns)),
+                                        t.objectProperty(t.stringLiteral(oakModulePropName), t.stringLiteral(module))
+                                    );
+                                }
+                            }
+                            else if (t.isIdentifier(arg1)) {
+                                arguments.splice(1, 1, t.callExpression(
+                                    t.memberExpression(
+                                        t.identifier('Object'),
+                                        t.identifier('assign')
+                                    ),
+                                    [
+                                        arg1,
+                                        t.objectExpression(
+                                            [
+                                                t.objectProperty(t.stringLiteral(oakNsPropName), t.stringLiteral(ns)),
+                                                t.objectProperty(t.stringLiteral(oakModulePropName), t.stringLiteral(moduleName))                                                
+                                            ]
+                                        )
+                                    ]
+                                ));
+                            }
+                            else {
+                                // 不处理，这里似乎会反复调用，不知道为什么
+                            }
+                        }
+                        else {
+                            // 如果无参数就构造一个对象传入
+                            arguments.push(
+                                t.objectExpression(
+                                    [
+                                        t.objectProperty(t.stringLiteral(oakNsPropName), t.stringLiteral(ns)),
+                                        t.objectProperty(t.stringLiteral(oakModulePropName), t.stringLiteral(moduleName))                                                
+                                    ]
+                                )
+                            )                            
+                        }
+                        
+                        /* const argu0 = arguments && arguments[0];
                         if (t.isStringLiteral(argu0)) {
                             const { value } = argu0;
                             if (!value.includes(':')) {
@@ -197,7 +248,7 @@ module.exports = (babel) => {
                         }
                         else {
                             assert(false, 't函数调用的第一个参数只能是字符串、模板或表达式');
-                        }
+                        } */
                     }
                 }
             },
