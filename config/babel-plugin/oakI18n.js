@@ -104,7 +104,7 @@ module.exports = (babel) => {
     return {
         visitor: {
             CallExpression(path, state) {
-                const { cwd, filename } = state;
+                const { cwd, filename  } = state;
                 const res = resolve(cwd, filename).replace(/\\/g, '/');
                 // this.props.t/this.t/t
                 // 处理策略为给第二个参数中加上'#oakNameSpace, #oakModule两个参数，告知t模块此文件相应的位置，再加以处理寻找

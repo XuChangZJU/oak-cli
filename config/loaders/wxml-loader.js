@@ -3,9 +3,10 @@
  * @param {*} content 文件信息
  */
 const { DOMParser, XMLSerializer } = require('@xmldom/xmldom');
-const { resolve, relative } = require('path');
+const { resolve, relative, join } = require('path');
 const { isUrlRequest, urlToRequest } = require('loader-utils');
 const fs = require('fs');
+const assert = require('assert');
 const path = require('path');
 
 const BOOLEAN_ATTRS = [
@@ -96,7 +97,7 @@ const LOCALE_CHANGE_HANDLER_NAME = '$_localeChange';
 const CURRENT_LOCALE_DATA = '$_translations';
 
 const DEFAULT_WXS_FILENAME = 'locales.wxs';
-const WXS_PATH = 'i18n' + '/' +DEFAULT_WXS_FILENAME;
+const WXS_PATH = 'i18n' + '/' + DEFAULT_WXS_FILENAME;
 
 function existsT(str) {
     if (!str) return false;
@@ -136,9 +137,91 @@ function getAppJson(context) {
     return JSON.parse(data);
 }
 
+//////////
+const { parseSync, transformFromAstSync } = require('@babel/core');
+const t = require('@babel/types');
+const traverseAst = require('@babel/traverse').default;
+/**
+ * 判断代码段中是否有t()
+ * @param {*} text 
+ * @returns 
+ */
+function codeChunkIncludesT(text) {
+    return /{{(\w|\W)*\W*t\((\w|\W)+\)(\w|\W)*}}/g.test(text)
+}
+
+/**
+ * 改写代码段中的t()部分
+ * @param {*} text 
+ * @param {*} namespace 
+ * @param {*} moduleName 
+ * @returns 
+ */
+function transformCode(text, namespace, moduleName) {
+    const t2 = text.replace(/{{((\w|\W)*)}}/g, '$1');
+    const ast = parseSync(t2);
+    traverseAst(ast, {
+        enter(path) {
+            if (path.isCallExpression()) {
+                const { node } = path;
+                if (t.isIdentifier(node.callee) && node.callee.name === 't') {
+                    const { arguments } = node;
+                    // 在t的后面加五个参数（oakLocales, oakLng, oakDefaultLng, oakNamespace, oakModule）
+                    arguments.push(
+                        t.identifier('oakLocales'),
+                        t.identifier('oakLng'),
+                        t.identifier('oakDefaultLng'),
+                        t.stringLiteral(namespace),
+                        t.stringLiteral(moduleName)
+                    );
+                    node.callee = t.memberExpression(
+                        t.identifier('i18n'),
+                        t.identifier('t')
+                    );
+                }
+            }
+        },
+    });
+    const { code } = transformFromAstSync(ast);
+    assert(code.endsWith(';'));
+    return `{{${code.substring(0, code.length - 1)}}}`;
+}
+//////////
+
+const ModuleNameDict = {};
+// 根据当前处理的文件路径推导出wxs目录相对应的路径
+function parseXmlFile(appRootPath, appRootSrcPath, appSrcPath, filePath) {
+    // 目前所有的pages/components应当都位于appRootSrcPath下
+    const isSelf = filePath.startsWith(appRootSrcPath);
+    const filePath2 = filePath.replace(/\\/g, '/');
+
+    const fileProjectPath = filePath2.replace(/((\w|\W)*)(\/src|\/lib)(\/pages\/|\/components\/)((\w|\W)*)/g, '$1');
+    let moduleName = ModuleNameDict[fileProjectPath];
+    if (!moduleName) {
+        const { name } = require(join(fileProjectPath, 'package.json'));
+        moduleName = ModuleNameDict[fileProjectPath] = name;
+    }
+
+    const relativePath = filePath2.replace(/(\w|\W)*(\/pages\/|\/components\/)((\w|\W)*)/g, '$3');
+    assert(relativePath);
+    const ns = `${moduleName}-${filePath.includes('pages') ? 'p' : 'c'}-${relativePath.replace(/\//g, '-')}`;
+
+    let level = relativePath.split('/').length + 1;       // 加上pages的深度，未来根据isSelf还要进一步处理
+    let wxsRelativePath = '';
+    while (level-- > 0) {
+        wxsRelativePath += '../';
+    }
+    wxsRelativePath += 'wxs';
+    return {
+        wxsRelativePath,
+        ns,
+        moduleName,
+    };
+}
+
 module.exports = async function (content) {
     const options = this.getOptions() || {}; //获取配置参数
-    const { context: projectContext, cacheDirectory = true } = options; // context 本项目路径
+    const { appSrcPath, appRootPath, appRootSrcPath, cacheDirectory = true } = options; // context 本项目路径
     // loader的缓存功能
     this.cacheable && this.cacheable(cacheDirectory);
     const callback = this.async();
@@ -151,29 +234,38 @@ module.exports = async function (content) {
     } = this;
     const { output, mode } = _compiler.options;
     const { path: outputPath } = output;
-    const { context, target } = webpackLegacyOptions || this;
+    const { context: filePath, target } = webpackLegacyOptions || this;
     const issuer = _compilation.moduleGraph.getIssuer(this._module);
-    const issuerContext = (issuer && issuer.context) || context;
-    const root = resolve(context, issuerContext);
+    const issuerContext = (issuer && issuer.context) || filePath;
+    const root = resolve(filePath, issuerContext);
     let source = content;
-    let wxsRelativePath; // locales.wxs相对路径
+
+    const {
+        wxsRelativePath,
+        ns,
+        moduleName,
+    } = parseXmlFile(appRootPath, appRootSrcPath, appSrcPath, filePath);
+    const i18nWxsFile = `${wxsRelativePath}/${I18nModuleName}.wxs`;
+
+    // 无条件注入i18n.wxs
+    source = `<wxs src='${i18nWxsFile}' module='${I18nModuleName}'></wxs>` + source;
     //判断是否存在i18n的t函数
-    if (existsT(source)) {
+    /* if (existsT(source)) {
         //判断加载的xml是否为本项目自身的文件
-        const isSelf = context.indexOf(projectContext) !== -1;
+        const isSelf = filePath.indexOf(appSrcPath) !== -1;
         if (isSelf) {
             //本项目xml
             wxsRelativePath = relative(
-                context,
-                projectContext + '/' + WXS_PATH
+                filePath,
+                appSrcPath + '/' + WXS_PATH
             ).replace(/\\/g, '/');
         } else {
             //第三方项目的xml
-            if (oakRegex.test(context)) {
-                const p = context.replace(oakRegex, '');
+            if (oakRegex.test(filePath)) {
+                const p = filePath.replace(oakRegex, '');
                 wxsRelativePath = relative(
-                    projectContext + '/' + p,
-                    projectContext + '/' + WXS_PATH
+                    appSrcPath + '/' + p,
+                    appSrcPath + '/' + WXS_PATH
                 ).replace(/\\/g, '/');
             }
         }
@@ -183,10 +275,10 @@ module.exports = async function (content) {
                 `<wxs src='${wxsRelativePath}' module='${I18nModuleName}'></wxs>` +
                 source;
         }
-    }
+    } */
     // 注入全局message组件
-    if (/pages/.test(context)) {
-        const appJson = getAppJson(projectContext);
+    if (/pages/.test(filePath)) {
+        const appJson = getAppJson(appSrcPath);
         if (
             appJson &&
             appJson.usingComponents &&
@@ -220,8 +312,8 @@ module.exports = async function (content) {
     const requests = [];
     traverse(doc, (node) => {
         if (node.nodeType === node.ATTRIBUTE_NODE) {
-            if (existsT(node.value)) {
-                const newVal = formatI18nT(node.value, resourcePath);
+            if (codeChunkIncludesT(node.value)) {
+                const newVal = transformCode(node.value, ns, moduleName);
                 node.value = newVal;
             }
         }
@@ -234,13 +326,13 @@ module.exports = async function (content) {
                     !isDynamicSrc(value) &&
                     isUrlRequest(value, root)
                 ) {
-                    if (wxsRelativePath === value) {
+                    if (i18nWxsFile === value) {
                         // dist目录下生成一个i18n/locales.wxs文件
-                        const path = resolve(outputPath, WXS_PATH);
+                        /* const path = resolve(outputPath, WXS_PATH);
                         if (!fs.existsSync(replaceDoubleSlash(path))) {
                             const wxsContent = `${getWxsCode()}`;
                             this.emitFile(WXS_PATH, wxsContent);
-                        }
+                        } */
                     } else {
                         const path = resolve(root, value);
                         // const request = urlToRequest(value, root);
@@ -250,8 +342,8 @@ module.exports = async function (content) {
             }
         }
         if (node.nodeType === node.TEXT_NODE) {
-            if (existsT(node.nodeValue)) {
-                const newVal = formatI18nT(node.nodeValue, resourcePath);
+            if (codeChunkIncludesT(node.nodeValue)) {
+                const newVal = transformCode(node.nodeValue, ns, moduleName);
                 node.deleteData(0, node.nodeValue.length);
                 node.insertData(0, newVal);
             }
@@ -283,47 +375,3 @@ module.exports = async function (content) {
         callback(err, content);
     }
 };
-
-
-function formatI18nT(value, resourcePath) {
-    // 处理i18n 把t()转成i18n.t()
-    const p = replaceDoubleSlash(resourcePath).replace(
-        oakPagesOrComponentsRegex,
-        ''
-    );
-    const eP = p.substring(0, p.lastIndexOf('/'));
-    const ns = eP
-        .split('/')
-        .filter((ele) => !!ele)
-        .join('-');
-    const val = replaceT(value); // {{i18n.t()}}
-    const valArr = val.split('}}');
-    let newVal = '';
-    valArr.forEach((ele, index) => {
-        if (existsT(ele)) {
-            const head = ele.substring(0, ele.indexOf('i18n.t(') + 7);
-            let argsStr = ele.substring(ele.indexOf('i18n.t(') + 7);
-            argsStr = argsStr.substring(0, argsStr.indexOf(')'));
-            const end = ele.substring(ele.indexOf(')'));
-            const arguments = argsStr.split(',').filter((ele2) => !!ele2);
-            arguments &&
-                arguments.forEach((nodeVal, index) => {
-                    if (index === 0 && nodeVal.indexOf(':') === -1) {
-                        arguments.splice(index, 1, `'${ns}:' + ` + nodeVal);
-                    }
-                });
-            newVal +=
-                head +
-                arguments.join(',') +
-                `,${CURRENT_LOCALE_KEY},${CURRENT_LOCALE_DATA} || ''` +
-                end +
-                '}}';
-        } else if (ele && ele.indexOf('{{') !== -1) {
-            newVal += ele + '}}';
-        } else {
-            newVal += ele;
-        }
-    });
-
-    return newVal;
-}
