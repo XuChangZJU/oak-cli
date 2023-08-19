@@ -131,7 +131,7 @@ function transformCode(text, namespace, moduleName) {
         if (codeChunkIncludesT(codeChunk)) {
             const codeContent = codeChunk.replace(codeChunkRegex, "$1");
             const ast = parseSync(codeContent);
-            traverse(ast, {
+            traverseAst(ast, {
                 enter(path) {
                     if (path.isCallExpression()) {
                         const { node } = path;
