@@ -5,7 +5,7 @@ const {
     registerIgnoredForeignKeyMap,
     registerIgnoredRelationPathMap,
     registerDeducedRelationMap,
-    registerEntities,
+    registerFreeEntities,
 } = require(`${process.cwd()}/node_modules/oak-domain/lib/compiler/schemalBuilder`);
 
 analyzeEntities(`${process.cwd()}/node_modules/oak-domain/src/entities`, 'oak-domain/lib/entities');
@@ -23,7 +23,7 @@ if (existsSync(`${process.cwd()}/src/config/relation.ts`)) {
         registerDeducedRelationMap(DeducedRelationMap);
     }
     if (SelectFreeEntities) {
-        registerEntities(SelectFreeEntities, CreateFreeEntities, UpdateFreeEntities);
+        registerFreeEntities(SelectFreeEntities, CreateFreeEntities, UpdateFreeEntities);
     }
 }
 buildSchema(`${process.cwd()}/src/oak-app-domain`);
