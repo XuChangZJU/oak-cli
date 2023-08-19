@@ -5,14 +5,14 @@ const {
     registerIgnoredForeignKeyMap,
     registerIgnoredRelationPathMap,
     registerDeducedRelationMap,
-    registerSelectFreeEntities,
+    registerEntities,
 } = require(`${process.cwd()}/node_modules/oak-domain/lib/compiler/schemalBuilder`);
 
 analyzeEntities(`${process.cwd()}/node_modules/oak-domain/src/entities`, 'oak-domain/lib/entities');
 analyzeEntities(`${process.cwd()}/node_modules/oak-general-business/src/entities`, 'oak-general-business/lib/entities');
 analyzeEntities(`${process.cwd()}/src/entities`);
 if (existsSync(`${process.cwd()}/src/config/relation.ts`)) {
-    const { IgnoredForeignKeyMap, IgnoredRelationPathMap, DeducedRelationMap, SelectFreeEntities } = require(`${process.cwd()}/src/config/relation.ts`);
+    const { IgnoredForeignKeyMap, IgnoredRelationPathMap, DeducedRelationMap, SelectFreeEntities, CreateFreeEntities, UpdateFreeEntities } = require(`${process.cwd()}/src/config/relation.ts`);
     if (IgnoredForeignKeyMap) {
         registerIgnoredForeignKeyMap(IgnoredForeignKeyMap);
     }
@@ -23,7 +23,7 @@ if (existsSync(`${process.cwd()}/src/config/relation.ts`)) {
         registerDeducedRelationMap(DeducedRelationMap);
     }
     if (SelectFreeEntities) {
-        registerSelectFreeEntities(SelectFreeEntities);
+        registerEntities(SelectFreeEntities, CreateFreeEntities, UpdateFreeEntities);
     }
 }
 buildSchema(`${process.cwd()}/src/oak-app-domain`);
