@@ -9,7 +9,7 @@ function codeChunkIncludesT(text) {
 }
 
 function transformCode(text, namespace, moduleName) {
-    const codeChunkRegex = /{{((\w|\W)*)}}/g;
+    const codeChunkRegex = /(?:\{\{|%\{)(.*?)(?:\}\}?)/gm;
     const matches = text.match(codeChunkRegex);
     if (!matches) {
         return text;
@@ -89,5 +89,5 @@ function getProjectPath(filepath) {
 }
 
 
-console.log(transformCode('{{abc + t("abd")}}', 'ns', 'module'));
+console.log(transformCode("只显示{{t('house')}}和{{t('house')}}", 'ns', 'module'));
 // console.log(getProjectPath('D:\\git\\taicang\\src\\pages\\home\\index.xml'));

@@ -119,7 +119,7 @@ function codeChunkIncludesT(text) {
  * @returns 
  */
 function transformCode(text, namespace, moduleName) {    
-    const codeChunkRegex = /{{((\w|\W)*)}}/g;
+    const codeChunkRegex = /(?:\{\{|%\{)(.*?)(?:\}\}?)/gm;
     const matches = text.match(codeChunkRegex);
     if (!matches) {
         return text;
