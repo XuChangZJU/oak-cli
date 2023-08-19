@@ -86,47 +86,8 @@ const isSrc = (name) => name === 'src';
 const isDynamicSrc = (src) => /\{\{/.test(src);
 const oakMessage = 'oak-message';
 const oakDebugPanel = 'oak-debugPanel';
-const oakRegex = /([\\/]*[a-zA-Z0-9_-\w\W])*[\\/](lib|src)[\\/]/;
-const oakPagesOrComponentsRegex =
-    /([\\/]*[a-zA-Z0-9_-\w\W]|[\\/]*[a-zA-Z0-9_-\w\W]:)*[\\/](lib|src)[\\/](pages|components)[\\/]/;
-
-const TranslationFunction = 't';
 const I18nModuleName = 'i18n';
-const CURRENT_LOCALE_KEY = '$_locale';
-const LOCALE_CHANGE_HANDLER_NAME = '$_localeChange';
-const CURRENT_LOCALE_DATA = '$_translations';
 
-const DEFAULT_WXS_FILENAME = 'locales.wxs';
-const WXS_PATH = 'i18n' + '/' + DEFAULT_WXS_FILENAME;
-
-function existsT(str) {
-    if (!str) return false;
-    return (
-        str.indexOf('t(') !== -1 &&
-        !/^[A-Za-z0-9]*$/.test(
-            str.substring(str.indexOf('t(') - 1, str.indexOf('t('))
-        )
-    );
-}
-
-function replaceDoubleSlash(str) {
-    return str.replace(/\\/g, '/');
-}
-
-function replaceT(str) {
-    return str.replace(/t\(/g, 'i18n.t(');
-}
-
-function getWxsCode() {
-    const BASE_PATH = path.dirname(
-        require.resolve(
-            `${process.cwd()}/node_modules/oak-frontend-base/lib/platforms/wechatMp/i18n/wxs/wxs.js`
-        )
-    );
-    const code = fs.readFileSync(path.join(BASE_PATH, '/wxs.js'), 'utf-8');
-    const runner = `module.exports = { \nt: Interpreter.getMessageInterpreter() \n}`;
-    return [code, runner].join('\n');
-}
 
 function getAppJson(context) {
     const JSON_PATH = require.resolve(`${context}/app.json`);
@@ -158,8 +119,17 @@ function codeChunkIncludesT(text) {
  * @returns 
  */
 function transformCode(text, namespace, moduleName) {
-    const t2 = text.replace(/{{((\w|\W)*)}}/g, '$1');
-    const ast = parseSync(t2);
+    const matches = text.match(/{{((\w|\W)*)}}/g);
+    if (!matches) {
+        return text;
+    }
+
+    while(matches.length) {
+        const placeholder = matches.shift();
+        
+    }
+
+    const ast = parseSync(match);
     traverseAst(ast, {
         enter(path) {
             if (path.isCallExpression()) {
@@ -248,7 +218,7 @@ module.exports = async function (content) {
     const i18nWxsFile = `${wxsRelativePath}/${I18nModuleName}.wxs`;
 
     // 无条件注入i18n.wxs
-    source = `<wxs src='${i18nWxsFile}' module='${I18nModuleName}'></wxs>` + source;
+    source = `<wxs src='${i18nWxsFile}' module='${I18nModuleName}'></wxs>\n<view change:prop="{{${I18nModuleName}.propObserver}}" prop="{{oakLocales}}" />\n` + source;
     //判断是否存在i18n的t函数
     /* if (existsT(source)) {
         //判断加载的xml是否为本项目自身的文件

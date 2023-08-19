@@ -751,6 +751,10 @@ class OakWeChatMpPlugin {
                             t.objectProperty(
                                 t.identifier('t'),
                                 t.identifier('t')
+                            ),
+                            t.objectProperty(
+                                t.identifier('propObserver'),
+                                t.identifier('propObserver')
                             )
                         ]
                     )
