@@ -601,6 +601,26 @@ class OakWeChatMpPlugin {
                 }
                 json.usingComponents = usingComponents;
             }
+
+            // 将locales中的pageTitle复制到小程序中的navigationBarTitleText
+            const parsed = path.parse(assets);
+            if (parsed.name === 'index') {
+                const localeZhCnFile1 = path.join(parsed.dir, 'locales', 'zh-CN.json');
+                const localeZhCnFile2 = path.join(parsed.dir, 'locales', 'zh_CN.json');
+                if (fsExtra.existsSync(localeZhCnFile1)) {
+                    const locales = require(localeZhCnFile1);
+                    if (locales.pageTitle) {
+                        json.navigationBarTitleText = locales.pageTitle;
+                    }
+                }
+                else if (fsExtra.existsSync(localeZhCnFile2)) {
+                    const locales = require(localeZhCnFile2);
+                    if (locales.pageTitle) {
+                        json.navigationBarTitleText = locales.pageTitle;
+                    }
+                }
+            }
+
             source = Buffer.from(JSON.stringify(json, null, 2));
             size = source.length;
         }
