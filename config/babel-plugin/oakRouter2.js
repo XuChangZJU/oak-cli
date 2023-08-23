@@ -76,8 +76,21 @@ module.exports = () => {
                                 const stat = fs.statSync(filepath);
                                 let added = false;
                                 if (stat.isFile() && ['index.tsx', 'web.tsx', 'web.pc.tsx'].includes(file)) {
-                                    pages.push(relativePath.replace(/\\/g, '/'));
-                                    added = true;
+                                    if (!added) {
+                                        const indexJsonFile = join(dir, 'index.json');
+                                        let oakDisablePulldownRefresh = false;
+                                        if (fs.existsSync(indexJsonFile)) {
+                                            const {
+                                                enablePullDownRefresh = true,
+                                            } = require(indexJsonFile);
+                                            oakDisablePulldownRefresh = !enablePullDownRefresh;
+                                        }
+                                        pages.push({
+                                            path: relativePath.replace(/\\/g, '/'),
+                                            oakDisablePulldownRefresh,
+                                        });
+                                        added = true;
+                                    }
                                 }
                                 else if (stat.isDirectory()) {
                                     const dir2 = join(dir, file);
@@ -105,15 +118,27 @@ module.exports = () => {
                             const children = t.arrayExpression(
                                 pages.map(
                                     (page) => {
+                                        const { path: pagePath, oakDisablePulldownRefresh } = page;
                                         return t.objectExpression(
                                             [
                                                 t.objectProperty(
                                                     t.identifier('path'),
-                                                    t.stringLiteral(page)
+                                                    t.stringLiteral(pagePath)
                                                 ),
                                                 t.objectProperty(
                                                     t.identifier('namespace'),
                                                     t.stringLiteral(path),
+                                                ),
+                                                t.objectProperty(
+                                                    t.identifier('meta'), 
+                                                    t.objectExpression(
+                                                        [
+                                                            t.objectProperty(
+                                                                t.identifier('oakDisablePulldownRefresh'),
+                                                                t.booleanLiteral(oakDisablePulldownRefresh)
+                                                            ),
+                                                        ]
+                                                    )
                                                 ),
                                                 t.objectProperty(
                                                     t.identifier('Component'),
@@ -123,7 +148,7 @@ module.exports = () => {
                                                             t.arrowFunctionExpression(
                                                                 [],
                                                                 t.callExpression(t.import(), [
-                                                                    t.stringLiteral(join('@project', 'pages', page, 'index').replace(/\\/g, '/'))
+                                                                    t.stringLiteral(join('@project', 'pages', pagePath, 'index').replace(/\\/g, '/'))
                                                                 ])
                                                             ),
                                                         ]
@@ -131,7 +156,7 @@ module.exports = () => {
                                                 ),
                                                 t.objectProperty(
                                                     t.identifier('isFirst'),
-                                                    t.booleanLiteral(first === page)
+                                                    t.booleanLiteral(first === pagePath)
                                                 )
                                             ]
                                         )
@@ -208,9 +233,9 @@ module.exports = () => {
                         )
                     );
 
-                    const { code } = transformFromAstSync(path.container);
+                   /*  const { code } = transformFromAstSync(path.container);
 
-                    console.log(code);
+                    console.log(code); */
                 }
             },
         },
