@@ -1,11 +1,12 @@
 {
     "name": "@xuchangzju/oak-cli",
-    "version": "2.3.8",
+    "version": "3.0.2",
     "description": "oak-cli脚手架",
     "main": "lib/index.js",
     "scripts": {
         "build": "tsc",
-        "dev": "tsc --watch"
+        "dev": "tsc --watch",
+        "test": "node test.js"
     },
     "bin": {
         "oak-cli": "lib/index.js"

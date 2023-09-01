@@ -11,6 +11,12 @@ const EntryPlugin = require('webpack/lib/EntryPlugin');
 const ensurePosix = require('ensure-posix-path');
 const requiredPath = require('required-path');
 
+const { parseSync, transformFromAstSync } = require('@babel/core');
+const t = require('@babel/types');
+const { readFileSync, writeFileSync, existsSync, mkdirSync } = require('fs');
+const assert = require('assert');
+const traverseAst = require('@babel/traverse').default;
+
 const pluginName = 'OakWeChatMpPlugin';
 
 function replaceDoubleSlash(str) {
@@ -71,6 +77,17 @@ class OakWeChatMpPlugin {
             catchError(async (compilation) => {
                 // 输出outpath前
             })
+        );
+
+        compiler.hooks.afterEmit.tap(
+            pluginName,
+            (compilation) => {
+                const { options, outputOptions } = compilation;
+                const { context: projectPath } = options;
+                const { path: outputPath } = outputOptions;
+
+                this.makeI18nWxs(projectPath, outputPath);
+            }
         );
     }
 
@@ -278,7 +295,7 @@ class OakWeChatMpPlugin {
                     }
                 }
             }
-        } catch (error) {}
+        } catch (error) { }
     }
 
     // add script entry
@@ -584,6 +601,26 @@ class OakWeChatMpPlugin {
                 }
                 json.usingComponents = usingComponents;
             }
+
+            // 将locales中的pageTitle复制到小程序中的navigationBarTitleText
+            const parsed = path.parse(assets);
+            if (parsed.name === 'index') {
+                const localeZhCnFile1 = path.join(parsed.dir, 'locales', 'zh-CN.json');
+                const localeZhCnFile2 = path.join(parsed.dir, 'locales', 'zh_CN.json');
+                if (fsExtra.existsSync(localeZhCnFile1)) {
+                    const locales = require(localeZhCnFile1);
+                    if (locales.pageTitle) {
+                        json.navigationBarTitleText = locales.pageTitle;
+                    }
+                }
+                else if (fsExtra.existsSync(localeZhCnFile2)) {
+                    const locales = require(localeZhCnFile2);
+                    if (locales.pageTitle) {
+                        json.navigationBarTitleText = locales.pageTitle;
+                    }
+                }
+            }
+
             source = Buffer.from(JSON.stringify(json, null, 2));
             size = source.length;
         }
@@ -674,6 +711,85 @@ class OakWeChatMpPlugin {
                 .map((ext) => `**/*${ext}`),
             ...exclude,
         ];
+    }
+
+    makeI18nWxs(projectPath, outputPath) {
+        const i18nWxsFilename = path.join(projectPath, 'node_modules', 'oak-frontend-base', 'lib', 'platforms', 'wechatMp', 'i18n', 'wxs.js');
+        const content = readFileSync(i18nWxsFilename, { encoding: 'utf-8' });
+        const ast = parseSync(content);
+        const { program: { body } } = ast;
+
+        traverseAst(ast, {
+            enter(path) {
+                if (path.isRegExpLiteral()) {
+                    const { node } = path;
+                    path.replaceWith(
+                        t.callExpression(
+                            t.identifier('getRegExp'),
+                            [
+                                t.stringLiteral(node.pattern),
+                                t.stringLiteral(node.flags)
+                            ]
+                        )
+                    );
+                }
+                else if (path.isNewExpression()) {
+                    const { node } = path;
+                    if (t.isIdentifier(node.callee) && node.callee.name === 'RegExp') {
+                        const { arguments: args } = node;
+                        path.replaceWith(
+                            t.callExpression(
+                                t.identifier('getRegExp'),
+                                args
+                            )
+                        );
+                    }
+                }
+            },
+        });
+
+        /**
+         * 去掉编译中不必要的expression
+         */
+        ast.program.body = ast.program.body.filter(
+            ele => !t.isExpressionStatement(ele)
+        );
+
+        /**
+         * 加上module.exports = { t: t };
+         */
+        ast.program.body.push(
+            t.expressionStatement(
+                t.assignmentExpression(
+                    '=',
+                    t.memberExpression(
+                        t.identifier('module'),
+                        t.identifier('exports')
+                    ),
+                    t.objectExpression(
+                        [
+                            t.objectProperty(
+                                t.identifier('t'),
+                                t.identifier('t')
+                            ),
+                            t.objectProperty(
+                                t.identifier('propObserver'),
+                                t.identifier('propObserver')
+                            )
+                        ]
+                    )
+                )
+            )
+        );
+
+        const { code } = transformFromAstSync(ast);
+        
+        const wxsOutputDir = path.join(outputPath, 'wxs');
+        if (!existsSync(wxsOutputDir)) {
+            mkdirSync(wxsOutputDir);
+        }
+        const outputFilename = path.join(wxsOutputDir, 'i18n.wxs');
+        writeFileSync(outputFilename, code, { flag: 'w' });
     }
 }
 

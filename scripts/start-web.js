@@ -112,9 +112,7 @@ checkBrowsers(paths.appPath, isInteractive)
         host: HOST,
         port,
     };
-    //copy
-    const { copyLocaleFiles } = require('./locales/copy-web-locales');
-    copyLocaleFiles();
+
     const devServer = new WebpackDevServer(serverConfig, compiler);
     // Launch WebpackDevServer.
     devServer.startCallback(() => {

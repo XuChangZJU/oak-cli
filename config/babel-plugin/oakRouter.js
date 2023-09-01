@@ -3,6 +3,7 @@ const { relative, join, resolve } = require('path');
 const t = require('@babel/types');
 const assert = require('assert');
 const AppPaths = require('../web/paths');
+const { parseSync, transformFromAstSync } = require('@babel/core');
 
 module.exports = () => {
     return {
@@ -166,6 +167,10 @@ module.exports = () => {
                             )
                         )
                     );
+
+                    const { code } = transformFromAstSync(path.container);
+
+                    console.log(code);
                 }
             },
         },

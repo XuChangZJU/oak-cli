@@ -2,7 +2,8 @@
 import program from 'commander';
 import { create, update } from './create';
 import build from './build';
-import make from './make';
+import makeDomain from './makeDomain';
+import makeLocale from './makeLocale';
 import run from './run';
 import { CLI_VERSION, CLI_NAME } from './config';
 import { error, warn } from './tip-style';
@@ -32,12 +33,12 @@ const minNodeVersion = 14;
 if (Number(major) < minNodeVersion) {
     console.error(
         'You are running Node ' +
-            currentNodeVersion +
-            '.\n' +
-            'Create React App requires Node ' +
-            minNodeVersion +
-            ' or higher. \n' +
-            'Please update your version of Node.'
+        currentNodeVersion +
+        '.\n' +
+        'Create React App requires Node ' +
+        minNodeVersion +
+        ' or higher. \n' +
+        'Please update your version of Node.'
     );
     process.exit(1);
 }
@@ -45,9 +46,15 @@ if (Number(major) < minNodeVersion) {
 program.version(CLI_VERSION, '-v, --version').usage('<command> [options]');
 
 program
-    .command('make')
-    .description('build oak app domain of make on demand')
-    .action(make);
+    .command('make:domain')
+    .description('make oak app domain')
+    .action(makeDomain);
+
+program
+    .command('make:locale')
+    .description('make locales')
+    .action(makeLocale);
+
 program
     .command('start')
     .option('--sourceMap', 'sourceMap')

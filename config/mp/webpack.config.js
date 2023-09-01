@@ -265,7 +265,9 @@ module.exports = function (webpackEnv) {
                         {
                             loader: 'wxml-loader',
                             options: {
-                                context: paths.appSrc,
+                                appSrcPath: paths.appSrc,
+                                appRootPath: paths.appRootPath,
+                                appRootSrcPath: paths.appRootSrc,                                
                                 cacheDirectory: false,
                             },
                         },
