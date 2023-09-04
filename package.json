@@ -36,6 +36,8 @@
     },
     "dependencies": {
         "@pmmmwh/react-refresh-webpack-plugin": "^0.5.3",
+        "@socket.io/cluster-adapter": "^0.2.2",
+        "@socket.io/sticky": "^1.0.4",
         "@svgr/webpack": "^5.5.0",
         "@xmldom/xmldom": "0.8.2",
         "axios": ">=0.21.1",
@@ -106,6 +108,7 @@
         "sass-loader": "^12.3.0",
         "semver": "^7.3.5",
         "shelljs": "^0.8.4",
+        "socket.io": "^4.7.2",
         "source-map-loader": "^3.0.0",
         "stream-browserify": "^3.0.0",
         "style-loader": "^3.3.1",
