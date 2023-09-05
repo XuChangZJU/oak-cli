@@ -12,7 +12,7 @@ function isOakNamespaceIdentifier(node, name) {
 }
 
 const Regex =
-    /([\\/]*[a-zA-Z0-9_-\w\W]|[\\/]*[a-zA-Z0-9_-\w\W]:)*[\\/](lib|src|es)[\\/](pages|components)+[\\/]/;
+    /([\\/]*[a-zA-Z0-9_-\w\W]|[\\/]*[a-zA-Z0-9_-\w\W]:)*[\\/](lib|src|es)[\\/](pages|components|namespaces)+[\\/]/;
 
 module.exports = (babel) => {
     return {
