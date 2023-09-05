@@ -206,16 +206,14 @@ module.exports = function (webpackEnv) {
     };
 
     const getOakInclude = () => {
-        return isEnvProduction
-            ? [/oak-general-business/, /oak-frontend-base/]
-            : [
-                /oak-domain/,
-                /oak-external-sdk/,
-                /oak-frontend-base/,
-                /oak-general-business/,
-                /oak-memory-tree-store/,
-                /oak-common-aspect/,
-            ];
+        return [
+            /oak-domain/,
+            /oak-external-sdk/,
+            /oak-frontend-base/,
+            /oak-general-business/,
+            /oak-memory-tree-store/,
+            /oak-common-aspect/,
+        ];
     };
 
     return {

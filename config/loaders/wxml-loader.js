@@ -170,7 +170,7 @@ function parseXmlFile(appRootPath, appRootSrcPath, appSrcPath, filePath) {
     const isSelf = filePath.startsWith(appRootSrcPath);
     const filePath2 = filePath.replace(/\\/g, '/');
 
-    const fileProjectPath = filePath2.replace(/((\w|\W)*)(\/src|\/lib)(\/pages\/|\/components\/)((\w|\W)*)/g, '$1');
+    const fileProjectPath = filePath2.replace(/((\w|\W)*)(\/src|\/lib|\/es)(\/pages\/|\/components\/)((\w|\W)*)/g, '$1');
     let moduleName = ModuleNameDict[fileProjectPath];
     if (!moduleName) {
         const { name } = require(join(fileProjectPath, 'package.json'));

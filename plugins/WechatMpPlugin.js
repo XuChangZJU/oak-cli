@@ -454,20 +454,6 @@ class OakWeChatMpPlugin {
                     minChunks: 0,
                 },
 
-                oak_frontend_base: {
-                    chunks: 'all',
-                    test: /[\\/]oak-frontend-base[\\/]/,
-                    name: 'oak_frontend_base',
-                    minChunks: 0,
-                },
-
-                // oak_memory_tree_store: {
-                //     chunks: 'all',
-                //     test: /[\\/]oak-memory-tree-store[\\/]/,
-                //     name: 'oak_memory_tree_store',
-                //     minChunks: 0,
-                // },
-
                 echarts: {
                     chunks: 'all',
                     test: /[\\/]miniprogram_npm\/ec-canvas\/echarts\.js$/,

@@ -5,7 +5,7 @@ const assert = require('assert');
 const { fork } = require('child_process');
 
 const Regex =
-    /([\\/]*[a-zA-Z0-9_-\w\W]|[\\/]*[a-zA-Z0-9_-\w\W]:)*[\\/](lib|src)([\\/]*[a-zA-Z0-9_-])*[\\/](pages|components)+[\\/]/;
+    /([\\/]*[a-zA-Z0-9_-\w\W]|[\\/]*[a-zA-Z0-9_-\w\W]:)*[\\/](lib|src|es)([\\/]*[a-zA-Z0-9_-])*[\\/](pages|components)+[\\/]/;
 
 
 const ModuleDict = {};

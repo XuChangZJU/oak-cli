@@ -167,10 +167,6 @@ module.exports = () => {
                             )
                         )
                     );
-
-                    const { code } = transformFromAstSync(path.container);
-
-                    console.log(code);
                 }
             },
         },

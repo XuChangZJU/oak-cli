@@ -9,8 +9,8 @@ module.exports = (babel) => {
             Program(path, state) {
                 const { cwd, filename } = state;
                 const rel = relative(cwd, filename).replace(/\\/g, '/');
-                const tsPage = /(pages|components)[\\/][\w|\W]+[\\/]index\.ts$/.test(rel);
-                const jsPage = /(pages|components)[\\/][\w|\W]+[\\/]index\.js$/.test(rel);
+                const tsPage = /(pages|components|namespaces)[\\/][\w|\W]+[\\/]index\.ts$/.test(rel);
+                const jsPage = /(pages|components|namespaces)[\\/][\w|\W]+[\\/]index\.js$/.test(rel);
                 if (tsPage || jsPage) {
                     const tsxFile = filename.replace(
                         /index\.(ts|js)$/,

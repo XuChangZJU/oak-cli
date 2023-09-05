@@ -43,7 +43,7 @@ const copyPatterns = [].concat(pkg.copyWebpack || []).map((pattern) =>
           }
         : pattern
 );
-const oakRegex = /(\/*[a-zA-Z0-9_-])*\/(lib|src)\/|(\\*[a-zA-Z0-9_-])*\\(lib|src)\\/;
+const oakRegex = /(\/*[a-zA-Z0-9_-])*\/(lib|src|es)\/|(\\*[a-zA-Z0-9_-])*\\(lib|src|es)\\/;
 
 module.exports = function (webpackEnv) {
     const isEnvDevelopment = webpackEnv === 'development';
@@ -65,16 +65,14 @@ module.exports = function (webpackEnv) {
     };
 
     const getOakInclude = () => {
-        return isEnvProduction
-            ? [/oak-general-business/, /oak-frontend-base/]
-            : [
-                  /oak-domain/,
-                  /oak-external-sdk/,
-                  /oak-frontend-base/,
-                  /oak-general-business/,
-                  /oak-memory-tree-store/,
-                  /oak-common-aspect/,
-              ];
+        return [
+            /oak-domain/,
+            /oak-external-sdk/,
+            /oak-frontend-base/,
+            /oak-general-business/,
+            /oak-memory-tree-store/,
+            /oak-common-aspect/,
+        ];
     };
 
     return {
@@ -115,6 +113,7 @@ module.exports = function (webpackEnv) {
                 crypto: require.resolve('crypto-browserify'),
                 buffer: require.resolve('safe-buffer'),
                 stream: require.resolve('stream-browserify'),
+                zlib: require.resolve('browserify-zlib'),
                 events: require.resolve('events/'),
                 url: false,
                 path: false,
@@ -211,7 +210,7 @@ module.exports = function (webpackEnv) {
                     include: [paths.appSrc, paths.appRootSrc].concat(
                         getOakInclude()
                     ),
-                    //exclude: /node_modules/,
+                    exclude: /node_modules/,
                     loader: 'babel-loader',
                     options: {
                         plugins: [oakI18nPlugin, oakPathPlugin],
@@ -224,7 +223,7 @@ module.exports = function (webpackEnv) {
                     include: [paths.appSrc, paths.appRootSrc].concat(
                         getOakInclude()
                     ),
-                    //exclude: /node_modules/,
+                    exclude: /node_modules/,
                     use: [
                         {
                             loader: 'babel-loader',
@@ -267,7 +266,7 @@ module.exports = function (webpackEnv) {
                             options: {
                                 appSrcPath: paths.appSrc,
                                 appRootPath: paths.appRootPath,
-                                appRootSrcPath: paths.appRootSrc,                                
+                                appRootSrcPath: paths.appRootSrc,
                                 cacheDirectory: false,
                             },
                         },
