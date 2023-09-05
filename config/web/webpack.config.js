@@ -1011,8 +1011,6 @@ module.exports = function (webpackEnv) {
             '@wangeditor/editor': 'wangEditor',
             // '@wangeditor/basic-modules': 'WangEditorBasicModules',       这里跑起来初始化会有个BUG，先不弄了
             '@fingerprintjs/fingerprintjs': 'FingerprintJS',
-            i18next: 'i18next',
-            'react-i18next': 'ReactI18next',
             'bn.js': 'BN',
         },
     };
