@@ -933,7 +933,8 @@ module.exports = function (webpackEnv) {
                         ],
                     },
                     logger: {
-                        infrastructure: 'silent',
+                        log: (message) => console.log(message),
+                        error: (message) => console.error(message),
                     },
                 }),
             !disableESLintPlugin &&
