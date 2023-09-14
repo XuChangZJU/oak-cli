@@ -58,14 +58,13 @@ export function packageJsonContent({
     "license": "",
     "typings": "typings/index.d.ts",
     "dependencies": {
-      "@ant-design/cssinjs": "^1.1.0",
-      "@ant-design/icons": "^4.7.0",
-      "@icon-park/react": "^1.4.2",
+      "@ant-design/cssinjs": "^1.16.2",
+      "@ant-design/icons": "^5.2.6",
       "@wangeditor/basic-modules": "^1.1.3",
       "@wangeditor/editor": "^5.1.14",
       "@wangeditor/editor-for-react": "^1.0.4",
-      "antd": "^5.0.3",
-      "antd-mobile": "^5.26.0",
+      "antd": "^5.8.3",
+      "antd-mobile": "^5.32.0",
       "antd-mobile-icons": "^0.3.0",
       "classnames": "^2.3.1",
       "crypto-browserify": "^3.12.0",
@@ -75,19 +74,12 @@ export function packageJsonContent({
       "echarts-for-react": "^3.0.2",
       "history": "^5.3.0",
       "hmacsha1": "^1.0.0",
-      "i18next": "^20.6.1",
-      "i18next-browser-languagedetector": "^6.1.4",
-      "i18next-chained-backend": "^3.0.2",
-      "i18next-http-backend": "^1.4.1",
-      "i18next-localstorage-backend": "^3.1.3",
-      "i18next-resource-store-loader": "^0.1.2",
       "js-base64": "^3.7.2",
       "lodash": "^4.17.21",
       "nprogress": "^0.2.0",
         ${oakDependencyStr}
         "react": "^18.2.0",
         "react-dom": "^18.1.0",
-        "react-i18next": "^11.18.0",
         "react-image-gallery": "^1.2.11",
         "react-responsive": "^9.0.0-beta.10",
         "react-router-dom": "^6.4.0",
@@ -262,7 +254,7 @@ export function tsConfigJsonContent() {
 
 export function tsConfigBuildJsonContent() {
   return `{
-  "extends": "./tsconfig.paths.json",
+  "extends": "./tsconfig.build.paths.json",
    "compilerOptions": {
      "jsx": "react-jsx",
     "module": "commonjs",
@@ -298,18 +290,66 @@ export function tsConfigBuildJsonContent() {
 }`;
 }
 
+export function tsConfigBuildPathsJsonContent() {
+    return `{
+    "compilerOptions": {
+        "baseUrl": "./",
+            "paths": {
+            "@project/*": [
+                "src/*"
+            ],
+            "@oak-app-domain": [
+                "src/oak-app-domain/index"
+            ],
+            "@oak-app-domain/*": [
+                "src/oak-app-domain/*"
+            ],
+            "@oak-general-business": [
+                "node_modules/oak-general-business/lib/index"
+            ],
+            "@oak-general-business/*": [
+                "node_modules/oak-general-business/lib/*"
+            ],
+            "@oak-frontend-base": [
+                "node_modules/oak-frontend-base/lib/index"
+            ],
+            "@oak-frontend-base/*": [
+                "node_modules/oak-frontend-base/lib/*"
+            ],
+        },
+        "typeRoots": ["./typings"]
+    }
+}`;
+}
+
 export function tsConfigPathsJsonContent() {
   return `{
     "compilerOptions": {
         "baseUrl": "./",
-        "paths": {
+         "paths": {
             "@project/*": [
                 "src/*"
             ],
+            "@oak-app-domain": [
+                "src/oak-app-domain/index"
+            ],
+            "@oak-app-domain/*": [
+                "src/oak-app-domain/*"
+            ],
+            "@oak-general-business": [
+                "node_modules/oak-general-business/es/index"
+            ],
             "@oak-general-business/*": [
-                "node_modules/oak-general-business/app/*"
+                "node_modules/oak-general-business/es/*"
+            ],
+            "@oak-frontend-base": [
+                "node_modules/oak-frontend-base/es/index"
+            ],
+            "@oak-frontend-base/*": [
+                "node_modules/oak-frontend-base/es/*"
             ],
         },
+        "typeRoots": ["./typings"]
     }
 }`;
 }
