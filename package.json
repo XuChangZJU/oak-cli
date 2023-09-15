@@ -25,6 +25,7 @@
     },
     "homepage": "",
     "devDependencies": {
+        "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
         "@types/cross-spawn": "^6.0.2",
         "@types/inquirer": "^9.0.3",
         "@types/koa-router": "^7.4.4",
