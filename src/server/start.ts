@@ -14,6 +14,7 @@ import { Server } from "socket.io";
 import { createAdapter } from "@socket.io/cluster-adapter";
 import { setupWorker } from "@socket.io/sticky";
 
+const DATA_SUBSCRIBER_NAMESPACE = '/ds';
 export async function startup<ED extends EntityDict & BaseEntityDict, Cxt extends AsyncContext<ED>, FrontCxt extends SyncContext<ED>>(
     path: string,
     contextBuilder: (scene?: string) => (store: AsyncRowStore<ED, Cxt>) => Promise<Cxt>,
@@ -42,7 +43,7 @@ export async function startup<ED extends EntityDict & BaseEntityDict, Cxt extend
         setupWorker(io);        
     }
 
-    const appLoader = new AppLoader(path, contextBuilder, io);
+    const appLoader = new AppLoader(path, contextBuilder, io.of(DATA_SUBSCRIBER_NAMESPACE));
     await appLoader.mount();
     await appLoader.execStartRoutines();
     if (routine) {
@@ -50,7 +51,6 @@ export async function startup<ED extends EntityDict & BaseEntityDict, Cxt extend
         await appLoader.execRoutine(routine);
         return;
     }
-
 
     // 否则启动服务器模式
     koa.use(async (ctx, next) => {
@@ -114,6 +114,7 @@ export async function startup<ED extends EntityDict & BaseEntityDict, Cxt extend
         if (process.env.PM2_STATUS) {
             // 如果使用了pm2，则返回 @socket.io/pm2所监听的PM2_PORT端口
             response.body = {
+                namespace: DATA_SUBSCRIBER_NAMESPACE,
                 path: connector.getSubscribeRouter(),
                 port: process.env.PM2_PORT || 8080,
             };
@@ -123,6 +124,7 @@ export async function startup<ED extends EntityDict & BaseEntityDict, Cxt extend
         else {
             // 不使用pm2则监听在http服务器端口上
             response.body = {
+                namespace: DATA_SUBSCRIBER_NAMESPACE,
                 path: connector.getSubscribeRouter(),
                 port: serverConfig.port,
             };
