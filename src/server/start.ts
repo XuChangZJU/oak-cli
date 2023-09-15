@@ -29,14 +29,12 @@ export async function startup<ED extends EntityDict & BaseEntityDict, Cxt extend
     const socketOption: any = {
         path: connector.getSubscribeRouter(),
     };
-    if (process.env.NODE_ENV === 'development') {
-        socketOption.cors = {
-            origin: '*',      // 应该只有debug模式存在
-            allowedHeaders: ["oak-cxt"],
-        };
-    }
+    socketOption.cors = {
+        origin: '*',        // 允许跨域访问
+        allowedHeaders: ["oak-cxt"],
+    };
     const io = new Server(httpServer, socketOption);
-    if (process.env.PM2_STATUS) {        
+    if (process.env.PM2_STATUS) {
         // pm2环境下要接入clusterAdapter
         // https://socket.io/zh-CN/docs/v4/pm2/
         io.adapter(createAdapter());
