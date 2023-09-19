@@ -1,23 +1,24 @@
 /// <reference path="../typings/polyfill.d.ts" />
 import './polyfill';
-import { createServer } from "http";
+import { IncomingHttpHeaders, createServer } from "http";
 import PathLib from 'path';
 import Koa from 'koa';
 import KoaRouter from 'koa-router';
 import KoaBody from 'koa-body';
 import { AppLoader } from 'oak-backend-base';
-import { OakException, Connector, EntityDict, EndpointItem, RowStore } from 'oak-domain/lib/types';
+import { OakException, Connector, EntityDict } from 'oak-domain/lib/types';
 import { EntityDict as BaseEntityDict } from 'oak-domain/lib/base-app-domain';
-import { AsyncContext, AsyncRowStore } from 'oak-domain/lib/store/AsyncRowStore';
+import { AsyncRowStore } from 'oak-domain/lib/store/AsyncRowStore';
+import { BackendRuntimeContext } from 'oak-frontend-base';
 import { SyncContext } from 'oak-domain/lib/store/SyncRowStore';
 import { Server } from "socket.io";
 import { createAdapter } from "@socket.io/cluster-adapter";
 import { setupWorker } from "@socket.io/sticky";
 
 const DATA_SUBSCRIBER_NAMESPACE = '/ds';
-export async function startup<ED extends EntityDict & BaseEntityDict, Cxt extends AsyncContext<ED>, FrontCxt extends SyncContext<ED>>(
+export async function startup<ED extends EntityDict & BaseEntityDict, Cxt extends BackendRuntimeContext<ED>, FrontCxt extends SyncContext<ED>>(
     path: string,
-    contextBuilder: (scene?: string) => (store: AsyncRowStore<ED, Cxt>) => Promise<Cxt>,
+    contextBuilder: (scene?: string) => (store: AsyncRowStore<ED, Cxt>, header?: IncomingHttpHeaders) => Promise<Cxt>,
     connector: Connector<ED, FrontCxt>,
     omitWatchers?: boolean,
     omitTimers?: boolean,
@@ -89,7 +90,7 @@ export async function startup<ED extends EntityDict & BaseEntityDict, Cxt extend
         const data = request.files ? Object.assign({}, request.body, request.files) : request.body;     // 这里处理multiPart的文件，不是太好
         const { contextString, aspectName } = connector.parseRequestHeaders(request.headers);
         
-        const { result, opRecords, message } = await appLoader.execAspect(aspectName, contextString, data);
+        const { result, opRecords, message } = await appLoader.execAspect(aspectName, request.headers, contextString, data);
         const { body, headers } = await connector.serializeResult(result, opRecords, request.headers, request.body, message);
         ctx.response.body = body;
         return;
