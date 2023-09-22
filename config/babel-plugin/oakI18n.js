@@ -136,7 +136,7 @@ module.exports = (babel) => {
                                 if (!oakNsProp) {
                                     properties.push(
                                         t.objectProperty(t.stringLiteral(oakNsPropName), t.stringLiteral(ns)),
-                                        t.objectProperty(t.stringLiteral(oakModulePropName), t.stringLiteral(module))
+                                        t.objectProperty(t.stringLiteral(oakModulePropName), t.stringLiteral(moduleName))
                                     );
                                 }
                             }
