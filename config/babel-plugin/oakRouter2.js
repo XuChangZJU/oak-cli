@@ -4,6 +4,171 @@ const t = require('@babel/types');
 const assert = require('assert');
 const AppPaths = require('../web/paths');
 const { parseSync, transformFromAstSync } = require('@babel/core');
+const NodeWatch = require('node-watch');
+const cloneDeep = require('lodash/cloneDeep');
+
+const pageFiles = {};
+const routerFiles = {};
+
+function addFileWatcher(namespaceConfig, body, filename) {
+    if (process.env.NODE_ENV === 'development') {
+        // 只有开发模式才需要监听
+        routerFiles[filename] = {
+            namespaceConfig,
+            body,
+        };
+        if (Object.keys(routerFiles).length === 1) {
+            const pageSrcDir = join(AppPaths.appRootSrc, 'pages');
+
+            NodeWatch(pageSrcDir, { recursive: true }, (evt, name) => {
+                const { dir } = parse(name);
+                if (evt === 'update' && !pageFiles.hasOwnProperty(dir)) {
+                    // 处理新增文件事件，删除事件webpack会自己处理，不处理也没什么问题
+                    const indexJsonFile = join(dir, 'index.json');
+                    const indexTsxFile = join(dir, 'index.tsx');
+                    const webTsxFile = join(dir, 'web.tsx');
+                    const webPcTsxFile = join(dir, 'web.pc.tsx');
+                    if (fs.existsSync(indexTsxFile) || fs.existsSync(webTsxFile) || fs.existsSync(webPcTsxFile)) {
+                        let oakDisablePulldownRefresh = false;
+                        if (fs.existsSync(indexJsonFile)) {
+                            const {
+                                enablePullDownRefresh = true,
+                            } = require(indexJsonFile);
+                            oakDisablePulldownRefresh = !enablePullDownRefresh;
+                        }
+                        const relativePath = relative(pageSrcDir, dir);
+                        const newPageItem = {
+                            path: relativePath.replace(/\\/g, '/'),
+                            oakDisablePulldownRefresh,
+                        };
+                        pageFiles[dir] = newPageItem;
+
+                        Object.keys(routerFiles).forEach(
+                            (routerFilename) => {
+                                const { namespaceConfig, body } = routerFiles[routerFilename];
+
+                                const node = body.find(
+                                    ele => t.isVariableDeclaration(ele) && t.isIdentifier(ele.declarations[0].id) && ele.declarations[0].id.name === 'allRouters'
+                                );
+
+                                assert(node, `${filename}中没有定义allRouters`);
+                                const declaration = node.declarations[0];
+                                const { init: { elements } } = declaration;
+
+                                for (const ele of elements) {
+                                    const { properties } = ele;
+
+                                    const pathProps = properties[3];
+                                    const { key, value } = pathProps;
+                                    assert(t.isIdentifier(key) && key.name === 'path' && t.isStringLiteral(value));
+                                    assert(namespaceConfig.hasOwnProperty(value.value));
+
+                                    const { path } = namespaceConfig[value.value];
+                                    const newRouterItem = makeRouterItem(newPageItem, path, false);
+
+                                    const childrenProp = properties[3];
+                                    const { key: k2, value: v2 } = childrenProp;
+                                    assert(t.isIdentifier(k2) && k2.name === 'children');
+                                    assert(t.isArrayExpression(v2));
+
+                                    v2.unshift(newRouterItem);
+                                }
+
+                                // 将新的文件写回routerFilename，触发webpack重渲染
+                                const ast = parseSync('');
+                                ast.body = body;
+
+                                const { code } = transformFromAstSync(ast);
+                                console.log(code);
+                                writeFileSync(routerFilename, code, { flag: 'w' });
+                            }
+                        );
+                    }
+                }
+            });
+        }
+    }
+}
+
+function makeRouterItem(page, namespace, first) {
+    const { path, oakDisablePulldownRefresh } = page;
+    return t.objectExpression(
+        [
+            t.objectProperty(
+                t.identifier('path'),
+                t.stringLiteral(path)
+            ),
+            t.objectProperty(
+                t.identifier('namespace'),
+                t.stringLiteral(namespace),
+            ),
+            t.objectProperty(
+                t.identifier('meta'),
+                t.objectExpression(
+                    [
+                        t.objectProperty(
+                            t.identifier('oakDisablePulldownRefresh'),
+                            t.booleanLiteral(oakDisablePulldownRefresh)
+                        ),
+                    ]
+                )
+            ),
+            t.objectProperty(
+                t.identifier('Component'),
+                t.callExpression(
+                    t.memberExpression(t.identifier('React'), t.identifier('lazy')),
+                    [
+                        t.arrowFunctionExpression(
+                            [],
+                            t.callExpression(t.import(), [
+                                t.stringLiteral(join('@project', 'pages', path, 'index').replace(/\\/g, '/'))
+                            ])
+                        ),
+                    ]
+                )
+            ),
+            t.objectProperty(
+                t.identifier('isFirst'),
+                t.booleanLiteral(first === path)
+            )
+        ]
+    );
+}
+
+function traversePages() {
+    // pages从相应目录遍历获得
+    const pageSrcDir = join(AppPaths.appRootSrc, 'pages');
+
+    const traverse = (dir, relativePath) => {
+        const files = fs.readdirSync(dir);
+        files.forEach(
+            (file) => {
+                const filepath = join(dir, file);
+                const stat = fs.statSync(filepath);
+                if (stat.isFile() && ['index.tsx', 'web.tsx', 'web.pc.tsx'].includes(file) && !pageFiles.hasOwnProperty(dir)) {
+                    const indexJsonFile = join(dir, 'index.json');
+                    let oakDisablePulldownRefresh = false;
+                    if (fs.existsSync(indexJsonFile)) {
+                        const {
+                            enablePullDownRefresh = true,
+                        } = require(indexJsonFile);
+                        oakDisablePulldownRefresh = !enablePullDownRefresh;
+                    }
+                    pageFiles[dir] = {
+                        path: relativePath.replace(/\\/g, '/'),
+                        oakDisablePulldownRefresh,
+                    }
+                }
+                else if (stat.isDirectory()) {
+                    const dir2 = join(dir, file);
+                    const relativePath2 = join(relativePath, file);
+                    traverse(dir2, relativePath2);
+                }
+            }
+        );
+    };
+    traverse(pageSrcDir, '');
+}
 
 module.exports = () => {
     return {
@@ -18,9 +183,6 @@ module.exports = () => {
                     rel.endsWith(`/router/index.ts`)
                 ) {
                     const { body } = path.node;
-                    const appDir = rel.slice(0, rel.indexOf('/'));
-                    const allRouters = [];
-                    const namespaces = {};
 
                     // namespace从相应目录查询获取
                     const dir = parse(filename).dir;
@@ -64,43 +226,9 @@ module.exports = () => {
                         }
                     );
 
-                    // pages从相应目录遍历获得
-                    const pageSrcDir = join(AppPaths.appRootSrc, 'pages');
-
-                    const pages = [];
-                    const traverse = (dir, relativePath) => {
-                        const files = fs.readdirSync(dir);
-                        files.forEach(
-                            (file) => {
-                                const filepath = join(dir, file);
-                                const stat = fs.statSync(filepath);
-                                let added = false;
-                                if (stat.isFile() && ['index.tsx', 'web.tsx', 'web.pc.tsx'].includes(file)) {
-                                    if (!added) {
-                                        const indexJsonFile = join(dir, 'index.json');
-                                        let oakDisablePulldownRefresh = false;
-                                        if (fs.existsSync(indexJsonFile)) {
-                                            const {
-                                                enablePullDownRefresh = true,
-                                            } = require(indexJsonFile);
-                                            oakDisablePulldownRefresh = !enablePullDownRefresh;
-                                        }
-                                        pages.push({
-                                            path: relativePath.replace(/\\/g, '/'),
-                                            oakDisablePulldownRefresh,
-                                        });
-                                        added = true;
-                                    }
-                                }
-                                else if (stat.isDirectory()) {
-                                    const dir2 = join(dir, file);
-                                    const relativePath2 = join(relativePath, file);
-                                    traverse(dir2, relativePath2);
-                                }
-                            }
-                        );
-                    };
-                    traverse(pageSrcDir, '');
+                    if (Object.keys(pageFiles).length === 0) {
+                        traversePages();
+                    }
 
                     const node = body.find(
                         ele => t.isVariableDeclaration(ele) && t.isIdentifier(ele.declarations[0].id) && ele.declarations[0].id.name === 'allRouters'
@@ -116,51 +244,8 @@ module.exports = () => {
                             const { path, notFound, first } = namespaceConfig[ns];
 
                             const children = t.arrayExpression(
-                                pages.map(
-                                    (page) => {
-                                        const { path: pagePath, oakDisablePulldownRefresh } = page;
-                                        return t.objectExpression(
-                                            [
-                                                t.objectProperty(
-                                                    t.identifier('path'),
-                                                    t.stringLiteral(pagePath)
-                                                ),
-                                                t.objectProperty(
-                                                    t.identifier('namespace'),
-                                                    t.stringLiteral(path),
-                                                ),
-                                                t.objectProperty(
-                                                    t.identifier('meta'), 
-                                                    t.objectExpression(
-                                                        [
-                                                            t.objectProperty(
-                                                                t.identifier('oakDisablePulldownRefresh'),
-                                                                t.booleanLiteral(oakDisablePulldownRefresh)
-                                                            ),
-                                                        ]
-                                                    )
-                                                ),
-                                                t.objectProperty(
-                                                    t.identifier('Component'),
-                                                    t.callExpression(
-                                                        t.memberExpression(t.identifier('React'), t.identifier('lazy')),
-                                                        [
-                                                            t.arrowFunctionExpression(
-                                                                [],
-                                                                t.callExpression(t.import(), [
-                                                                    t.stringLiteral(join('@project', 'pages', pagePath, 'index').replace(/\\/g, '/'))
-                                                                ])
-                                                            ),
-                                                        ]
-                                                    )
-                                                ),
-                                                t.objectProperty(
-                                                    t.identifier('isFirst'),
-                                                    t.booleanLiteral(first === pagePath)
-                                                )
-                                            ]
-                                        )
-                                    }
+                                Object.values(pageFiles).map(
+                                    (page) => makeRouterItem(page, path, first)
                                 )
                             );
                             if (notFound) {
@@ -226,16 +311,18 @@ module.exports = () => {
                             );
                         }
                     );
+
                     body.unshift(
                         t.importDeclaration(
                             [t.importDefaultSpecifier(t.identifier('React'))],
                             t.stringLiteral('react')
                         )
                     );
+                    // addFileWatcher(namespaceConfig, body, filename);
 
-                   /*  const { code } = transformFromAstSync(path.container);
-
-                    console.log(code); */
+                    /*  const { code } = transformFromAstSync(path.container);
+ 
+                     console.log(code); */
                 }
             },
         },
