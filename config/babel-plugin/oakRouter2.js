@@ -6,6 +6,7 @@ const AppPaths = require('../web/paths');
 const { parseSync, transformFromAstSync } = require('@babel/core');
 const NodeWatch = require('node-watch');
 const cloneDeep = require('lodash/cloneDeep');
+const { unset } = require('lodash');
 
 const pageFiles = {};
 const routerFiles = {};
@@ -22,12 +23,12 @@ function addFileWatcher(namespaceConfig, body, filename) {
 
             NodeWatch(pageSrcDir, { recursive: true }, (evt, name) => {
                 const { dir } = parse(name);
+                const indexJsonFile = join(dir, 'index.json');
+                const indexTsxFile = join(dir, 'index.tsx');
+                const webTsxFile = join(dir, 'web.tsx');
+                const webPcTsxFile = join(dir, 'web.pc.tsx');
                 if (evt === 'update' && !pageFiles.hasOwnProperty(dir)) {
                     // 处理新增文件事件，删除事件webpack会自己处理，不处理也没什么问题
-                    const indexJsonFile = join(dir, 'index.json');
-                    const indexTsxFile = join(dir, 'index.tsx');
-                    const webTsxFile = join(dir, 'web.tsx');
-                    const webPcTsxFile = join(dir, 'web.pc.tsx');
                     if (fs.existsSync(indexTsxFile) || fs.existsSync(webTsxFile) || fs.existsSync(webPcTsxFile)) {
                         let oakDisablePulldownRefresh = false;
                         if (fs.existsSync(indexJsonFile)) {
@@ -43,44 +44,22 @@ function addFileWatcher(namespaceConfig, body, filename) {
                         };
                         pageFiles[dir] = newPageItem;
 
+                        const now = new Date();
                         Object.keys(routerFiles).forEach(
                             (routerFilename) => {
-                                const { namespaceConfig, body } = routerFiles[routerFilename];
+                                fs.utimes(routerFilename, now, now, () => undefined);
+                            }
+                        );
+                    }
+                }
+                else if (evt === 'remove' && pageFiles.hasOwnProperty(dir)) {
+                    if (!(fs.existsSync(indexTsxFile) || fs.existsSync(webTsxFile) || fs.existsSync(webPcTsxFile))) {
+                        unset(pageFiles, dir);
 
-                                const node = body.find(
-                                    ele => t.isVariableDeclaration(ele) && t.isIdentifier(ele.declarations[0].id) && ele.declarations[0].id.name === 'allRouters'
-                                );
-
-                                assert(node, `${filename}中没有定义allRouters`);
-                                const declaration = node.declarations[0];
-                                const { init: { elements } } = declaration;
-
-                                for (const ele of elements) {
-                                    const { properties } = ele;
-
-                                    const pathProps = properties[3];
-                                    const { key, value } = pathProps;
-                                    assert(t.isIdentifier(key) && key.name === 'path' && t.isStringLiteral(value));
-                                    assert(namespaceConfig.hasOwnProperty(value.value));
-
-                                    const { path } = namespaceConfig[value.value];
-                                    const newRouterItem = makeRouterItem(newPageItem, path, false);
-
-                                    const childrenProp = properties[3];
-                                    const { key: k2, value: v2 } = childrenProp;
-                                    assert(t.isIdentifier(k2) && k2.name === 'children');
-                                    assert(t.isArrayExpression(v2));
-
-                                    v2.unshift(newRouterItem);
-                                }
-
-                                // 将新的文件写回routerFilename，触发webpack重渲染
-                                const ast = parseSync('');
-                                ast.body = body;
-
-                                const { code } = transformFromAstSync(ast);
-                                console.log(code);
-                                writeFileSync(routerFilename, code, { flag: 'w' });
+                        const now = new Date();
+                        Object.keys(routerFiles).forEach(
+                            (routerFilename) => {
+                                fs.utimes(routerFilename, now, now, () => undefined);
                             }
                         );
                     }
@@ -182,6 +161,7 @@ module.exports = () => {
                     ) &&
                     rel.endsWith(`/router/index.ts`)
                 ) {
+                    // console.log('recompile', filename);
                     const { body } = path.node;
 
                     // namespace从相应目录查询获取
@@ -318,7 +298,7 @@ module.exports = () => {
                             t.stringLiteral('react')
                         )
                     );
-                    // addFileWatcher(namespaceConfig, body, filename);
+                    addFileWatcher(namespaceConfig, body, filename);
 
                     /*  const { code } = transformFromAstSync(path.container);
  
