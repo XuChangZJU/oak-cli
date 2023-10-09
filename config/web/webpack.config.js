@@ -374,6 +374,7 @@ module.exports = function (webpackEnv) {
                 buffer: require.resolve('safe-buffer'),
                 stream: require.resolve('stream-browserify'),
                 zlib: require.resolve('browserify-zlib'),
+                querystring: require.resolve('querystring-es3'),
                 url: false,
                 path: false,
                 fs: false,

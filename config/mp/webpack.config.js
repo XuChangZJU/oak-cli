@@ -115,6 +115,7 @@ module.exports = function (webpackEnv) {
                 stream: require.resolve('stream-browserify'),
                 zlib: require.resolve('browserify-zlib'),
                 events: require.resolve('events/'),
+                querystring: require.resolve('querystring-es3'),
                 url: false,
                 path: false,
                 fs: false,
