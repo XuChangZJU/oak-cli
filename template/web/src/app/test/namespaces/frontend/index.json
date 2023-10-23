@@ -1,5 +1,4 @@
 {
     "path": "/",
-    "first": "/",
-    "notFound": "/result/404"
+    "first": "/"
 }
