@@ -555,13 +555,7 @@ export function oakConfigContentWithWeChatMp() {
 
 export function appJsonContentWithWeb(isDev: boolean) {
   const pages = [
-    '@project/pages/store/list/index',
-    '@project/pages/store/upsert/index',
-    '@project/pages/store/detail/index',
-    '@project/pages/book/list/index',
-    '@project/pages/book/upsert/index',
-    '@project/pages/book/detail/index',
-    '@oak-general-business/pages/login/index',
+      '@project/pages/login/index',
   ];
   return `{
     "pages": ${JSON.stringify(pages, null, 4)}
