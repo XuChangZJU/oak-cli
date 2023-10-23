@@ -1,53 +1,74 @@
-import './utils/polyfill';
-import { initialize as init } from 'oak-frontend-base/lib/initialize.dev';
+import { initialize as init } from 'oak-general-business/es/initialize.dev';
+import { GFD, GAD } from 'oak-general-business';
 
-import { EntityDict, storageSchema, ActionDefDict } from './oak-app-domain';
-import { CommonAspectDict } from 'oak-common-aspect';
-import { RuntimeContext } from './context/RuntimeContext';
+import { EntityDict, storageSchema, ActionDefDict } from '@oak-app-domain';
 import { BackendRuntimeContext } from './context/BackendRuntimeContext';
 import { FrontendRuntimeContext } from './context/FrontendRuntimeContext';
 
-import { initialize as initializeFeatures } from './features';
-import { data } from './data';
-import { routers } from './exceptionRouters';
-import { checkers } from './checkers';
+import { initialize as initializeFeatures, FeatureDict } from './features';
 
 // dev需要将下面内容也传入
 import { AspectDict } from './aspects/AspectDict';
-import { aspectDict } from './aspects';
-import { triggers } from './triggers';
-import { watchers } from './watchers';
+import aspectDict from './aspects';
+import triggers from './triggers';
+import watchers from './watchers';
+import data from './data';
+import checkers from './checkers';
+import timers from './timers';
+import { importations, exportations } from './ports';
+import startRoutines from './routines/start';
+import colorDict from './config/color';
+import cacheSavedEntities from './config/cache';
+import {
+    selectFreeEntities,
+    updateFreeDict,
+    authDeduceRelationMap,
+} from './config/relation';
 
-import { BasicFeatures } from 'oak-frontend-base/lib/features';
-import { AppType } from 'oak-app-domain/Application/Schema';
+import { AppType } from '@oak-app-domain/Application/Schema';
 
-export default function initialize(
-    type: AppType,
-    url?: string,
-    i18nOptions?: Record<string, any>
-) {
-    const { i18n, features } = init<
+export default function initialize(type: AppType, hostname: string) {
+    const wholeFeatures = {} as GFD<
         EntityDict,
-        RuntimeContext,
+        BackendRuntimeContext,
+        FrontendRuntimeContext,
+        AspectDict & GAD<EntityDict, BackendRuntimeContext>
+    > &
+        FeatureDict;
+    const { features } = init<
+        EntityDict,
+        BackendRuntimeContext,
         AspectDict,
-        ReturnType<typeof initializeFeatures>
+        FrontendRuntimeContext
     >(
+        type,
+        hostname,
         storageSchema,
-        (wrapper, basicFeatures) => initializeFeatures(wrapper, basicFeatures, type),
-        (features) => (store) => new FrontendRuntimeContext(store, features.application, features.token),
+        () => (store) => new FrontendRuntimeContext(store, wholeFeatures),
         (str) => BackendRuntimeContext.FromSerializedString(str),
         aspectDict,
-        routers,
         triggers,
         checkers,
         watchers,
+        timers,
+        startRoutines,
         data as any,
-        ActionDefDict,
-        i18nOptions
+        {
+            actionDict: ActionDefDict,
+            colorDict,
+            importations,
+            exportations,
+            authDeduceRelationMap,
+            selectFreeEntities,
+            updateFreeDict,
+            cacheSavedEntities,
+        }
     );
 
+    const appFeatures = initializeFeatures(features);
+
+    Object.assign(wholeFeatures, appFeatures, features);
     return {
-        i18n,
-        features,
+        features: wholeFeatures,
     };
 }

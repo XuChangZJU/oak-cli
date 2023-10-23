@@ -1,7 +1,8 @@
 import { OakException } from 'oak-domain/lib/types';
-import { makeException as makeGeneralException } from 'oak-general-business/lib/types/Exceptions';
+import { EntityDict } from '@oak-app-domain';
+import { makeException as makeGeneralException } from 'oak-general-business';
 
-export class ExampleException extends OakException {}
+export class ExampleException extends OakException<EntityDict> {}
 
 export function makeException(msg: string | object) {
     const data = typeof msg === 'string' ? JSON.parse(msg) : msg;
@@ -13,7 +14,7 @@ export function makeException(msg: string | object) {
 
     const { name, message } = data;
     switch (name) {
-        case ExampleException.name: {
+        case 'ExampleException': {
             return new ExampleException(message);
         }
         default: {

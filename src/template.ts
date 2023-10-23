@@ -38,7 +38,10 @@ export function packageJsonContent({
     "version": "${version}",
     "description": "${description}",
     "scripts": {
-        "make:domain": "${cliBinName} make",
+       "make:domain": "${cliBinName} make:domain",
+        "make:locale": "${cliBinName} make:locale",
+        "clean:cache": "rimraf node_modules/.cache",
+        "copy-config-json": "copyfiles -u 1 src/config/*.json lib/",
         "start:mp": "${cliBinName} start --target mp --mode development",
         "start:mp:prod": "${cliBinName} start --target mp --mode development --prod",
         "build:mp": "${cliBinName} build --target mp --mode production",
@@ -245,9 +248,11 @@ export function tsConfigJsonContent() {
     "./**/*.pc.tsx"
   ],
   "exclude": [
-    "node_modules",
-    "**/*.spec.ts",
-    "test"
+   	"node_modules",
+		"**/*.spec.ts",
+		"test",
+		"scripts",
+		"lib"
   ]
 }`;
 }
@@ -283,9 +288,11 @@ export function tsConfigBuildJsonContent() {
     "src/**/*"
   ],
   "exclude": [
-    "node_modules",
+        "node_modules",
     "**/*.spec.ts",
-    "test"
+    "test",
+    "src/pages/**/*",
+    "src/components/**/*"
   ]
 }`;
 }
@@ -367,7 +374,6 @@ export function tsConfigMpJsonContent() {
     "experimentalDecorators": true,
     "strict": true,
     "downlevelIteration": true,
-    "importHelpers": true,
     "lib": [
       "dom",
       "dom.iterable",

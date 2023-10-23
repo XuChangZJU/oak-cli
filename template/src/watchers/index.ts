@@ -1,10 +1,11 @@
-import { watchers as generalWatchers } from 'oak-general-business';
 import { Watcher } from 'oak-domain/lib/types';
-import { EntityDict } from 'oak-app-domain';
-import { RuntimeContext } from '../context/RuntimeContext';
+import { EntityDict } from '@oak-app-domain';
+import { BackendRuntimeContext } from '../context/BackendRuntimeContext';
 
-export const watchers = [...generalWatchers] as Watcher<
+const watchers = [] as Watcher<
     EntityDict,
     keyof EntityDict,
-    RuntimeContext
+    BackendRuntimeContext
 >[];
+
+export default watchers;
