@@ -291,9 +291,7 @@ module.exports = function (webpackEnv) {
                     '*/weui-miniprogram/*',
                     '**/*.module.less',
                     '**/web.less',
-                    '**/fontawesome.less',
-                    '**/pages/**/locales/**/*',
-                    '**/components/**/locales/**/*',
+                    '**/locales/**/*',
                 ],
                 include: ['project.config.json', 'sitemap.json'],
                 debugPanel: {
