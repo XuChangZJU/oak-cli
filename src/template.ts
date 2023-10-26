@@ -524,9 +524,9 @@ export function projectConfigContentWithWeChatMp(
 
 export function appJsonContentWithWeChatMp(isDev: boolean) {
   const pages = [
-    '@project/pages/book/list/index',
-    '@project/pages/book/upsert/index',
-    '@project/pages/book/detail/index',
+      '@project/pages/store/list/index',
+      '@project/pages/store/upsert/index',
+      '@project/pages/store/detail/index',
   ];
   return `{
   "pages":${JSON.stringify(pages, null, 4)},

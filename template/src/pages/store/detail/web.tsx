@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import Style from './web.pc.module.less';
+import Style from './web.module.less';
 import { WebComponentProps } from 'oak-frontend-base';
 import { EntityDict } from '@oak-app-domain';
 
