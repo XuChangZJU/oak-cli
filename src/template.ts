@@ -224,6 +224,7 @@ export function tsConfigJsonContent() {
     "experimentalDecorators": true,   
     "skipLibCheck": true,
     "strict": true,
+    "importHelpers": true,
     "lib": [
       "dom",
       "dom.iterable",
@@ -233,37 +234,37 @@ export function tsConfigJsonContent() {
     //"rootDir": "src", /* Specify the root directory of input files. Use to control the output directory structure with --outDir. */
     "types": [
       "node",
-      "miniprogram-api-typings"
+      "wechat-miniprogram"
     ],
     "resolveJsonModule": true
   },
   "include": [
-    "./**/*.js",
-    "./**/*.ts",
-    "./**/*.tsx",
-    "./**/*.mp.ts",
-    "./**/*.web.ts",
-    "./**/*.web.tsx",
-    "./**/*.pc.ts",
-    "./**/*.pc.tsx"
+    "./src/**/*.js",
+    "./src/**/*.ts",
+    "./src/**/*.tsx",
+    "./web/src/**/*.ts",
+    "./web/src/**/*.tsx",
+    "./wechatMp/src/**/*.js",
+    "./wechatMp/src/**/*.ts",
+    "./typings/*.d.ts"
   ],
   "exclude": [
-   	"node_modules",
-		"**/*.spec.ts",
-		"test",
-		"scripts",
-		"lib"
+    "node_modules",
+    "**/*.spec.ts",
+    "test",
+    "scripts",
+    "lib"
   ]
 }`;
 }
 
 export function tsConfigBuildJsonContent() {
   return `{
-  "extends": "./tsconfig.build.paths.json",
+   "extends": "./tsconfig.build.paths.json",
    "compilerOptions": {
      "jsx": "react-jsx",
     "module": "commonjs",
-    "target": "es5",
+    "target": "esnext",
     "allowJs": true,
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
@@ -278,17 +279,17 @@ export function tsConfigBuildJsonContent() {
     ],
     "outDir": "lib", /* Redirect output structure to the directory. */
     "rootDir": "src", /* Specify the root directory of input files. Use to control the output directory structure with --outDir. */
-    "types": [
-      "node",
-      "miniprogram-api-typings"
-    ],
+    // "types": [
+    //   "node",
+    //   "wechat-miniprogram"
+    // ],
     "resolveJsonModule": true
   },
   "include": [
     "src/**/*"
   ],
   "exclude": [
-        "node_modules",
+    "node_modules",
     "**/*.spec.ts",
     "test",
     "src/pages/**/*",
@@ -363,17 +364,18 @@ export function tsConfigPathsJsonContent() {
 
 export function tsConfigMpJsonContent() {
   return `{
-   "extends": "./tsconfig.paths.json",
+    "extends": "./tsconfig.paths.json",
    "compilerOptions": {
-    "module": "commonjs",
-    "target": "es5",
+    "module": "ESNext",
+    "target": "ESNext",
     "allowJs": true,
     "allowSyntheticDefaultImports": true,
-    "importHelpers": true,
     "esModuleInterop": true,
     "experimentalDecorators": true,
     "strict": true,
     "downlevelIteration": true,
+    "importHelpers": true,
+    "moduleResolution": "Node",
     "lib": [
       "dom",
       "dom.iterable",
@@ -383,17 +385,25 @@ export function tsConfigMpJsonContent() {
     // "rootDir": "src", /* Specify the root directory of input files. Use to control the output directory structure with --outDir. */
     "types": [
       "node",
-      "miniprogram-api-typings"
+      "wechat-miniprogram"
     ],
     "resolveJsonModule": true,
     "jsx": "react"
   },
   "include": [
-    "./**/*.ts",
-    "./**/*.mp.ts"
+    "./src/**/*.js",
+    "./src/**/*.ts",
+    "./wechatMp/src/**/*.js",
+    "./wechatMp/src/**/*.ts",
+    "./typings/*.d.ts"
   ],
   "exclude": [
     "node_modules",
+    "scripts",
+    "test",
+    "**/*.spec.ts",
+    "**/*.test.ts",
+    "**/*.test.tsx",
     "./web"
   ]
 }`;
@@ -403,15 +413,15 @@ export function tsConfigWebJsonContent() {
   return `{
   "extends": "./tsconfig.paths.json",
    "compilerOptions": {
-    "module": "commonjs",
-    "target": "es5",
+    "module": "ESNext",
+    "target": "ESNext",
     "allowJs": true,
     "allowSyntheticDefaultImports": true,
-    "importHelpers": true,
     "esModuleInterop": true,
     "experimentalDecorators": true,
+    "importHelpers": true,
     "strict": true,
-    
+    "moduleResolution": "Node",
     "lib": [
       "dom",
       "dom.iterable",
@@ -421,21 +431,28 @@ export function tsConfigWebJsonContent() {
     // "rootDir": "src", /* Specify the root directory of input files. Use to control the output directory structure with --outDir. */
     "types": [
       "node",
-      "miniprogram-api-typings"
+      "wechat-miniprogram",
+      "react"
     ],
     "resolveJsonModule": true,
     "jsx": "react"
   },
   "include": [
-    "./**/*.ts",
-    "./**/*.tsx",
-    "./**/*.web.ts",
-    "./**/*.web.tsx",
-    "./**/*.pc.ts",
-    "./**/*.pc.tsx"
+    "./src/**/*.js",
+    "./src/**/*.ts",
+    "./src/**/*.tsx",
+    "./web/src/**/*.js",
+    "./web/src/**/*.ts",
+    "./web/src/**/*.tsx",
+    "./typings/*.d.ts"
   ],
   "exclude": [
     "node_modules",
+    "scripts",
+    "test",
+    "**/*.spec.ts",
+    "**/*.test.ts",
+    "**/*.test.tsx",
     "./wechatMp"
   ]
 }`;

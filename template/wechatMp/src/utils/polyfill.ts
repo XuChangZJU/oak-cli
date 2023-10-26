@@ -1,3 +1,4 @@
+import '@oak-frontend-base/utils/wx.polyfill';
 Object.assign(global, {
     /**
      * 封装wx环境下的fetch，注意有部分属性并非完全吻合，请谨慎使用
