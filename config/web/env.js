@@ -88,13 +88,12 @@ function getClientEnvironment(publicUrl) {
               // Whether or not react-refresh is enabled.
               // It is defined here so it is available in the webpackHotDevClient.
               FAST_REFRESH: process.env.FAST_REFRESH !== 'false',
-              // process.env.OAK_PLATFORM: wechatMp | wechatPublic | web | node
+              // process.env.OAK_PLATFORM: wechatMp | web | node
               OAK_PLATFORM: 'web',
           }
       );
   // Stringify all values so we can feed into webpack DefinePlugin
   const stringified = {
-      __DEV__: raw.NODE_ENV === 'development',
       'process.env': Object.keys(raw).reduce((env, key) => {
           env[key] = JSON.stringify(raw[key]);
           return env;
