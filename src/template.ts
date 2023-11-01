@@ -135,6 +135,7 @@ export function packageJsonContent({
         "chalk": "^4.1.2",
         "clean-webpack-plugin": "^4.0.0",
         "copy-webpack-plugin": "^10.2.4",
+        "copyfiles": "^2.4.1",
         "cross-env": "^7.0.3",
         "css-loader": "^6.6.0",
         "css-minimizer-webpack-plugin": "^3.2.0",
