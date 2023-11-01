@@ -260,7 +260,7 @@ module.exports = () => {
                                                         t.arrowFunctionExpression(
                                                             [],
                                                             t.callExpression(t.import(), [
-                                                                t.stringLiteral(join('@project', 'pages', notFound, 'index').replace(/\\/g, '/'))
+                                                                t.stringLiteral(join('@project', 'pages', ns, notFound, 'index').replace(/\\/g, '/'))
                                                             ])
                                                         ),
                                                     ]
