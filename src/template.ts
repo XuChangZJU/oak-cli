@@ -31,7 +31,7 @@ export function packageJsonContent({
     oakDevDependencyStr = `"${cliName}": "^${cliVersion}",`
   }
 
-  const serverInitScript = isDev ? "cross-env NODE_ENV=development cross-env OAK_PLATFORM=server ts-node scripts/initServer.js" : "cross-env OAK_PLATFORM=server ts-node scripts/initServer.js";
+  const serverInitScript = isDev ? "cross-env OAK_PLATFORM=server ts-node scripts/initServer.js" : "cross-env OAK_PLATFORM=server ts-node scripts/initServer.js";
   const serverStartScript = isDev ? "cross-env NODE_ENV=development cross-env OAK_PLATFORM=server ts-node scripts/startServer.js" : "cross-env OAK_PLATFORM=server ts-node scripts/startServer.js";
   return `{
     "name": "${name}",
@@ -51,7 +51,7 @@ export function packageJsonContent({
         "build:web": "${cliBinName} build --target web --mode production",
         "build-analyze:web": "${cliBinName} build --target web --mode production --analyze",
         "build-sourcemap-analyze:web": "${cliBinName} build --target web --mode production --sourcemap --analyze",
-        "build": "tsc",
+        "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json && npm run copy-config-json",
         "server:init": "${serverInitScript}",
         "server:start": "${serverStartScript}",
         "postinstall": "npm run make:domain"
@@ -185,6 +185,7 @@ export function packageJsonContent({
         "terser-webpack-plugin": "^5.2.5",
         "ts-loader": "^9.3.0",
         "ts-node": "^10.8.1",
+        "tsc-alias": "^1.8.2",
         "tslib": "^2.4.0",
         "typescript": "^4.7.3",
         "ui-extract-webpack-plugin": "^1.0.0",
