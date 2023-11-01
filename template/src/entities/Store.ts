@@ -5,11 +5,10 @@ import {
     Float,
     SingleGeo,
 } from 'oak-domain/lib/types/DataType';
-import { ActionDef } from 'oak-domain/lib/types/Action';
+import { ActionDef, EntityDesc } from 'oak-domain/lib/types';
 import { Schema as Area } from 'oak-general-business/lib/entities/Area';
 import { Schema as ExtraFile } from 'oak-general-business/lib/entities/ExtraFile';
 import { EntityShape } from 'oak-domain/lib/types/Entity';
-import { LocaleDef } from 'oak-domain/lib/types/Locale';
 
 export interface Schema extends EntityShape {
     coordinate: SingleGeo; //坐标
@@ -33,7 +32,7 @@ const IActionDef: ActionDef<IAction, IState> = {
 
 type Action = IAction;
 
-const locale: LocaleDef<
+const entityDesc: EntityDesc<
     Schema,
     Action,
     '',
@@ -41,25 +40,41 @@ const locale: LocaleDef<
         iState: IState;
     }
 > = {
-    zh_CN: {
-        attr: {
-            coordinate: '位置',
-            area: '地区',
-            name: '名称',
-            addrDetail: '地址详情',
-            files: '照片',
-            iState: '状态',
+    indexes: [
+        {
+            name: 'index_name',
+            attributes: [
+                {
+                    name: 'name',
+                },
+            ],
+            config: {
+                unique: true,
+            },
         },
-        action: {
-            online: '上线',
-            offline: '下线',
-            disabled: '禁用',
-        },
-        v: {
-            iState: {
-                online: '已上线',
-                offline: '已下线',
-                disabled: '已禁用',
+    ],
+    locales: {
+        zh_CN: {
+            name: '门店',
+            attr: {
+                coordinate: '位置',
+                area: '地区',
+                name: '名称',
+                addrDetail: '地址详情',
+                files: '照片',
+                iState: '状态',
+            },
+            action: {
+                online: '上线',
+                offline: '下线',
+                disabled: '禁用',
+            },
+            v: {
+                iState: {
+                    online: '已上线',
+                    offline: '已下线',
+                    disabled: '已禁用',
+                },
             },
         },
     },

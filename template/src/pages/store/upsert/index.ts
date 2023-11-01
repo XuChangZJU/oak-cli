@@ -1,6 +1,5 @@
 
-export default OakPage({
-    path: 'store:upsert',
+export default OakComponent({
     entity: 'store',
     projection: {
         id: 1,
@@ -31,7 +30,7 @@ export default OakPage({
         },
     },
     isList: false,
-    formData: async function ({ data: store, features }) {
+    formData: function ({ data: store, features }) {
         return {
             iState: store?.iState,
             name: store?.name,
@@ -47,16 +46,12 @@ export default OakPage({
     },
     methods: {
         async confirm() {
-            await this.execute(this.props.oakId ? 'update' : 'create');
-            if (this.props.oakFrom === 'book:list') {
-                this.navigateBack();
-                return;
-            }
+            await this.execute();
             this.navigateBack();
         },
         async reset() {
             // 重置
-            this.resetUpdateData();
+            this.clean();
         },
     },
 });

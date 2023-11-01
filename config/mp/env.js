@@ -56,13 +56,12 @@ function getClientEnvironment() {
                 // Useful for determining whether we’re running in production mode.
                 // Most importantly, it switches React into the correct mode.
                 NODE_ENV: process.env.NODE_ENV || 'development',
-                // process.env.OAK_PLATFORM: wechatMp | wechatPublic | web | node
+                // process.env.OAK_PLATFORM: wechatMp | web | node
                 OAK_PLATFORM: 'wechatMp',
             }
         );
     // Stringify all values so we can feed into webpack DefinePlugin
     const stringified = {
-        __DEV__: raw.NODE_ENV === 'development',
         'process.env': Object.keys(raw).reduce((env, key) => {
             env[key] = JSON.stringify(raw[key]);
             return env;

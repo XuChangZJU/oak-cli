@@ -291,9 +291,7 @@ module.exports = function (webpackEnv) {
                     '*/weui-miniprogram/*',
                     '**/*.module.less',
                     '**/web.less',
-                    '**/fontawesome.less',
-                    '**/pages/**/locales/**/*',
-                    '**/components/**/locales/**/*',
+                    '**/locales/**/*',
                 ],
                 include: ['project.config.json', 'sitemap.json'],
                 debugPanel: {
@@ -369,6 +367,8 @@ module.exports = function (webpackEnv) {
                     },
                     logger: {
                         infrastructure: 'silent',
+                        log: (message) => console.log(message),
+                        error: (message) => console.error(message),
                     },
                 }),
             new webpack.ProvidePlugin({

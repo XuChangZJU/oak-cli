@@ -11,7 +11,11 @@ const EntryPlugin = require('webpack/lib/EntryPlugin');
 const ensurePosix = require('ensure-posix-path');
 const requiredPath = require('required-path');
 
-const { parseSync, transformFromAstSync } = require('@babel/core');
+const {
+    parseSync,
+    transformFromAstSync,
+    transformSync,
+} = require('@babel/core');
 const t = require('@babel/types');
 const { readFileSync, writeFileSync, existsSync, mkdirSync } = require('fs');
 const assert = require('assert');
@@ -700,34 +704,70 @@ class OakWeChatMpPlugin {
     }
 
     makeI18nWxs(projectPath, outputPath) {
-        const i18nWxsFilename = path.join(projectPath, 'node_modules', 'oak-frontend-base', 'lib', 'platforms', 'wechatMp', 'i18n', 'wxs.js');
-        const content = readFileSync(i18nWxsFilename, { encoding: 'utf-8' });
+        const i18nWxsFilename = path.join(
+            projectPath,
+            'node_modules',
+            'oak-frontend-base',
+            'lib',
+            'platforms',
+            'wechatMp',
+            'i18n',
+            'wxs.js'
+        );
+        let content = readFileSync(i18nWxsFilename, { encoding: 'utf-8' });
+     
+        try {
+            // Babel 转换配置
+            const options = {
+                presets: [
+                    [
+                        '@babel/preset-env',
+                        {
+                            targets: 'last 2 versions, > 1%',
+                        },
+                    ],
+                ],
+                plugins: [
+                    '@babel/plugin-transform-arrow-functions',
+                    '@babel/plugin-transform-classes',
+                    '@babel/plugin-transform-destructuring',
+                    '@babel/plugin-transform-spread',
+                    // 添加其他需要的插件
+                ],
+            };
+
+            // 使用 Babel 进行转换
+            const result = transformSync(content, options);
+
+            // 返回转换后的 ES5 代码
+            content = result.code;
+        } catch (error) {
+            console.error('转换失败:', error);
+        }
         const ast = parseSync(content);
-        const { program: { body } } = ast;
+        const {
+            program: { body },
+        } = ast;
 
         traverseAst(ast, {
             enter(path) {
                 if (path.isRegExpLiteral()) {
                     const { node } = path;
                     path.replaceWith(
-                        t.callExpression(
-                            t.identifier('getRegExp'),
-                            [
-                                t.stringLiteral(node.pattern),
-                                t.stringLiteral(node.flags)
-                            ]
-                        )
+                        t.callExpression(t.identifier('getRegExp'), [
+                            t.stringLiteral(node.pattern),
+                            t.stringLiteral(node.flags),
+                        ])
                     );
-                }
-                else if (path.isNewExpression()) {
+                } else if (path.isNewExpression()) {
                     const { node } = path;
-                    if (t.isIdentifier(node.callee) && node.callee.name === 'RegExp') {
+                    if (
+                        t.isIdentifier(node.callee) &&
+                        node.callee.name === 'RegExp'
+                    ) {
                         const { arguments: args } = node;
                         path.replaceWith(
-                            t.callExpression(
-                                t.identifier('getRegExp'),
-                                args
-                            )
+                            t.callExpression(t.identifier('getRegExp'), args)
                         );
                     }
                 }
@@ -738,7 +778,7 @@ class OakWeChatMpPlugin {
          * 去掉编译中不必要的expression
          */
         ast.program.body = ast.program.body.filter(
-            ele => !t.isExpressionStatement(ele)
+            (ele) => !t.isExpressionStatement(ele)
         );
 
         /**
@@ -752,24 +792,19 @@ class OakWeChatMpPlugin {
                         t.identifier('module'),
                         t.identifier('exports')
                     ),
-                    t.objectExpression(
-                        [
-                            t.objectProperty(
-                                t.identifier('t'),
-                                t.identifier('t')
-                            ),
-                            t.objectProperty(
-                                t.identifier('propObserver'),
-                                t.identifier('propObserver')
-                            )
-                        ]
-                    )
+                    t.objectExpression([
+                        t.objectProperty(t.identifier('t'), t.identifier('t')),
+                        t.objectProperty(
+                            t.identifier('propObserver'),
+                            t.identifier('propObserver')
+                        ),
+                    ])
                 )
             )
         );
 
         const { code } = transformFromAstSync(ast);
-        
+
         const wxsOutputDir = path.join(outputPath, 'wxs');
         if (!existsSync(wxsOutputDir)) {
             mkdirSync(wxsOutputDir);

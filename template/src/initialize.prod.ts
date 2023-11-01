@@ -1,68 +1,75 @@
-import './utils/polyfill';
-import { initialize as init } from 'oak-frontend-base/lib/initialize.prod';
-import { SimpleConnector } from 'oak-domain/lib/utils/SimpleConnector';
+import { initialize as init } from 'oak-general-business/es/initialize.prod';
 
-import { AspectWrapper } from 'oak-domain/lib/types';
-import { EntityDict, storageSchema, ActionDefDict } from 'oak-app-domain';
-import { CommonAspectDict } from 'oak-common-aspect';
-import { RuntimeContext } from './context/RuntimeContext';
+import { SimpleConnector } from 'oak-domain/lib/utils/SimpleConnector';
+import { EntityDict, storageSchema, ActionDefDict } from '@oak-app-domain';
 import { BackendRuntimeContext } from './context/BackendRuntimeContext';
 import { FrontendRuntimeContext } from './context/FrontendRuntimeContext';
 
 import { initialize as initializeFeatures } from './features';
-import { routers } from './exceptionRouters';
-import { checkers } from './checkers';
+import checkers from './checkers';
 import { makeException } from './types/Exception';
 import { AspectDict } from './aspects/AspectDict';
+import colorDict from './config/color';
+import cacheSavedEntities from './config/cache';
+import {
+    selectFreeEntities,
+    updateFreeDict,
+    authDeduceRelationMap,
+} from './config/relation';
 
-import { BasicFeatures } from 'oak-frontend-base/lib/features';
-import { AppType } from 'oak-app-domain/Application/Schema';
+import { AppType } from '@oak-app-domain/Application/Schema';
+import { AFD } from '@project/types/RuntimeCxt';
 
-export default function initialize(
-    type: AppType,
-    url: string,
-    i18nOptions?: Record<string, any>
-) {
-    let URL: string;
-    /**
-     * 如果是本地前后端联调，可以显示import initialize.prod走到这里
-     */
+export default function initialize(type: AppType, hostname: string) {
+    let protocol = '',
+        apiPath: string | undefined,
+        port: number | undefined;
     if (type === 'wechatMp') {
-        // 如果是小程序，需要显式传入url
-        const apiPath =
-            process.env.NODE_ENV === 'development' ? '3001' : '/oak-api'; // 生产环境通过路径映射增加oak-api
-        const protocol =
+        protocol =
             process.env.NODE_ENV === 'development' ? 'http://' : 'https://';
-        URL = `${protocol}${url}${apiPath}`;
-    } else if (process.env.NODE_ENV === 'development') {
-        URL = 'http://localhost:3001';
     } else {
-        // web和public环境只需要传相对路径
-        URL = `/oak-api`;
+        protocol = window.location.protocol;
     }
-    const connector = new SimpleConnector(
-        URL,
-        makeException,
-        BackendRuntimeContext.FromSerializedString
+
+    port = process.env.NODE_ENV === 'development' ? 3001 : undefined;
+    apiPath = process.env.NODE_ENV === 'development' ? undefined : '/oak-api';
+
+    const connector = new SimpleConnector<EntityDict, FrontendRuntimeContext>(
+        {
+            protocol,
+            hostname,
+            port,
+            apiPath,
+        },
+        makeException
     );
-    const { i18n, features } = init<
+    const wholeFeatures = {} as AFD;
+    const { features } = init<
         EntityDict,
-        RuntimeContext,
+        BackendRuntimeContext,
         AspectDict,
-        ReturnType<typeof initializeFeatures>
+        FrontendRuntimeContext
     >(
+        type,
+        hostname,
         storageSchema,
-        (wrapper, basicFeatures) => initializeFeatures(wrapper, basicFeatures, type),
-        (features) => (store) => new FrontendRuntimeContext(store, features.application, features.token),
-        routers,
+        () => (store) => new FrontendRuntimeContext(store, wholeFeatures),
         connector,
         checkers,
-        ActionDefDict,
-        i18nOptions
+        {
+            actionDict: ActionDefDict,
+            colorDict,
+            authDeduceRelationMap,
+            selectFreeEntities,
+            updateFreeDict,
+            cacheSavedEntities,
+        }
     );
 
+    const appFeatures = initializeFeatures(features);
+
+    Object.assign(wholeFeatures, appFeatures, features);
     return {
-        i18n,
-        features,
+        features: wholeFeatures,
     };
 }

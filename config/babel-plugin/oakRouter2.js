@@ -209,6 +209,9 @@ module.exports = () => {
                                         }
                                         namespaceConfig[ns].path = path.replace(/\\/g, '/');
                                     }
+                                    else {
+                                        namespaceConfig[ns].path = `/${ns}`;
+                                    }
                                 }
                                 else {
                                     namespaceConfig[ns].path = `/${ns}`;

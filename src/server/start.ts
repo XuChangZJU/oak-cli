@@ -132,10 +132,10 @@ export async function startup<ED extends EntityDict & BaseEntityDict, Cxt extend
     });
 
     // 注入所有的endpoints
-    const endpoints = appLoader.getEndpoints();
+    const endpoints = appLoader.getEndpoints(connector.getEndpointRouter());
     endpoints.forEach(
         ([name, method, url, fn]) => {
-            router[method](name, url, async (ctx) => {
+            router[method](url, async (ctx) => {
                 const { req, request, params } = ctx;
                 const { body, headers } = request;
                 try {
@@ -150,7 +150,8 @@ export async function startup<ED extends EntityDict & BaseEntityDict, Cxt extend
             });
         }
     );
-    router.get('/endpoint', async (ctx) => {
+    
+    router.get(connector.getEndpointRouter(), async (ctx) => {
         ctx.response.body = endpoints;
     });
 

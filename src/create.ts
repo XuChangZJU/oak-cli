@@ -156,14 +156,14 @@ async function createWebBoilplate(
     // web项目oak.config.json路径
     const oakConfigPathWithWeb = join(dir, 'src', USER_CONFIG_FILE_NAME);
 
-    // 创建小程序项目app.json
-    checkFileExistsAndCreate(
-        appJsonPathWithWeb,
-        appJsonWithWeb,
-        checkFileExistsAndCreateType.FILE,
-        isUpdate
-    );
-    // 创建小程序项目oak.config.json
+    // 创建web项目app.json
+    // checkFileExistsAndCreate(
+    //     appJsonPathWithWeb,
+    //     appJsonWithWeb,
+    //     checkFileExistsAndCreateType.FILE,
+    //     isUpdate
+    // );
+    // 创建web项目oak.config.json
     checkFileExistsAndCreate(
         oakConfigPathWithWeb,
         oakConfigWithWeb,
