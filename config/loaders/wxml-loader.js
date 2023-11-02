@@ -118,7 +118,7 @@ function codeChunkIncludesT(text) {
  * @param {*} moduleName 
  * @returns 
  */
-function transformCode(text, namespace, moduleName) {    
+function transformCode(text, namespace, moduleName) {
     const codeChunkRegex = /(?:\{\{|%\{)(.*?)(?:\}\}?)/gm;
     const matches = text.match(codeChunkRegex);
     if (!matches) {
@@ -155,7 +155,7 @@ function transformCode(text, namespace, moduleName) {
             });
             const { code } = transformFromAstSync(ast);
             assert(code.endsWith(';'));
-            
+
             text2 = text2.replace(codeContent, code.slice(0, code.length - 1));
         }
     }
@@ -224,33 +224,7 @@ module.exports = async function (content) {
 
     // 无条件注入i18n.wxs
     source = `<wxs src='${i18nWxsFile}' module='${I18nModuleName}'></wxs>\n<view change:prop="{{${I18nModuleName}.propObserver}}" prop="{{oakLocales}}" />\n` + source;
-    //判断是否存在i18n的t函数
-    /* if (existsT(source)) {
-        //判断加载的xml是否为本项目自身的文件
-        const isSelf = filePath.indexOf(appSrcPath) !== -1;
-        if (isSelf) {
-            //本项目xml
-            wxsRelativePath = relative(
-                filePath,
-                appSrcPath + '/' + WXS_PATH
-            ).replace(/\\/g, '/');
-        } else {
-            //第三方项目的xml
-            if (oakRegex.test(filePath)) {
-                const p = filePath.replace(oakRegex, '');
-                wxsRelativePath = relative(
-                    appSrcPath + '/' + p,
-                    appSrcPath + '/' + WXS_PATH
-                ).replace(/\\/g, '/');
-            }
-        }
 
-        if (wxsRelativePath) {
-            source =
-                `<wxs src='${wxsRelativePath}' module='${I18nModuleName}'></wxs>` +
-                source;
-        }
-    } */
     // 注入全局message组件
     if (/pages/.test(filePath)) {
         const appJson = getAppJson(appSrcPath);
@@ -312,6 +286,32 @@ module.exports = async function (content) {
                         const path = resolve(root, value);
                         // const request = urlToRequest(value, root);
                         requests.push(path);
+                    }
+                }
+            }
+
+            // xml存在oakPath路径，如果有oakFullpath，加上不为undefined的判定
+            if (node.hasAttribute("oakPath")) {
+                const value = node.getAttribute('oakPath');
+
+                if (value.includes('oakFullpath')) {
+                    // 临时代码，去掉jichuang中原来的三元操作符
+                    if (value.includes('?')) {
+                        console.warn(`${filePath}，当前oakFullpath的有效性改成注入判定，不需要在代码中使用三元操作符处理为空的情况`);
+                    }
+                    if (node.parentNode.nodeName === 'block' && node.parentNode.hasAttribute('wx:if') && node.parentNode.getAttribute('wx:if').includes('oakFullpath')) {
+                        const InjectedAttr = node.parentNode.getAttribute('oakInjected');
+                        if (!InjectedAttr) {
+                            console.warn(`${filePath}，当前oakFullpath的有效性改成注入判定，不需要在上层手动进行oakFullpath的判定`);
+                        }
+                    }
+                    else {
+                        const wxIfNode = node.ownerDocument.createElement('block');
+                        wxIfNode.setAttribute('wx:if', '{{oakFullpath}}');
+                        wxIfNode.setAttribute('oakInjected', 'true');
+    
+                        node.parentNode.replaceChild(wxIfNode, node);
+                        wxIfNode.appendChild(node);
                     }
                 }
             }
