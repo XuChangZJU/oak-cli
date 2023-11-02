@@ -11,65 +11,72 @@ const { unset } = require('lodash');
 const pageFiles = {};
 const routerFiles = {};
 
-function addFileWatcher(namespaceConfig, body, filename) {
+/**
+ * 对nss所标识出的namespace下的(pages文件下的)文件，一旦有变更就重编译filename
+ * @param {*} filename 
+ * @param {*} nss 
+ */
+function addFileWatcher(filename, nss) {
     if (process.env.NODE_ENV === 'development') {
-        // 只有开发模式才需要监听
-        routerFiles[filename] = {
-            namespaceConfig,
-            body,
-        };
-        if (Object.keys(routerFiles).length === 1) {
-            const pageSrcDir = join(AppPaths.appRootSrc, 'pages');
+        nss.forEach(
+            (ns) => {
+                if (routerFiles[ns]) {
+                    routerFiles[ns].push(filename);
+                }
+                else {
+                    routerFiles[ns] = [filename];
+                    const pageSrcDir = join(AppPaths.appRootSrc, 'pages', ns);
+                    const isExists = fs.existsSync(pageSrcDir);
+                    if (isExists) {
+                            NodeWatch(pageSrcDir, { recursive: true }, (evt, name) => {
+                        const { dir } = parse(name);
+                        const indexJsonFile = join(dir, 'index.json');
+                        const indexTsxFile = join(dir, 'index.tsx');
+                        const webTsxFile = join(dir, 'web.tsx');
+                        const webPcTsxFile = join(dir, 'web.pc.tsx');
+                        if (evt === 'update' && !pageFiles[ns].hasOwnProperty(dir)) {
+                            // 处理新增文件事件，删除事件webpack会自己处理，不处理也没什么问题
+                            if (fs.existsSync(indexTsxFile) || fs.existsSync(webTsxFile) || fs.existsSync(webPcTsxFile)) {
+                                let oakDisablePulldownRefresh = false;
+                                if (fs.existsSync(indexJsonFile)) {
+                                    const {
+                                        enablePullDownRefresh = true,
+                                    } = require(indexJsonFile);
+                                    oakDisablePulldownRefresh = !enablePullDownRefresh;
+                                }
+                                const relativePath = relative(pageSrcDir, dir);
+                                const newPageItem = {
+                                    path: relativePath.replace(/\\/g, '/'),
+                                    oakDisablePulldownRefresh,
+                                };
+                                pageFiles[ns][dir] = newPageItem;
 
-            NodeWatch(pageSrcDir, { recursive: true }, (evt, name) => {
-                const { dir } = parse(name);
-                const indexJsonFile = join(dir, 'index.json');
-                const indexTsxFile = join(dir, 'index.tsx');
-                const webTsxFile = join(dir, 'web.tsx');
-                const webPcTsxFile = join(dir, 'web.pc.tsx');
-                if (evt === 'update' && !pageFiles.hasOwnProperty(dir)) {
-                    // 处理新增文件事件，删除事件webpack会自己处理，不处理也没什么问题
-                    if (fs.existsSync(indexTsxFile) || fs.existsSync(webTsxFile) || fs.existsSync(webPcTsxFile)) {
-                        let oakDisablePulldownRefresh = false;
-                        if (fs.existsSync(indexJsonFile)) {
-                            const {
-                                enablePullDownRefresh = true,
-                            } = require(indexJsonFile);
-                            oakDisablePulldownRefresh = !enablePullDownRefresh;
+                                const now = new Date();
+                                routerFiles[ns].forEach(
+                                    (file) => fs.utimes(file, now, now, () => undefined)
+                                );
+                            }
                         }
-                        const relativePath = relative(pageSrcDir, dir);
-                        const newPageItem = {
-                            path: relativePath.replace(/\\/g, '/'),
-                            oakDisablePulldownRefresh,
-                        };
-                        pageFiles[dir] = newPageItem;
+                        else if (evt === 'remove' && pageFiles.hasOwnProperty(dir)) {
+                            if (!(fs.existsSync(indexTsxFile) || fs.existsSync(webTsxFile) || fs.existsSync(webPcTsxFile))) {
+                                unset(pageFiles[ns], dir);
 
-                        const now = new Date();
-                        Object.keys(routerFiles).forEach(
-                            (routerFilename) => {
-                                fs.utimes(routerFilename, now, now, () => undefined);
+                                const now = new Date();
+                                routerFiles[ns].forEach(
+                                    (file) => fs.utimes(file, now, now, () => undefined)
+                                );
                             }
-                        );
+                        }
+                        });
                     }
+                
                 }
-                else if (evt === 'remove' && pageFiles.hasOwnProperty(dir)) {
-                    if (!(fs.existsSync(indexTsxFile) || fs.existsSync(webTsxFile) || fs.existsSync(webPcTsxFile))) {
-                        unset(pageFiles, dir);
-
-                        const now = new Date();
-                        Object.keys(routerFiles).forEach(
-                            (routerFilename) => {
-                                fs.utimes(routerFilename, now, now, () => undefined);
-                            }
-                        );
-                    }
-                }
-            });
-        }
+            }
+        )
     }
 }
 
-function makeRouterItem(page, namespace, first) {
+function makeRouterItem(page, ns, namespacePath, first) {
     const { path, oakDisablePulldownRefresh } = page;
     return t.objectExpression(
         [
@@ -79,7 +86,7 @@ function makeRouterItem(page, namespace, first) {
             ),
             t.objectProperty(
                 t.identifier('namespace'),
-                t.stringLiteral(namespace),
+                t.stringLiteral(namespacePath),
             ),
             t.objectProperty(
                 t.identifier('meta'),
@@ -100,7 +107,7 @@ function makeRouterItem(page, namespace, first) {
                         t.arrowFunctionExpression(
                             [],
                             t.callExpression(t.import(), [
-                                t.stringLiteral(join('@project', 'pages', path, 'index').replace(/\\/g, '/'))
+                                t.stringLiteral(join('@project', 'pages', ns, path, 'index').replace(/\\/g, '/'))
                             ])
                         ),
                     ]
@@ -114,39 +121,54 @@ function makeRouterItem(page, namespace, first) {
     );
 }
 
-function traversePages() {
+function traversePages(nss) {
     // pages从相应目录遍历获得
-    const pageSrcDir = join(AppPaths.appRootSrc, 'pages');
+    nss.forEach(
+        (ns) => {
+            if (!pageFiles.hasOwnProperty(ns)) {
+                pageFiles[ns] = {};
+                const pageSrcDir = join(AppPaths.appRootSrc, 'pages', ns);
 
-    const traverse = (dir, relativePath) => {
-        const files = fs.readdirSync(dir);
-        files.forEach(
-            (file) => {
-                const filepath = join(dir, file);
-                const stat = fs.statSync(filepath);
-                if (stat.isFile() && ['index.tsx', 'web.tsx', 'web.pc.tsx'].includes(file) && !pageFiles.hasOwnProperty(dir)) {
-                    const indexJsonFile = join(dir, 'index.json');
-                    let oakDisablePulldownRefresh = false;
-                    if (fs.existsSync(indexJsonFile)) {
-                        const {
-                            enablePullDownRefresh = true,
-                        } = require(indexJsonFile);
-                        oakDisablePulldownRefresh = !enablePullDownRefresh;
-                    }
-                    pageFiles[dir] = {
-                        path: relativePath.replace(/\\/g, '/'),
-                        oakDisablePulldownRefresh,
-                    }
+                const traverse = (dir, relativePath) => {
+                    const files = fs.readdirSync(dir);
+                    files.forEach((file) => {
+                        const filepath = join(dir, file);
+                        const stat = fs.statSync(filepath);
+                        if (
+                            stat.isFile() &&
+                            ['index.tsx', 'web.tsx', 'web.pc.tsx'].includes(
+                                file
+                            ) &&
+                            !pageFiles[ns].hasOwnProperty(dir)
+                        ) {
+                            const indexJsonFile = join(dir, 'index.json');
+                            let oakDisablePulldownRefresh = false;
+                            if (fs.existsSync(indexJsonFile)) {
+                                const {
+                                    enablePullDownRefresh = true,
+                                } = require(indexJsonFile);
+                                oakDisablePulldownRefresh =
+                                    !enablePullDownRefresh;
+                            }
+                            pageFiles[ns][dir] = {
+                                path: relativePath.replace(/\\/g, '/'),
+                                oakDisablePulldownRefresh,
+                            };
+                        } else if (stat.isDirectory()) {
+                            const dir2 = join(dir, file);
+                            const relativePath2 = join(relativePath, file);
+                            traverse(dir2, relativePath2);
+                        }
+                    });
+                };
+                const isExists = fs.existsSync(pageSrcDir);
+                if (isExists) {
+                    traverse(pageSrcDir, '');
                 }
-                else if (stat.isDirectory()) {
-                    const dir2 = join(dir, file);
-                    const relativePath2 = join(relativePath, file);
-                    traverse(dir2, relativePath2);
-                }
+
             }
-        );
-    };
-    traverse(pageSrcDir, '');
+        }
+    );
 }
 
 module.exports = () => {
@@ -198,6 +220,9 @@ module.exports = () => {
                                         }
                                         namespaceConfig[ns].path = path.replace(/\\/g, '/');
                                     }
+                                    else {
+                                        namespaceConfig[ns].path = `/${ns}`;
+                                    }
                                 }
                                 else {
                                     namespaceConfig[ns].path = `/${ns}`;
@@ -206,9 +231,7 @@ module.exports = () => {
                         }
                     );
 
-                    if (Object.keys(pageFiles).length === 0) {
-                        traversePages();
-                    }
+                    traversePages(nss);
 
                     const node = body.find(
                         ele => t.isVariableDeclaration(ele) && t.isIdentifier(ele.declarations[0].id) && ele.declarations[0].id.name === 'allRouters'
@@ -224,8 +247,8 @@ module.exports = () => {
                             const { path, notFound, first } = namespaceConfig[ns];
 
                             const children = t.arrayExpression(
-                                Object.values(pageFiles).map(
-                                    (page) => makeRouterItem(page, path, first)
+                                Object.values(pageFiles[ns]).map(
+                                    (page) => makeRouterItem(page, ns, path, first)
                                 )
                             );
                             if (notFound) {
@@ -248,7 +271,7 @@ module.exports = () => {
                                                         t.arrowFunctionExpression(
                                                             [],
                                                             t.callExpression(t.import(), [
-                                                                t.stringLiteral(join('@project', 'pages', notFound, 'index').replace(/\\/g, '/'))
+                                                                t.stringLiteral(join('@project', 'pages', ns, notFound, 'index').replace(/\\/g, '/'))
                                                             ])
                                                         ),
                                                     ]
@@ -298,7 +321,7 @@ module.exports = () => {
                             t.stringLiteral('react')
                         )
                     );
-                    addFileWatcher(namespaceConfig, body, filename);
+                    addFileWatcher(filename, nss);
 
                     /*  const { code } = transformFromAstSync(path.container);
  
