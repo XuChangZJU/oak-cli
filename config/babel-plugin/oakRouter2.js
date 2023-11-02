@@ -26,8 +26,9 @@ function addFileWatcher(filename, nss) {
                 else {
                     routerFiles[ns] = [filename];
                     const pageSrcDir = join(AppPaths.appRootSrc, 'pages', ns);
-
-                    NodeWatch(pageSrcDir, { recursive: true }, (evt, name) => {
+                    const isExists = fs.existsSync(pageSrcDir);
+                    if (isExists) {
+                            NodeWatch(pageSrcDir, { recursive: true }, (evt, name) => {
                         const { dir } = parse(name);
                         const indexJsonFile = join(dir, 'index.json');
                         const indexTsxFile = join(dir, 'index.tsx');
@@ -66,7 +67,9 @@ function addFileWatcher(filename, nss) {
                                 );
                             }
                         }
-                    });
+                        });
+                    }
+                
                 }
             }
         )
@@ -128,33 +131,41 @@ function traversePages(nss) {
 
                 const traverse = (dir, relativePath) => {
                     const files = fs.readdirSync(dir);
-                    files.forEach(
-                        (file) => {
-                            const filepath = join(dir, file);
-                            const stat = fs.statSync(filepath);
-                            if (stat.isFile() && ['index.tsx', 'web.tsx', 'web.pc.tsx'].includes(file) && !pageFiles[ns].hasOwnProperty(dir)) {
-                                const indexJsonFile = join(dir, 'index.json');
-                                let oakDisablePulldownRefresh = false;
-                                if (fs.existsSync(indexJsonFile)) {
-                                    const {
-                                        enablePullDownRefresh = true,
-                                    } = require(indexJsonFile);
-                                    oakDisablePulldownRefresh = !enablePullDownRefresh;
-                                }
-                                pageFiles[ns][dir] = {
-                                    path: relativePath.replace(/\\/g, '/'),
-                                    oakDisablePulldownRefresh,
-                                }
+                    files.forEach((file) => {
+                        const filepath = join(dir, file);
+                        const stat = fs.statSync(filepath);
+                        if (
+                            stat.isFile() &&
+                            ['index.tsx', 'web.tsx', 'web.pc.tsx'].includes(
+                                file
+                            ) &&
+                            !pageFiles[ns].hasOwnProperty(dir)
+                        ) {
+                            const indexJsonFile = join(dir, 'index.json');
+                            let oakDisablePulldownRefresh = false;
+                            if (fs.existsSync(indexJsonFile)) {
+                                const {
+                                    enablePullDownRefresh = true,
+                                } = require(indexJsonFile);
+                                oakDisablePulldownRefresh =
+                                    !enablePullDownRefresh;
                             }
-                            else if (stat.isDirectory()) {
-                                const dir2 = join(dir, file);
-                                const relativePath2 = join(relativePath, file);
-                                traverse(dir2, relativePath2);
-                            }
+                            pageFiles[ns][dir] = {
+                                path: relativePath.replace(/\\/g, '/'),
+                                oakDisablePulldownRefresh,
+                            };
+                        } else if (stat.isDirectory()) {
+                            const dir2 = join(dir, file);
+                            const relativePath2 = join(relativePath, file);
+                            traverse(dir2, relativePath2);
                         }
-                    );
+                    });
                 };
-                traverse(pageSrcDir, '');
+                const isExists = fs.existsSync(pageSrcDir);
+                if (isExists) {
+                    traverse(pageSrcDir, '');
+                }
+
             }
         }
     );
