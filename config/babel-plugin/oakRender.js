@@ -20,6 +20,12 @@ module.exports = (babel) => {
                         /index\.(ts|js)$/,
                         'web.js'
                     );
+                    const xmlFile = filename.replace(
+                        /index\.(ts|js)$/,
+                        'index.xml'
+                    );
+                    const xmlFileExists = fs.existsSync(xmlFile);
+
                     const tsxFileExists = fs.existsSync(tsxFile);
                     const jsFileExists = fs.existsSync(jsFile);
                     const pcTsxFile = filename.replace(
@@ -194,7 +200,7 @@ module.exports = (babel) => {
                             statements.push(...renderJsStatements);
                         } else if (pcJsFileExists) {
                             statements.push(...renderPcJsStatements);
-                        } else {
+                        } else if (!xmlFileExists) {
                             assert(
                                 false,
                                 `${filename}文件中不存在web.tsx或者web.pc.tsx`

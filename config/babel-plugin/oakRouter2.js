@@ -107,7 +107,7 @@ function makeRouterItem(page, ns, namespacePath, first) {
                         t.arrowFunctionExpression(
                             [],
                             t.callExpression(t.import(), [
-                                t.stringLiteral(join('@project', 'pages', ns, path, 'index').replace(/\\/g, '/'))
+                                t.stringLiteral(join(AppPaths.appRootSrc, 'pages', ns, path, 'index').replace(/\\/g, '/'))
                             ])
                         ),
                     ]
@@ -271,7 +271,7 @@ module.exports = () => {
                                                         t.arrowFunctionExpression(
                                                             [],
                                                             t.callExpression(t.import(), [
-                                                                t.stringLiteral(join('@project', 'pages', ns, notFound, 'index').replace(/\\/g, '/'))
+                                                                t.stringLiteral(join(AppPaths.appRootSrc, 'pages', ns, notFound, 'index').replace(/\\/g, '/'))
                                                             ])
                                                         ),
                                                     ]

@@ -184,12 +184,15 @@ class OakWeChatMpPlugin {
         let realPages = [];
         this.subpackRoot = [];
 
-        for (const { iconPath, selectedIconPath } of tabBar.list || []) {
+        for (const tab of tabBar.list || []) {
+            const { iconPath, selectedIconPath, pagePath } = tab;
             if (iconPath) {
-                tabBarAssets.add(iconPath);
+                const aliasPath = this.getAliasPath(iconPath);
+                tabBarAssets.add(aliasPath);
             }
             if (selectedIconPath) {
-                tabBarAssets.add(selectedIconPath);
+                const aliasPath = this.getAliasPath(selectedIconPath);
+                tabBarAssets.add(aliasPath);
             }
         }
 
@@ -357,7 +360,7 @@ class OakWeChatMpPlugin {
             ignore: this.getIgnoreExt(),
             dot: false,
         });
-
+     
         this.assetsEntry = [...entries, ...this.appEntries.tabBarAssets];
         this.assetsEntry.forEach((resource) => {
             new EntryPlugin(
@@ -541,6 +544,23 @@ class OakWeChatMpPlugin {
                     pages.push(page);
                 }
                 appJson.pages = pages;
+            }
+
+            if (appJson.tabBar) {
+                const list = appJson.tabBar.list;
+
+                for (const tab of list || []) {
+                    const { iconPath, selectedIconPath, pagePath } = tab;
+                    if (iconPath) {
+                        tab.iconPath = this.getReplaceAlias(iconPath);
+                    }
+                    if (selectedIconPath) {
+                        tab.selectedIconPath = this.getReplaceAlias(selectedIconPath);
+                    }
+                    if (pagePath) {
+                        tab.pagePath = this.getReplaceAlias(pagePath);
+                    }
+                }
             }
 
             let usingComponents = {};
