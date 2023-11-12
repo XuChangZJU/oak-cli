@@ -252,9 +252,8 @@ class OakWeChatMpPlugin {
     async getComponents(components, instance) {
         try {
             const { debugPanel } = this.options;
-            const { usingComponents = {} } = fsExtra.readJSONSync(
-                `${instance}.json`
-            );
+            const { usingComponents = {}, componentGenerics = {} } =
+                fsExtra.readJSONSync(`${instance}.json`);
             const instanceDir = path.parse(instance).dir;
 
             for (const k of Object.keys(usingComponents)) {
@@ -280,6 +279,32 @@ class OakWeChatMpPlugin {
                     }
                     continue;
                 }
+
+                const aliasPath = this.getAliasPath(c);
+                if (aliasPath) {
+                    if (!components.has(aliasPath)) {
+                        components.add(aliasPath);
+                        await this.getComponents(components, aliasPath);
+                    }
+                } else {
+                    const component = replaceDoubleSlash(
+                        path.resolve(instanceDir, c)
+                    );
+                    if (!components.has(component)) {
+                        const component2 = replaceDoubleSlash(
+                            path.resolve(this.basePath, component)
+                        );
+                        if (!components.has(component2)) {
+                            components.add(component2);
+                            await this.getComponents(components, component);
+                        }
+                    }
+                }
+            }
+            // 抽象节点的默认组件
+            for (const k of Object.keys(componentGenerics)) {
+                const componentGeneric = componentGenerics[k];
+                const c = componentGeneric.default;
 
                 const aliasPath = this.getAliasPath(c);
                 if (aliasPath) {
@@ -565,13 +590,13 @@ class OakWeChatMpPlugin {
 
             let usingComponents = {};
             if (appJson.usingComponents) {
-                for (let ck of Object.keys(appJson.usingComponents)) {
-                    let component = appJson.usingComponents[ck];
-                    if (ck === debugPanel.name && !debugPanel.show) {
+                for (let c of Object.keys(appJson.usingComponents)) {
+                    let component = appJson.usingComponents[c];
+                    if (c === debugPanel.name && !debugPanel.show) {
                         continue;
                     }
                     component = this.getReplaceAlias(component);
-                    usingComponents[ck] = component;
+                    usingComponents[c] = component;
                 }
                 appJson.usingComponents = usingComponents;
             }
@@ -591,8 +616,8 @@ class OakWeChatMpPlugin {
 
             let usingComponents = {};
             if (json.usingComponents) {
-                for (let ck of Object.keys(json.usingComponents)) {
-                    let component = json.usingComponents[ck];
+                for (let c of Object.keys(json.usingComponents)) {
+                    let component = json.usingComponents[c];
 
                     const alias = this.getAlias(component);
                     if (alias) {
@@ -607,9 +632,35 @@ class OakWeChatMpPlugin {
                             )
                         );
                     }
-                    usingComponents[ck] = component;
+                    usingComponents[c] = component;
                 }
                 json.usingComponents = usingComponents;
+            }
+
+            let componentGenerics = {};
+            if (json.componentGenerics) {
+                for (let c of Object.keys(json.componentGenerics)) {
+                    const componentGeneric = json.componentGenerics[c];
+                    let component = componentGeneric.default;
+
+                    const alias = this.getAlias(component);
+                    if (alias) {
+                        component = this.getReplaceAlias(component);
+
+                        const parentPath = path.resolve(this.basePath, entry);
+                        const parentDir = path.parse(parentPath).dir;
+                        component = replaceDoubleSlash(
+                            path.relative(
+                                parentDir,
+                                path.resolve(this.basePath, component)
+                            )
+                        );
+                    }
+                    componentGenerics[c] = Object.assign(componentGeneric, {
+                        default: component,
+                    });
+                }
+                json.componentGenerics = componentGenerics;
             }
 
             // 将locales中的pageTitle复制到小程序中的navigationBarTitleText

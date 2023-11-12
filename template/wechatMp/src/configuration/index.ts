@@ -12,9 +12,9 @@ const URL = {                           // 服务器地址数组，和domain中�
 };
 
 const host = URL[envVersion];
-const sdVersion = '2.25.1';                   // 小程序运行所需要的sdk最低版本
+const sdkVersion = '2.25.1';                   // 小程序运行所需要的sdk最低版本
 
 export {
     host,                           
-    sdVersion,
+    sdkVersion,
 };

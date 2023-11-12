@@ -1,19 +1,10 @@
 import './utils/polyfill';
 
-import initialize from '@project/initialize';
 import { handler as exceptionHandler } from '@project/exceptionHandler';
-import { createComponent } from '@project/page';
 import { compareVersion } from 'oak-domain/lib/utils/version';
-/**
- * 初始化，小程序这里必须输入访问的目标域名，系统根据domain和system的关系来判定appId
- */
-import { host, sdVersion } from './configuration';
-const { features } = initialize('wechatMp', host);
 
-Object.assign(global, {
-    features,
-    OakComponent: (options: any) => createComponent(options, features),
-});
+import { sdkVersion } from './configuration';
+import { features } from './initialize';
 
 export interface IAppOption {
     globalData: {
@@ -28,7 +19,7 @@ App<IAppOption>({
     async onLaunch() {
         //微信SDKVersion比较，检查小程序有没有新版本发布
         const curVersion = wx.getSystemInfoSync().SDKVersion;
-        if (compareVersion(curVersion, sdVersion) >= 0) {
+        if (compareVersion(curVersion, sdkVersion) >= 0) {
             const updateManager = wx.getUpdateManager();
             updateManager.onCheckForUpdate(({ hasUpdate }) => {
                 if (hasUpdate) {
