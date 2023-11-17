@@ -31,14 +31,17 @@ export function packageJsonContent({
     oakDevDependencyStr = `"${cliName}": "^${cliVersion}",`
   }
 
-  const serverInitScript = isDev ? "cross-env NODE_ENV=development cross-env OAK_PLATFORM=server ts-node scripts/initServer.js" : "cross-env OAK_PLATFORM=server ts-node scripts/initServer.js";
+  const serverInitScript = isDev ? "cross-env OAK_PLATFORM=server ts-node scripts/initServer.js" : "cross-env OAK_PLATFORM=server ts-node scripts/initServer.js";
   const serverStartScript = isDev ? "cross-env NODE_ENV=development cross-env OAK_PLATFORM=server ts-node scripts/startServer.js" : "cross-env OAK_PLATFORM=server ts-node scripts/startServer.js";
   return `{
     "name": "${name}",
     "version": "${version}",
     "description": "${description}",
     "scripts": {
-        "make:domain": "${cliBinName} make",
+       "make:domain": "${cliBinName} make:domain",
+        "make:locale": "${cliBinName} make:locale",
+        "clean:cache": "rimraf node_modules/.cache",
+        "copy-config-json": "copyfiles -u 1 src/config/*.json lib/",
         "start:mp": "${cliBinName} start --target mp --mode development",
         "start:mp:prod": "${cliBinName} start --target mp --mode development --prod",
         "build:mp": "${cliBinName} build --target mp --mode production",
@@ -48,7 +51,7 @@ export function packageJsonContent({
         "build:web": "${cliBinName} build --target web --mode production",
         "build-analyze:web": "${cliBinName} build --target web --mode production --analyze",
         "build-sourcemap-analyze:web": "${cliBinName} build --target web --mode production --sourcemap --analyze",
-        "build": "tsc",
+        "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json && npm run copy-config-json",
         "server:init": "${serverInitScript}",
         "server:start": "${serverStartScript}",
         "postinstall": "npm run make:domain"
@@ -58,14 +61,13 @@ export function packageJsonContent({
     "license": "",
     "typings": "typings/index.d.ts",
     "dependencies": {
-      "@ant-design/cssinjs": "^1.1.0",
-      "@ant-design/icons": "^4.7.0",
-      "@icon-park/react": "^1.4.2",
+      "@ant-design/cssinjs": "^1.16.2",
+      "@ant-design/icons": "^5.2.6",
       "@wangeditor/basic-modules": "^1.1.3",
       "@wangeditor/editor": "^5.1.14",
       "@wangeditor/editor-for-react": "^1.0.4",
-      "antd": "^5.0.3",
-      "antd-mobile": "^5.26.0",
+      "antd": "^5.8.3",
+      "antd-mobile": "^5.32.0",
       "antd-mobile-icons": "^0.3.0",
       "classnames": "^2.3.1",
       "crypto-browserify": "^3.12.0",
@@ -75,19 +77,12 @@ export function packageJsonContent({
       "echarts-for-react": "^3.0.2",
       "history": "^5.3.0",
       "hmacsha1": "^1.0.0",
-      "i18next": "^20.6.1",
-      "i18next-browser-languagedetector": "^6.1.4",
-      "i18next-chained-backend": "^3.0.2",
-      "i18next-http-backend": "^1.4.1",
-      "i18next-localstorage-backend": "^3.1.3",
-      "i18next-resource-store-loader": "^0.1.2",
       "js-base64": "^3.7.2",
       "lodash": "^4.17.21",
       "nprogress": "^0.2.0",
         ${oakDependencyStr}
         "react": "^18.2.0",
         "react-dom": "^18.1.0",
-        "react-i18next": "^11.18.0",
         "react-image-gallery": "^1.2.11",
         "react-responsive": "^9.0.0-beta.10",
         "react-router-dom": "^6.4.0",
@@ -140,6 +135,7 @@ export function packageJsonContent({
         "chalk": "^4.1.2",
         "clean-webpack-plugin": "^4.0.0",
         "copy-webpack-plugin": "^10.2.4",
+        "copyfiles": "^2.4.1",
         "cross-env": "^7.0.3",
         "css-loader": "^6.6.0",
         "css-minimizer-webpack-plugin": "^3.2.0",
@@ -190,6 +186,7 @@ export function packageJsonContent({
         "terser-webpack-plugin": "^5.2.5",
         "ts-loader": "^9.3.0",
         "ts-node": "^10.8.1",
+        "tsc-alias": "^1.8.2",
         "tslib": "^2.4.0",
         "typescript": "^4.7.3",
         "ui-extract-webpack-plugin": "^1.0.0",
@@ -229,6 +226,7 @@ export function tsConfigJsonContent() {
     "experimentalDecorators": true,   
     "skipLibCheck": true,
     "strict": true,
+    "importHelpers": true,
     "lib": [
       "dom",
       "dom.iterable",
@@ -238,35 +236,37 @@ export function tsConfigJsonContent() {
     //"rootDir": "src", /* Specify the root directory of input files. Use to control the output directory structure with --outDir. */
     "types": [
       "node",
-      "miniprogram-api-typings"
+      "wechat-miniprogram"
     ],
     "resolveJsonModule": true
   },
   "include": [
-    "./**/*.js",
-    "./**/*.ts",
-    "./**/*.tsx",
-    "./**/*.mp.ts",
-    "./**/*.web.ts",
-    "./**/*.web.tsx",
-    "./**/*.pc.ts",
-    "./**/*.pc.tsx"
+    "./src/**/*.js",
+    "./src/**/*.ts",
+    "./src/**/*.tsx",
+    "./web/src/**/*.ts",
+    "./web/src/**/*.tsx",
+    "./wechatMp/src/**/*.js",
+    "./wechatMp/src/**/*.ts",
+    "./typings/*.d.ts"
   ],
   "exclude": [
     "node_modules",
     "**/*.spec.ts",
-    "test"
+    "test",
+    "scripts",
+    "lib"
   ]
 }`;
 }
 
 export function tsConfigBuildJsonContent() {
   return `{
-  "extends": "./tsconfig.paths.json",
+   "extends": "./tsconfig.build.paths.json",
    "compilerOptions": {
      "jsx": "react-jsx",
     "module": "commonjs",
-    "target": "es5",
+    "target": "esnext",
     "allowJs": true,
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
@@ -281,10 +281,10 @@ export function tsConfigBuildJsonContent() {
     ],
     "outDir": "lib", /* Redirect output structure to the directory. */
     "rootDir": "src", /* Specify the root directory of input files. Use to control the output directory structure with --outDir. */
-    "types": [
-      "node",
-      "miniprogram-api-typings"
-    ],
+    // "types": [
+    //   "node",
+    //   "wechat-miniprogram"
+    // ],
     "resolveJsonModule": true
   },
   "include": [
@@ -293,8 +293,42 @@ export function tsConfigBuildJsonContent() {
   "exclude": [
     "node_modules",
     "**/*.spec.ts",
-    "test"
+    "test",
+    "src/pages/**/*",
+    "src/components/**/*"
   ]
+}`;
+}
+
+export function tsConfigBuildPathsJsonContent() {
+    return `{
+    "compilerOptions": {
+        "baseUrl": "./",
+            "paths": {
+            "@project/*": [
+                "src/*"
+            ],
+            "@oak-app-domain": [
+                "src/oak-app-domain/index"
+            ],
+            "@oak-app-domain/*": [
+                "src/oak-app-domain/*"
+            ],
+            "@oak-general-business": [
+                "node_modules/oak-general-business/lib/index"
+            ],
+            "@oak-general-business/*": [
+                "node_modules/oak-general-business/lib/*"
+            ],
+            "@oak-frontend-base": [
+                "node_modules/oak-frontend-base/lib/index"
+            ],
+            "@oak-frontend-base/*": [
+                "node_modules/oak-frontend-base/lib/*"
+            ],
+        },
+        "typeRoots": ["./typings"]
+    }
 }`;
 }
 
@@ -302,32 +336,48 @@ export function tsConfigPathsJsonContent() {
   return `{
     "compilerOptions": {
         "baseUrl": "./",
-        "paths": {
+         "paths": {
             "@project/*": [
                 "src/*"
             ],
+            "@oak-app-domain": [
+                "src/oak-app-domain/index"
+            ],
+            "@oak-app-domain/*": [
+                "src/oak-app-domain/*"
+            ],
+            "@oak-general-business": [
+                "node_modules/oak-general-business/es/index"
+            ],
             "@oak-general-business/*": [
-                "node_modules/oak-general-business/app/*"
+                "node_modules/oak-general-business/es/*"
+            ],
+            "@oak-frontend-base": [
+                "node_modules/oak-frontend-base/es/index"
+            ],
+            "@oak-frontend-base/*": [
+                "node_modules/oak-frontend-base/es/*"
             ],
         },
+        "typeRoots": ["./typings"]
     }
 }`;
 }
 
 export function tsConfigMpJsonContent() {
   return `{
-   "extends": "./tsconfig.paths.json",
+    "extends": "./tsconfig.paths.json",
    "compilerOptions": {
-    "module": "commonjs",
-    "target": "es5",
+    "module": "ESNext",
+    "target": "ESNext",
     "allowJs": true,
     "allowSyntheticDefaultImports": true,
-    "importHelpers": true,
     "esModuleInterop": true,
     "experimentalDecorators": true,
     "strict": true,
     "downlevelIteration": true,
     "importHelpers": true,
+    "moduleResolution": "Node",
     "lib": [
       "dom",
       "dom.iterable",
@@ -337,17 +387,25 @@ export function tsConfigMpJsonContent() {
     // "rootDir": "src", /* Specify the root directory of input files. Use to control the output directory structure with --outDir. */
     "types": [
       "node",
-      "miniprogram-api-typings"
+      "wechat-miniprogram"
     ],
     "resolveJsonModule": true,
     "jsx": "react"
   },
   "include": [
-    "./**/*.ts",
-    "./**/*.mp.ts"
+    "./src/**/*.js",
+    "./src/**/*.ts",
+    "./wechatMp/src/**/*.js",
+    "./wechatMp/src/**/*.ts",
+    "./typings/*.d.ts"
   ],
   "exclude": [
     "node_modules",
+    "scripts",
+    "test",
+    "**/*.spec.ts",
+    "**/*.test.ts",
+    "**/*.test.tsx",
     "./web"
   ]
 }`;
@@ -357,15 +415,15 @@ export function tsConfigWebJsonContent() {
   return `{
   "extends": "./tsconfig.paths.json",
    "compilerOptions": {
-    "module": "commonjs",
-    "target": "es5",
+    "module": "ESNext",
+    "target": "ESNext",
     "allowJs": true,
     "allowSyntheticDefaultImports": true,
-    "importHelpers": true,
     "esModuleInterop": true,
     "experimentalDecorators": true,
+    "importHelpers": true,
     "strict": true,
-    
+    "moduleResolution": "Node",
     "lib": [
       "dom",
       "dom.iterable",
@@ -375,21 +433,28 @@ export function tsConfigWebJsonContent() {
     // "rootDir": "src", /* Specify the root directory of input files. Use to control the output directory structure with --outDir. */
     "types": [
       "node",
-      "miniprogram-api-typings"
+      "wechat-miniprogram",
+      "react"
     ],
     "resolveJsonModule": true,
     "jsx": "react"
   },
   "include": [
-    "./**/*.ts",
-    "./**/*.tsx",
-    "./**/*.web.ts",
-    "./**/*.web.tsx",
-    "./**/*.pc.ts",
-    "./**/*.pc.tsx"
+    "./src/**/*.js",
+    "./src/**/*.ts",
+    "./src/**/*.tsx",
+    "./web/src/**/*.js",
+    "./web/src/**/*.ts",
+    "./web/src/**/*.tsx",
+    "./typings/*.d.ts"
   ],
   "exclude": [
     "node_modules",
+    "scripts",
+    "test",
+    "**/*.spec.ts",
+    "**/*.test.ts",
+    "**/*.test.tsx",
     "./wechatMp"
   ]
 }`;
@@ -478,9 +543,9 @@ export function projectConfigContentWithWeChatMp(
 
 export function appJsonContentWithWeChatMp(isDev: boolean) {
   const pages = [
-    '@project/pages/book/list/index',
-    '@project/pages/book/upsert/index',
-    '@project/pages/book/detail/index',
+      '@project/pages/store/list/index',
+      '@project/pages/store/upsert/index',
+      '@project/pages/store/detail/index',
   ];
   return `{
   "pages":${JSON.stringify(pages, null, 4)},
@@ -509,13 +574,7 @@ export function oakConfigContentWithWeChatMp() {
 
 export function appJsonContentWithWeb(isDev: boolean) {
   const pages = [
-    '@project/pages/store/list/index',
-    '@project/pages/store/upsert/index',
-    '@project/pages/store/detail/index',
-    '@project/pages/book/list/index',
-    '@project/pages/book/upsert/index',
-    '@project/pages/book/detail/index',
-    '@oak-general-business/pages/login/index',
+      '@project/pages/login/index',
   ];
   return `{
     "pages": ${JSON.stringify(pages, null, 4)}

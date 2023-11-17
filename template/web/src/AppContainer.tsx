@@ -1,9 +1,11 @@
 import React, { lazy } from 'react';
 const Message = lazy(() => import('@oak-general-business/components/message'));
-const DebugPanel = lazy(() => import('@oak-general-business/components/func/debugPanel'));
+const DebugPanel = lazy(
+    () => import('@oak-general-business/components/func/debugPanel')
+);
 
 type AppContainerProps = {
-    children?: React.ReactNode
+    children?: React.ReactNode;
 };
 
 const AppContainer = (props: AppContainerProps) => {

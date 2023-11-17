@@ -43,7 +43,7 @@ const copyPatterns = [].concat(pkg.copyWebpack || []).map((pattern) =>
           }
         : pattern
 );
-const oakRegex = /(\/*[a-zA-Z0-9_-])*\/(lib|src)\/|(\\*[a-zA-Z0-9_-])*\\(lib|src)\\/;
+const oakRegex = /(\/*[a-zA-Z0-9_-])*\/(lib|src|es)\/|(\\*[a-zA-Z0-9_-])*\\(lib|src|es)\\/;
 
 module.exports = function (webpackEnv) {
     const isEnvDevelopment = webpackEnv === 'development';
@@ -65,16 +65,14 @@ module.exports = function (webpackEnv) {
     };
 
     const getOakInclude = () => {
-        return isEnvProduction
-            ? [/oak-general-business/, /oak-frontend-base/]
-            : [
-                  /oak-domain/,
-                  /oak-external-sdk/,
-                  /oak-frontend-base/,
-                  /oak-general-business/,
-                  /oak-memory-tree-store/,
-                  /oak-common-aspect/,
-              ];
+        return [
+            /oak-domain/,
+            /oak-external-sdk/,
+            /oak-frontend-base/,
+            /oak-general-business/,
+            /oak-memory-tree-store/,
+            /oak-common-aspect/,
+        ];
     };
 
     return {
@@ -115,7 +113,9 @@ module.exports = function (webpackEnv) {
                 crypto: require.resolve('crypto-browserify'),
                 buffer: require.resolve('safe-buffer'),
                 stream: require.resolve('stream-browserify'),
+                zlib: require.resolve('browserify-zlib'),
                 events: require.resolve('events/'),
+                querystring: require.resolve('querystring-es3'),
                 url: false,
                 path: false,
                 fs: false,
@@ -211,7 +211,7 @@ module.exports = function (webpackEnv) {
                     include: [paths.appSrc, paths.appRootSrc].concat(
                         getOakInclude()
                     ),
-                    //exclude: /node_modules/,
+                    exclude: /node_modules/,
                     loader: 'babel-loader',
                     options: {
                         plugins: [oakI18nPlugin, oakPathPlugin],
@@ -224,7 +224,7 @@ module.exports = function (webpackEnv) {
                     include: [paths.appSrc, paths.appRootSrc].concat(
                         getOakInclude()
                     ),
-                    //exclude: /node_modules/,
+                    exclude: /node_modules/,
                     use: [
                         {
                             loader: 'babel-loader',
@@ -265,7 +265,9 @@ module.exports = function (webpackEnv) {
                         {
                             loader: 'wxml-loader',
                             options: {
-                                context: paths.appSrc,
+                                appSrcPath: paths.appSrc,
+                                appRootPath: paths.appRootPath,
+                                appRootSrcPath: paths.appRootSrc,
                                 cacheDirectory: false,
                             },
                         },
@@ -289,9 +291,7 @@ module.exports = function (webpackEnv) {
                     '*/weui-miniprogram/*',
                     '**/*.module.less',
                     '**/web.less',
-                    '**/fontawesome.less',
-                    '**/pages/**/locales/**/*',
-                    '**/components/**/locales/**/*',
+                    '**/locales/**/*',
                 ],
                 include: ['project.config.json', 'sitemap.json'],
                 debugPanel: {
@@ -367,6 +367,8 @@ module.exports = function (webpackEnv) {
                     },
                     logger: {
                         infrastructure: 'silent',
+                        log: (message) => console.log(message),
+                        error: (message) => console.error(message),
                     },
                 }),
             new webpack.ProvidePlugin({
@@ -409,11 +411,14 @@ module.exports = function (webpackEnv) {
                 }),
             ,
         ].filter(Boolean),
-        watch: true,
+        watch: isEnvDevelopment,
         watchOptions: {
             aggregateTimeout: 600,
             ignored: '**/node_modules',
             followSymlinks: true,
+        },
+        performance: {
+            hints: false,
         },
     };
 };

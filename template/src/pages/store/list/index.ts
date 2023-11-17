@@ -1,8 +1,6 @@
-import { composeFileUrl } from 'oak-general-business';
-import { OpSchema as ExtraFile } from 'oak-app-domain/ExtraFile/Schema';
+import { OpSchema as ExtraFile } from '@oak-app-domain/ExtraFile/Schema';
 
-export default OakPage({
-    path: 'store:list',
+export default OakComponent({
     entity: 'store',
     projection: {
         id: 1,
@@ -33,46 +31,19 @@ export default OakPage({
         },
     },
     isList: true,
-    formData: async function ({ data: stores, features }) {
-        const application = await features.application.getApplication();
-        const filter = await this.getFilterByName('name');
-        const pagination = this.getPagination();
+    formData: function ({ data: stores, features }) {
 
         return {
             stores: stores?.map((store, index: number) => {
-                const extraFile$entity =
-                    store?.extraFile$entity as Array<ExtraFile>;
-                const coverPictures = extraFile$entity
-                    ?.filter((ele: ExtraFile) => ['cover'].includes(ele.tag1))
-                    .map((ele: ExtraFile) =>
-                        composeFileUrl(
-                            ele as Pick<
-                                ExtraFile,
-                                | 'type'
-                                | 'bucket'
-                                | 'filename'
-                                | 'origin'
-                                | 'extra1'
-                                | 'objectId'
-                                | 'extension'
-                                | 'entity'
-                            >,
-                            application?.system?.config
-                        )
-                    );
                 return {
-                    index,
                     iState: store?.iState,
                     name: store?.name,
                     coordinate: store?.coordinate,
                     areaId: store?.areaId,
                     addrDetail: store?.addrDetail,
                     id: store?.id,
-                    coverPicture: coverPictures?.[0],
                 };
             }),
-            pagination,
-            searchValue: (filter?.name as { $includes: string })?.$includes,
         };
     },
     // filters: [],
@@ -95,28 +66,9 @@ export default OakPage({
                 oakId: id,
             });
         },
-        onRemove(path: string) {
-            this.execute('remove', [], path);
-        },
-        async searchChange(event: any) {
-            const { value } = this.resolveInput(event);
-            this.searchValueChange(value);
-        },
-        async searchValueChange(value: string) {
-            this.addNamedFilter({
-                filter: {
-                    name: {
-                        $includes: value!,
-                    },
-                },
-                '#name': 'name',
-            });
-        },
-        async searchCancel() {
-            this.removeNamedFilterByName('name');
-        },
-        async searchConfirm() {
-            this.refresh();
+        onRemove(id: string) {
+            this.removeItem(id);
+            this.execute();
         },
     },
 });

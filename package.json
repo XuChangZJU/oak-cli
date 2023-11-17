@@ -1,11 +1,12 @@
 {
     "name": "@xuchangzju/oak-cli",
-    "version": "2.3.7",
-    "description": "oak-cli脚手架",
+    "version": "3.0.2",
+    "description": "client for oak framework",
     "main": "lib/index.js",
     "scripts": {
         "build": "tsc",
-        "dev": "tsc --watch"
+        "dev": "tsc --watch",
+        "test": "node test.js"
     },
     "bin": {
         "oak-cli": "lib/index.js"
@@ -24,17 +25,23 @@
     },
     "homepage": "",
     "devDependencies": {
+        "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
         "@types/cross-spawn": "^6.0.2",
-        "@types/inquirer": "^7.3.1",
+        "@types/inquirer": "^9.0.3",
         "@types/koa-router": "^7.4.4",
-        "@types/node": "^12.0.27",
+        "@types/node": "^20.6.0",
         "@types/shelljs": "^0.8.8",
         "@types/uuid": "^8.3.4",
-        "ts-node": "~10.9.1",
-        "typescript": "~4.7.4"
+        "fork-ts-checker-webpack-plugin": "^8.0.0",
+        "node-watch": "^0.7.4",
+        "querystring-es3": "^0.2.1",
+        "ts-node": "^10.9.1",
+        "typescript": "^5.2.2"
     },
     "dependencies": {
         "@pmmmwh/react-refresh-webpack-plugin": "^0.5.3",
+        "@socket.io/cluster-adapter": "^0.2.2",
+        "@socket.io/sticky": "^1.0.4",
         "@svgr/webpack": "^5.5.0",
         "@xmldom/xmldom": "0.8.2",
         "axios": ">=0.21.1",
@@ -45,7 +52,7 @@
         "bfj": "^7.0.2",
         "browser-assert": "^1.2.1",
         "browserify-zlib": "^0.2.0",
-        "browserslist": "^4.18.1",
+        "browserslist": "^4.21.10",
         "buffer": "^6.0.3",
         "camelcase": "^6.2.1",
         "case-sensitive-paths-webpack-plugin": "^2.4.0",
@@ -86,8 +93,9 @@
         "loader-utils": "^3.2.0",
         "lodash": "^4.17.21",
         "mini-css-extract-plugin": "^2.5.3",
-        "oak-backend-base": "^2.4.2",
-        "oak-domain": "^2.6.9",
+        "oak-backend-base": "^3.1.0",
+        "oak-domain": "^3.0.4",
+        "oak-frontend-base": "^3.0.5",
         "postcss": "^8.4.4",
         "postcss-flexbugs-fixes": "^5.0.2",
         "postcss-less": "^6.0.0",
@@ -105,6 +113,7 @@
         "sass-loader": "^12.3.0",
         "semver": "^7.3.5",
         "shelljs": "^0.8.4",
+        "socket.io": "^4.7.2",
         "source-map-loader": "^3.0.0",
         "stream-browserify": "^3.0.0",
         "style-loader": "^3.3.1",
@@ -112,13 +121,12 @@
         "stylelint-webpack-plugin": "^3.2.0",
         "tailwindcss": "^3.0.2",
         "terser-webpack-plugin": "^5.2.5",
-        "ts-node": "^10.8.1",
         "tslib": "^2.4.0",
         "ui-extract-webpack-plugin": "^1.0.0",
         "uuid": "^8.3.2",
-        "webpack": "^5.72.0",
-        "webpack-bundle-analyzer": "^4.5.0",
-        "webpack-dev-server": "^4.6.0",
+        "webpack": "^5.86.0",
+        "webpack-bundle-analyzer": "^4.9.0",
+        "webpack-dev-server": "^4.15.1",
         "webpack-manifest-plugin": "^4.0.2",
         "workbox-webpack-plugin": "^6.4.1"
     }

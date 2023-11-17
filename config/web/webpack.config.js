@@ -33,7 +33,7 @@ const createEnvironmentHash = require('./webpack/persistentCache/createEnvironme
 
 const oakPathTsxPlugin = require('../babel-plugin/oakPath');
 const oakRenderTsxPlugin = require('../babel-plugin/oakRender');
-const oakRouterPlugin = require('../babel-plugin/oakRouter');
+const oakRouterPlugin = require('../babel-plugin/oakRouter2');
 const oakI18nPlugin = require('../babel-plugin/oakI18n');
 const oakStylePlugin = require('../babel-plugin/oakStyle');
 const oakRpxToPxPlugin = require('../postcss-plugin/oakRpxToPx');
@@ -206,16 +206,14 @@ module.exports = function (webpackEnv) {
     };
 
     const getOakInclude = () => {
-        return isEnvProduction
-            ? [/oak-general-business/, /oak-frontend-base/]
-            : [
-                /oak-domain/,
-                /oak-external-sdk/,
-                /oak-frontend-base/,
-                /oak-general-business/,
-                /oak-memory-tree-store/,
-                /oak-common-aspect/,
-            ];
+        return [
+            /oak-domain/,
+            /oak-external-sdk/,
+            /oak-frontend-base/,
+            /oak-general-business/,
+            /oak-memory-tree-store/,
+            /oak-common-aspect/,
+        ];
     };
 
     return {
@@ -376,6 +374,7 @@ module.exports = function (webpackEnv) {
                 buffer: require.resolve('safe-buffer'),
                 stream: require.resolve('stream-browserify'),
                 zlib: require.resolve('browserify-zlib'),
+                querystring: require.resolve('querystring-es3'),
                 url: false,
                 path: false,
                 fs: false,
@@ -935,7 +934,8 @@ module.exports = function (webpackEnv) {
                         ],
                     },
                     logger: {
-                        infrastructure: 'silent',
+                        log: (message) => console.log(message),
+                        error: (message) => console.error(message),
                     },
                 }),
             !disableESLintPlugin &&
@@ -1013,8 +1013,6 @@ module.exports = function (webpackEnv) {
             '@wangeditor/editor': 'wangEditor',
             // '@wangeditor/basic-modules': 'WangEditorBasicModules',       这里跑起来初始化会有个BUG，先不弄了
             '@fingerprintjs/fingerprintjs': 'FingerprintJS',
-            i18next: 'i18next',
-            'react-i18next': 'ReactI18next',
             'bn.js': 'BN',
         },
     };

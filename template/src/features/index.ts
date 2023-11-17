@@ -1,33 +1,44 @@
-import { EntityDict } from 'oak-app-domain';
-import { BasicFeatures } from 'oak-frontend-base/lib/features';
-import { AppType } from 'oak-app-domain/Application/Schema';
-import { initialize as initializeGeneralFeatures } from 'oak-general-business/lib/features';
+import { EntityDict } from '@oak-app-domain';
+import { BasicFeatures } from 'oak-frontend-base';
+import { GeneralFeatures, GeneralAspectDict } from 'oak-general-business';
 import { CommonAspectDict } from 'oak-common-aspect';
-import { AspectWrapper } from 'oak-domain/lib/types';
 import { AspectDict } from '../aspects/AspectDict';
-import { RuntimeContext } from '../context/RuntimeContext';
-import * as Sample from './Sample';
+import { BackendRuntimeContext } from '../context/BackendRuntimeContext';
+import { FrontendRuntimeContext } from '../context/FrontendRuntimeContext';
+import { AAD, AFD } from '@project/types/RuntimeCxt';
+import Sample from './Sample';
 
 export function initialize(
-    aspectWrapper: AspectWrapper<
+    generalFeatures: BasicFeatures<
         EntityDict,
-        RuntimeContext,
-        AspectDict & CommonAspectDict<EntityDict, RuntimeContext>
-    >,
-    basicFeatures: BasicFeatures<
-        EntityDict,
-        RuntimeContext,
-        AspectDict & CommonAspectDict<EntityDict, RuntimeContext>
-    >,
-    type: AppType,
+        BackendRuntimeContext,
+        FrontendRuntimeContext,
+        AspectDict &
+            CommonAspectDict<EntityDict, BackendRuntimeContext> &
+            GeneralAspectDict<EntityDict, BackendRuntimeContext>
+    > &
+        GeneralFeatures<
+            EntityDict,
+            BackendRuntimeContext,
+            FrontendRuntimeContext,
+            AspectDict &
+                CommonAspectDict<EntityDict, BackendRuntimeContext> &
+                GeneralAspectDict<EntityDict, BackendRuntimeContext>
+        >
 ) {
-    const generalFeatures = initializeGeneralFeatures<EntityDict, RuntimeContext, AspectDict & CommonAspectDict<EntityDict, RuntimeContext>>(aspectWrapper, basicFeatures, type);
-    const { cache, localStorage } = basicFeatures;
+    const {
+        cache,
+        localStorage,
+        location,
+        token,
+        application,
+        contextMenuFactory,
+    } = generalFeatures;
 
-    const sample = new Sample.Sample(aspectWrapper, cache);
+    const sample = new Sample(cache);
+
     return {
         sample,
-        ...generalFeatures,
     };
 }
 

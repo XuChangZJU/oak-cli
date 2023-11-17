@@ -17,6 +17,7 @@ import {
     packageJsonContent,
     tsConfigJsonContent,
     tsConfigBuildJsonContent,
+    tsConfigBuildPathsJsonContent,
     tsConfigPathsJsonContent,
     tsConfigMpJsonContent,
     tsConfigWebJsonContent,
@@ -155,14 +156,14 @@ async function createWebBoilplate(
     // web项目oak.config.json路径
     const oakConfigPathWithWeb = join(dir, 'src', USER_CONFIG_FILE_NAME);
 
-    // 创建小程序项目app.json
-    checkFileExistsAndCreate(
-        appJsonPathWithWeb,
-        appJsonWithWeb,
-        checkFileExistsAndCreateType.FILE,
-        isUpdate
-    );
-    // 创建小程序项目oak.config.json
+    // 创建web项目app.json
+    // checkFileExistsAndCreate(
+    //     appJsonPathWithWeb,
+    //     appJsonWithWeb,
+    //     checkFileExistsAndCreateType.FILE,
+    //     isUpdate
+    // );
+    // 创建web项目oak.config.json
     checkFileExistsAndCreate(
         oakConfigPathWithWeb,
         oakConfigWithWeb,
@@ -198,6 +199,7 @@ export async function create(dirName: string, cmd: any) {
     // 获取tsconfig.json内容
     const tsconfigJson = tsConfigJsonContent();
     const tsConfigBuildJson = tsConfigBuildJsonContent();
+    const tsConfigBuildPathsJson = tsConfigBuildPathsJsonContent();
     const tsConfigPathsJson = tsConfigPathsJsonContent();
     const tsConfigMpJson = tsConfigMpJsonContent();
     const tsConfigWebJson = tsConfigWebJsonContent();
@@ -210,6 +212,8 @@ export async function create(dirName: string, cmd: any) {
     const tsconfigJsonPath = `${rootPath}/tsconfig.json`;
     // tsconfig.build.json路径
     const tsConfigBuildJsonPath = `${rootPath}/tsconfig.build.json`;
+    // tsconfig.build.paths.json路径
+    const tsConfigBuildPathsJsonPath = `${rootPath}/tsconfig.build.paths.json`;
     // tsconfig.paths.json路径
     const tsconfigPathsJsonPath = `${rootPath}/tsconfig.paths.json`;
     // tsconfig.mp.json路径
@@ -244,6 +248,12 @@ export async function create(dirName: string, cmd: any) {
         checkFileExistsAndCreate(
             tsConfigBuildJsonPath,
             tsConfigBuildJson,
+            checkFileExistsAndCreateType.FILE
+        );
+        // 创建tsconfig.build.paths.json
+        checkFileExistsAndCreate(
+            tsConfigBuildPathsJsonPath,
+            tsConfigBuildPathsJson,
             checkFileExistsAndCreateType.FILE
         );
         // 创建tsconfig.paths.json

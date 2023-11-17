@@ -67,11 +67,11 @@ module.exports = {
     oakConfigJson: resolveApp('src/oak.config.json'),
     oakGeneralBusinessPath: resolveRoot(
         'node_modules/oak-general-business/' +
-            (process.env.NODE_ENV !== 'production' ? 'src' : 'lib')
+            (process.env.NODE_ENV !== 'production' ? 'src' : 'es')
     ),
     oakFrontendBasePath: resolveRoot(
         'node_modules/oak-frontend-base/' +
-            (process.env.NODE_ENV !== 'production' ? 'src' : 'lib')
+            (process.env.NODE_ENV !== 'production' ? 'src' : 'es')
     ),
     oakAppDomainPath: resolveRoot('src/oak-app-domain'),
 };

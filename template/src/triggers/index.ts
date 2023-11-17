@@ -1,12 +1,10 @@
-import { triggers as generalTriggers } from 'oak-general-business';
+import { EntityDict } from '@oak-app-domain';
 import { Trigger } from 'oak-domain/lib/types';
-import domainTriggers from 'oak-domain/lib/triggers';
-import { EntityDict } from 'oak-app-domain';
-import { RuntimeContext } from '../context/RuntimeContext';
-import { triggers as bookTriggers } from './book';
+import { BackendRuntimeContext } from '../context/BackendRuntimeContext';
 
-export const triggers = [
-    ...bookTriggers,
-    ...generalTriggers,
-    ...domainTriggers,
-] as Trigger<EntityDict, keyof EntityDict, RuntimeContext>[];
+
+const triggers = [
+
+] as Trigger<EntityDict, keyof EntityDict, BackendRuntimeContext>[];
+
+export default triggers;

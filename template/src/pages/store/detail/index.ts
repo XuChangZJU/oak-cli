@@ -1,8 +1,6 @@
-import { composeFileUrl } from 'oak-general-business';
-import { Schema as ExtraFile } from 'oak-app-domain/ExtraFile/Schema';
+import { Schema as ExtraFile } from '@oak-app-domain/ExtraFile/Schema';
 
-export default OakPage({
-    path: 'store:upsert',
+export default OakComponent({
     entity: 'store',
     projection: {
         id: 1,
@@ -33,28 +31,7 @@ export default OakPage({
         },
     },
     isList: false,
-    formData: async function ({ data: store, features }) {
-        const application = await features.application.getApplication();
-        const extraFile$entity = store?.extraFile$entity as Array<ExtraFile>;
-
-        const coverPictures = extraFile$entity
-            ?.filter((ele) => ['cover'].includes(ele.tag1))
-            .map((ele) =>
-                composeFileUrl(
-                    ele as Pick<
-                        ExtraFile,
-                        | 'type'
-                        | 'bucket'
-                        | 'filename'
-                        | 'origin'
-                        | 'extra1'
-                        | 'objectId'
-                        | 'extension'
-                        | 'entity'
-                    >,
-                    application?.system?.config
-                )
-            );
+    formData: function ({ data: store, features }) {
 
         return {
             iState: store?.iState,
@@ -63,21 +40,16 @@ export default OakPage({
             areaId: store?.areaId,
             addrDetail: store?.addrDetail,
             id: store?.id,
-            coverPictures,
         };
     },
     methods: {
         async confirm() {
-            await this.execute(this.props.oakId ? 'update' : 'create');
-            if (this.props.oakFrom === 'book:list') {
-                this.navigateBack();
-                return;
-            }
+            await this.execute();
             this.navigateBack();
         },
         async reset() {
             // 重置
-            this.resetUpdateData();
+            this.clean();
         },
     },
 });

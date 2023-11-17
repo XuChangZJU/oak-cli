@@ -1,45 +1,84 @@
 import './utils/polyfill';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { BrowserRouter } from 'react-router-dom';
-import { I18nextProvider } from 'react-i18next';
-import { ResponsiveProvider } from 'oak-frontend-base/lib/platforms/web';
+import { createBrowserHistory } from 'history';
+import { unstable_HistoryRouter as HistoryRouter } from 'react-router-dom';
+import { ConfigProvider } from 'antd';
+import {
+    StyleProvider,
+    legacyLogicalPropertiesTransformer,
+} from '@ant-design/cssinjs';
+import dayjs from 'dayjs';
+import 'dayjs/locale/zh-cn';
+import zhCN from 'antd/locale/zh_CN';
+
+import {
+    ResponsiveProvider,
+    FeaturesProvider,
+} from '@oak-frontend-base/platforms/web';
 import './index.less';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-import { getAppType } from './utils/env';
-import initialize from '../../src/initialize';
+import { handler as exceptionHandler } from '@project/exceptionHandler';
 
-const appType = getAppType();
-const i18nOptions = {
-    version: '1.0.0',
-};
-const { features, i18n } = initialize(
-    appType,
-    window.location.hostname,
-    i18nOptions
-);
-Object.assign(global, {
-    features,
+import { features } from './initialize';
+dayjs.locale('zh-cn');
+
+window.addEventListener('unhandledrejection', async (event) => {
+    // 全局捕获异常处理
+    const { reason } = event;
+    const result = await exceptionHandler(reason, features);
+    if (result) {
+        event.preventDefault();
+    }
 });
 
 const root = ReactDOM.createRoot(
     document.getElementById('root') as HTMLElement
 );
 
-features.application.getApplication().then(() => {
+const history = createBrowserHistory();
+features.navigator.setHistory(history);
+
+const init = async () => {
+    let error;
+    const location = features.navigator.getLocation();
+    const searchParams = new URLSearchParams(location.search);
+    const appId = searchParams.get('appId');
+    try {
+        await features.application.initialize(appId);
+    } catch (err) {
+        error = err;
+    }
+
+    // 这个操作要在初始化完成后异步调用
+    features.token.loadTokenInfo();
+    const application = features.application.getApplication();
+    const folder = application?.system?.folder;
+
+    //微信JSSDK验签时， 在IOS上，无论路由切换到哪个页面，实际真正有效的的签名URL是【第一次进入应用时的URL】
+    features.weiXinJsSdk.setLandingUrl(window.location.href);
+
+    // 抓到异常处理 1、token过期 2、网络断了 3、接口请求失败
     root.render(
-        // <React.StrictMode>
-        <BrowserRouter>
-            <I18nextProvider i18n={i18n as any}>
-                <ResponsiveProvider>
-                    <App />
-                </ResponsiveProvider>
-            </I18nextProvider>
-        </BrowserRouter>
-        // </React.StrictMode>
+        <HistoryRouter history={history as any}>
+            <ResponsiveProvider>
+                <FeaturesProvider features={features as any}>
+                    <ConfigProvider locale={zhCN}>
+                        <StyleProvider
+                            hashPriority="high"
+                            transformers={[legacyLogicalPropertiesTransformer]}
+                        >
+                            <App folder={folder as any} error={error} />
+                        </StyleProvider>
+                    </ConfigProvider>
+                </FeaturesProvider>
+            </ResponsiveProvider>
+        </HistoryRouter>
     );
-});
+};
+
+init();
 
 // If you want to start measuring performance in your app, pass a function
 // to log results (for example: reportWebVitals(console.log))

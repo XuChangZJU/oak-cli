@@ -1,11 +1,17 @@
-import { applications } from './application';
-import { systems } from './system';
-import { domains } from './domain';
-import { data as generalData } from 'oak-general-business';
+import { application, system, domain } from '../config/data';
+import { relations } from '@project/oak-app-domain/Relation';
+import { actionAuth } from './actionAuth';
+import { relationAuth } from './relationAuth';
+import i18n from './i18n';
 
-export const data = {
-    application: applications,
-    system: systems,
-    ...generalData,
-    domain: domains,
+const data = {
+    application,
+    system,
+    domain,
+    relation: relations,
+    actionAuth,
+    relationAuth,
+    i18n,
 };
+
+export default data;

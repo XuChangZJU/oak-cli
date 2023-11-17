@@ -11,6 +11,16 @@ const EntryPlugin = require('webpack/lib/EntryPlugin');
 const ensurePosix = require('ensure-posix-path');
 const requiredPath = require('required-path');
 
+const {
+    parseSync,
+    transformFromAstSync,
+    transformSync,
+} = require('@babel/core');
+const t = require('@babel/types');
+const { readFileSync, writeFileSync, existsSync, mkdirSync } = require('fs');
+const assert = require('assert');
+const traverseAst = require('@babel/traverse').default;
+
 const pluginName = 'OakWeChatMpPlugin';
 
 function replaceDoubleSlash(str) {
@@ -71,6 +81,17 @@ class OakWeChatMpPlugin {
             catchError(async (compilation) => {
                 // 输出outpath前
             })
+        );
+
+        compiler.hooks.afterEmit.tap(
+            pluginName,
+            (compilation) => {
+                const { options, outputOptions } = compilation;
+                const { context: projectPath } = options;
+                const { path: outputPath } = outputOptions;
+
+                this.makeI18nWxs(projectPath, outputPath);
+            }
         );
     }
 
@@ -163,12 +184,15 @@ class OakWeChatMpPlugin {
         let realPages = [];
         this.subpackRoot = [];
 
-        for (const { iconPath, selectedIconPath } of tabBar.list || []) {
+        for (const tab of tabBar.list || []) {
+            const { iconPath, selectedIconPath, pagePath } = tab;
             if (iconPath) {
-                tabBarAssets.add(iconPath);
+                const aliasPath = this.getAliasPath(iconPath);
+                tabBarAssets.add(aliasPath);
             }
             if (selectedIconPath) {
-                tabBarAssets.add(selectedIconPath);
+                const aliasPath = this.getAliasPath(selectedIconPath);
+                tabBarAssets.add(aliasPath);
             }
         }
 
@@ -228,9 +252,8 @@ class OakWeChatMpPlugin {
     async getComponents(components, instance) {
         try {
             const { debugPanel } = this.options;
-            const { usingComponents = {} } = fsExtra.readJSONSync(
-                `${instance}.json`
-            );
+            const { usingComponents = {}, componentGenerics = {} } =
+                fsExtra.readJSONSync(`${instance}.json`);
             const instanceDir = path.parse(instance).dir;
 
             for (const k of Object.keys(usingComponents)) {
@@ -278,7 +301,33 @@ class OakWeChatMpPlugin {
                     }
                 }
             }
-        } catch (error) {}
+            // 抽象节点的默认组件
+            for (const k of Object.keys(componentGenerics)) {
+                const componentGeneric = componentGenerics[k];
+                const c = componentGeneric.default;
+
+                const aliasPath = this.getAliasPath(c);
+                if (aliasPath) {
+                    if (!components.has(aliasPath)) {
+                        components.add(aliasPath);
+                        await this.getComponents(components, aliasPath);
+                    }
+                } else {
+                    const component = replaceDoubleSlash(
+                        path.resolve(instanceDir, c)
+                    );
+                    if (!components.has(component)) {
+                        const component2 = replaceDoubleSlash(
+                            path.resolve(this.basePath, component)
+                        );
+                        if (!components.has(component2)) {
+                            components.add(component2);
+                            await this.getComponents(components, component);
+                        }
+                    }
+                }
+            }
+        } catch (error) { }
     }
 
     // add script entry
@@ -336,7 +385,7 @@ class OakWeChatMpPlugin {
             ignore: this.getIgnoreExt(),
             dot: false,
         });
-
+     
         this.assetsEntry = [...entries, ...this.appEntries.tabBarAssets];
         this.assetsEntry.forEach((resource) => {
             new EntryPlugin(
@@ -437,20 +486,6 @@ class OakWeChatMpPlugin {
                     minChunks: 0,
                 },
 
-                oak_frontend_base: {
-                    chunks: 'all',
-                    test: /[\\/]oak-frontend-base[\\/]/,
-                    name: 'oak_frontend_base',
-                    minChunks: 0,
-                },
-
-                // oak_memory_tree_store: {
-                //     chunks: 'all',
-                //     test: /[\\/]oak-memory-tree-store[\\/]/,
-                //     name: 'oak_memory_tree_store',
-                //     minChunks: 0,
-                // },
-
                 echarts: {
                     chunks: 'all',
                     test: /[\\/]miniprogram_npm\/ec-canvas\/echarts\.js$/,
@@ -536,15 +571,32 @@ class OakWeChatMpPlugin {
                 appJson.pages = pages;
             }
 
+            if (appJson.tabBar) {
+                const list = appJson.tabBar.list;
+
+                for (const tab of list || []) {
+                    const { iconPath, selectedIconPath, pagePath } = tab;
+                    if (iconPath) {
+                        tab.iconPath = this.getReplaceAlias(iconPath);
+                    }
+                    if (selectedIconPath) {
+                        tab.selectedIconPath = this.getReplaceAlias(selectedIconPath);
+                    }
+                    if (pagePath) {
+                        tab.pagePath = this.getReplaceAlias(pagePath);
+                    }
+                }
+            }
+
             let usingComponents = {};
             if (appJson.usingComponents) {
-                for (let ck of Object.keys(appJson.usingComponents)) {
-                    let component = appJson.usingComponents[ck];
-                    if (ck === debugPanel.name && !debugPanel.show) {
+                for (let c of Object.keys(appJson.usingComponents)) {
+                    let component = appJson.usingComponents[c];
+                    if (c === debugPanel.name && !debugPanel.show) {
                         continue;
                     }
                     component = this.getReplaceAlias(component);
-                    usingComponents[ck] = component;
+                    usingComponents[c] = component;
                 }
                 appJson.usingComponents = usingComponents;
             }
@@ -564,8 +616,8 @@ class OakWeChatMpPlugin {
 
             let usingComponents = {};
             if (json.usingComponents) {
-                for (let ck of Object.keys(json.usingComponents)) {
-                    let component = json.usingComponents[ck];
+                for (let c of Object.keys(json.usingComponents)) {
+                    let component = json.usingComponents[c];
 
                     const alias = this.getAlias(component);
                     if (alias) {
@@ -580,10 +632,56 @@ class OakWeChatMpPlugin {
                             )
                         );
                     }
-                    usingComponents[ck] = component;
+                    usingComponents[c] = component;
                 }
                 json.usingComponents = usingComponents;
             }
+
+            let componentGenerics = {};
+            if (json.componentGenerics) {
+                for (let c of Object.keys(json.componentGenerics)) {
+                    const componentGeneric = json.componentGenerics[c];
+                    let component = componentGeneric.default;
+
+                    const alias = this.getAlias(component);
+                    if (alias) {
+                        component = this.getReplaceAlias(component);
+
+                        const parentPath = path.resolve(this.basePath, entry);
+                        const parentDir = path.parse(parentPath).dir;
+                        component = replaceDoubleSlash(
+                            path.relative(
+                                parentDir,
+                                path.resolve(this.basePath, component)
+                            )
+                        );
+                    }
+                    componentGenerics[c] = Object.assign(componentGeneric, {
+                        default: component,
+                    });
+                }
+                json.componentGenerics = componentGenerics;
+            }
+
+            // 将locales中的pageTitle复制到小程序中的navigationBarTitleText
+            const parsed = path.parse(assets);
+            if (parsed.name === 'index') {
+                const localeZhCnFile1 = path.join(parsed.dir, 'locales', 'zh-CN.json');
+                const localeZhCnFile2 = path.join(parsed.dir, 'locales', 'zh_CN.json');
+                if (fsExtra.existsSync(localeZhCnFile1)) {
+                    const locales = require(localeZhCnFile1);
+                    if (locales.pageTitle) {
+                        json.navigationBarTitleText = locales.pageTitle;
+                    }
+                }
+                else if (fsExtra.existsSync(localeZhCnFile2)) {
+                    const locales = require(localeZhCnFile2);
+                    if (locales.pageTitle) {
+                        json.navigationBarTitleText = locales.pageTitle;
+                    }
+                }
+            }
+
             source = Buffer.from(JSON.stringify(json, null, 2));
             size = source.length;
         }
@@ -674,6 +772,116 @@ class OakWeChatMpPlugin {
                 .map((ext) => `**/*${ext}`),
             ...exclude,
         ];
+    }
+
+    makeI18nWxs(projectPath, outputPath) {
+        const i18nWxsFilename = path.join(
+            projectPath,
+            'node_modules',
+            'oak-frontend-base',
+            'lib',
+            'platforms',
+            'wechatMp',
+            'i18n',
+            'wxs.js'
+        );
+        let content = readFileSync(i18nWxsFilename, { encoding: 'utf-8' });
+     
+        try {
+            // Babel 转换配置
+            const options = {
+                presets: [
+                    [
+                        '@babel/preset-env',
+                        {
+                            targets: 'last 2 versions, > 1%',
+                        },
+                    ],
+                ],
+                plugins: [
+                    '@babel/plugin-transform-arrow-functions',
+                    '@babel/plugin-transform-classes',
+                    '@babel/plugin-transform-destructuring',
+                    '@babel/plugin-transform-spread',
+                    // 添加其他需要的插件
+                ],
+            };
+
+            // 使用 Babel 进行转换
+            const result = transformSync(content, options);
+
+            // 返回转换后的 ES5 代码
+            content = result.code;
+        } catch (error) {
+            console.error('转换失败:', error);
+        }
+        const ast = parseSync(content);
+        const {
+            program: { body },
+        } = ast;
+
+        traverseAst(ast, {
+            enter(path) {
+                if (path.isRegExpLiteral()) {
+                    const { node } = path;
+                    path.replaceWith(
+                        t.callExpression(t.identifier('getRegExp'), [
+                            t.stringLiteral(node.pattern),
+                            t.stringLiteral(node.flags),
+                        ])
+                    );
+                } else if (path.isNewExpression()) {
+                    const { node } = path;
+                    if (
+                        t.isIdentifier(node.callee) &&
+                        node.callee.name === 'RegExp'
+                    ) {
+                        const { arguments: args } = node;
+                        path.replaceWith(
+                            t.callExpression(t.identifier('getRegExp'), args)
+                        );
+                    }
+                }
+            },
+        });
+
+        /**
+         * 去掉编译中不必要的expression
+         */
+        ast.program.body = ast.program.body.filter(
+            (ele) => !t.isExpressionStatement(ele)
+        );
+
+        /**
+         * 加上module.exports = { t: t };
+         */
+        ast.program.body.push(
+            t.expressionStatement(
+                t.assignmentExpression(
+                    '=',
+                    t.memberExpression(
+                        t.identifier('module'),
+                        t.identifier('exports')
+                    ),
+                    t.objectExpression([
+                        t.objectProperty(t.identifier('t'), t.identifier('t')),
+                        t.objectProperty(
+                            t.identifier('propObserver'),
+                            t.identifier('propObserver')
+                        ),
+                    ])
+                )
+            )
+        );
+
+        const { code } = transformFromAstSync(ast);
+
+        const wxsOutputDir = path.join(outputPath, 'wxs');
+        if (!existsSync(wxsOutputDir)) {
+            mkdirSync(wxsOutputDir);
+        }
+        const outputFilename = path.join(wxsOutputDir, 'i18n.wxs');
+        writeFileSync(outputFilename, code, { flag: 'w' });
     }
 }
 

@@ -3,6 +3,7 @@ const { relative, join, resolve } = require('path');
 const t = require('@babel/types');
 const assert = require('assert');
 const AppPaths = require('../web/paths');
+const { parseSync, transformFromAstSync } = require('@babel/core');
 
 module.exports = () => {
     return {
@@ -185,7 +186,7 @@ function getRouter({ projectAlias, path, namespace, routePath, isFirst }) {
     if (jsonFileExists) {
         const {
             navigationBarTitleText,
-            oakDisablePulldownRefresh = false,
+            enablePullDownRefresh = true,
         } = require(`${relPath}.json`);
         meta.push(
             t.objectProperty(
@@ -196,7 +197,7 @@ function getRouter({ projectAlias, path, namespace, routePath, isFirst }) {
         meta.push(
             t.objectProperty(
                 t.identifier('oakDisablePulldownRefresh'),
-                t.booleanLiteral(oakDisablePulldownRefresh) //默认启用下拉刷新
+                t.booleanLiteral(!enablePullDownRefresh) //默认启用下拉刷新
             )
         );
     }

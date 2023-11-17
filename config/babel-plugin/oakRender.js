@@ -9,8 +9,8 @@ module.exports = (babel) => {
             Program(path, state) {
                 const { cwd, filename } = state;
                 const rel = relative(cwd, filename).replace(/\\/g, '/');
-                const tsPage = /(pages|components)[\\/][\w|\W]+[\\/]index\.ts$/.test(rel);
-                const jsPage = /(pages|components)[\\/][\w|\W]+[\\/]index\.js$/.test(rel);
+                const tsPage = /(pages|components|namespaces)[\\/][\w|\W]+[\\/]index\.ts$/.test(rel);
+                const jsPage = /(pages|components|namespaces)[\\/][\w|\W]+[\\/]index\.js$/.test(rel);
                 if (tsPage || jsPage) {
                     const tsxFile = filename.replace(
                         /index\.(ts|js)$/,
@@ -20,6 +20,12 @@ module.exports = (babel) => {
                         /index\.(ts|js)$/,
                         'web.js'
                     );
+                    const xmlFile = filename.replace(
+                        /index\.(ts|js)$/,
+                        'index.xml'
+                    );
+                    const xmlFileExists = fs.existsSync(xmlFile);
+
                     const tsxFileExists = fs.existsSync(tsxFile);
                     const jsFileExists = fs.existsSync(jsFile);
                     const pcTsxFile = filename.replace(
@@ -194,7 +200,7 @@ module.exports = (babel) => {
                             statements.push(...renderJsStatements);
                         } else if (pcJsFileExists) {
                             statements.push(...renderPcJsStatements);
-                        } else {
+                        } else if (!xmlFileExists) {
                             assert(
                                 false,
                                 `${filename}文件中不存在web.tsx或者web.pc.tsx`
