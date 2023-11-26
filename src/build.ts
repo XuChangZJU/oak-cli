@@ -8,13 +8,15 @@ import {
     Warn,
 } from './tip-style';
 import spawn from 'cross-spawn';
+import { resolve } from 'path';
 import makeLocale from './makeLocale';
+import { copyFileSync } from 'fs';
 
 export default async function build(cmd: any) {
     if (!cmd.target) {
         Error(
             `${error(
-                `Please add --target web or --target mp or --target wechatMp to he command`
+                `Please add --target web or --target mp(wechatMp) or --target rn(native) to run the project in Web/WechatMp/ReactNative environment`
             )}`
         );
         return;
@@ -37,7 +39,7 @@ export default async function build(cmd: any) {
             }`
         )}`
     );
-    if (cmd.target === 'mp' || cmd.target === 'wechatMp') {
+    if (['mp', 'wechatMp'].includes(cmd.target)) {
         const result = spawn.sync(
             `cross-env`,
             [
@@ -102,5 +104,48 @@ export default async function build(cmd: any) {
         } else {
             Error(`${error(`执行失败`)}`);
         }
+    }
+    else if (['native', 'rn'].includes(cmd.target)) {
+        const prjDir = process.cwd();
+        const cwd = resolve(prjDir, cmd.subDir || 'native');
+        copyFileSync(resolve(prjDir, 'package.json'), resolve(cwd, 'package.json'));
+        // rn不支持注入NODE_ENVIRONMENT这样的环境变量，cross-env没有用
+        /* const result = spawn.sync(
+            'react-native',
+            [
+                'start',
+            ],
+            {
+                cwd,
+                stdio: 'inherit',
+                shell: true,
+            }
+        ); */
+        const result = spawn.sync(
+            `cross-env`,
+            [
+                `NODE_ENV=${cmd.mode}`,
+                'OAK_PLATFORM=native',
+                'react-native',
+                'start'
+            ].filter(Boolean),
+            {
+                cwd,
+                stdio: 'inherit',
+                shell: true,
+            }
+        );
+        if (result.status === 0) {
+            Success(`${success(`执行完成`)}`);
+        } else {
+            Error(`${error(`执行失败`)}`);
+        }
+    }
+    else {
+        Error(
+            `${error(
+                `target could only be web or mp(wechatMp) or rn(native)`
+            )}`
+        );
     }
 }
