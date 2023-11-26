@@ -1,7 +1,7 @@
 {
     "name": "@xuchangzju/oak-cli",
-    "version": "3.0.2",
-    "description": "oak-cli脚手架",
+    "version": "3.0.3",
+    "description": "client for oak framework",
     "main": "lib/index.js",
     "scripts": {
         "build": "tsc",
