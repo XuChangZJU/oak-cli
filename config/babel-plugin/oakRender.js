@@ -10,7 +10,6 @@ module.exports = (babel) => {
                 const { base } = parse(filename);
                 const node = path.node;
                 if (['index.ts', 'index.js'].includes(base) && t.isCallExpression(node) && t.isIdentifier(node.callee) && node.callee.name === 'OakComponent') {
-                    console.log(filename, base);
                     injectGetRender(node, cwd, filename, 'web');
                 }
             },
