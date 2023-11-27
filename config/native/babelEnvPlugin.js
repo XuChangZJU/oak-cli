@@ -23,7 +23,7 @@ function replaceEnvExpressionPlugin() {
                     assert(t.isIdentifier(property));
                     const { name } = property;
                     if (REPLACE_HOLDERS[name]) {
-                        console.log(state.filename, name);
+                        // console.log(state.filename, name);
                         path.replaceWith(
                             t.stringLiteral(REPLACE_HOLDERS[name])
                         );
