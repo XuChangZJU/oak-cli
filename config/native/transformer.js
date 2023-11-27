@@ -18,6 +18,7 @@ const less = require('less');
 const css2rn = require("css-to-react-native-transform").default;
 const { parseSync, transformFromAstSync, transformSync: babelTransform } = require("@babel/core");
 const nullthrows = require("nullthrows");
+const replaceEnvExpressionPlugin = require('./babelEnvPlugin');
 
 const { injectGetRender } = require('../utils/injectGetRender');
 
@@ -49,7 +50,7 @@ function transform({ filename, options, plugins, src }) {
             cwd: options.projectRoot,
             highlightCode: true,
             filename,
-            plugins,
+            plugins: plugins.concat(replaceEnvExpressionPlugin),
             sourceType: "module",
             // NOTE(EvanBacon): We split the parse/transform steps up to accommodate
             // Hermes parsing, but this defaults to cloning the AST which increases
@@ -81,7 +82,7 @@ function transform({ filename, options, plugins, src }) {
                     }
                 })
             }
-            // injectGetRender(transformResult.ast.program.body, path.resolve(process.cwd(), '..'), filename, 'native');
+            
             return {
                 ast: nullthrows(transformResult.ast),
                 metadata: transformResult.metadata,
