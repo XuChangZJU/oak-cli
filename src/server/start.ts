@@ -35,7 +35,7 @@ export async function startup<ED extends EntityDict & BaseEntityDict, Cxt extend
         allowedHeaders: ["oak-cxt"],
     };
     const io = new Server(httpServer, socketOption);
-    if (process.env.PM2_STATUS) {
+    if (process.env.pm_id || process.env.PM_ID) {
         // pm2环境下要接入clusterAdapter
         // https://socket.io/zh-CN/docs/v4/pm2/
         io.adapter(createAdapter());
@@ -170,4 +170,9 @@ export async function startup<ED extends EntityDict & BaseEntityDict, Cxt extend
     if (!omitTimers) {
         appLoader.startTimers();
     }
+
+    process.on('SIGINT', async () => {
+        await appLoader.unmount();
+        process.exit(0);
+    });
 }
