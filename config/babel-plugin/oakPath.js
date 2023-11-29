@@ -32,7 +32,7 @@ module.exports = (babel) => {
                         ele => t.isObjectProperty(ele) && t.isIdentifier(ele.key) && ele.key.name === 'path'
                     );
                     if (pathProperty) {
-                        console.warn(`${rel}页面的OakPage中还是定义了path，可以删除掉了`);
+                        console.warn(`${resolvePath}页面的OakPage中还是定义了path，可以删除掉了`);
                         pathProperty.value = t.stringLiteral(relativePath);
                     }
                     else {
