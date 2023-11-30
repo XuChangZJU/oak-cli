@@ -139,7 +139,7 @@ function transformCode(text, namespace, moduleName) {
                             const { arguments } = node;
                             // 在t的后面加五个参数（oakLocales, oakLng, oakDefaultLng, oakNamespace, 
                             // 增强能力：如果t后面的第二个参数是字符串，说明想指定oakNamespace，在一些抽象模块中会有此需求
-                            if (arguments[1] && t.isStringLiteral(this.argument[1])) {
+                            if (arguments[1] && t.isStringLiteral(arguments[1])) {
                                 arguments.splice(
                                     1,
                                     0,
