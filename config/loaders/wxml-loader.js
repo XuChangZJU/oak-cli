@@ -268,7 +268,8 @@ module.exports = async function (content) {
                     x.indexOf('missed quot(")!') === -1 &&
                     x.indexOf('unclosed xml attribute') == -1
                 ) {
-                    console.log(x);
+                    
+                    console.warn(`${filePath}文件出现警告：${x}`);
                 }
             },
         },
