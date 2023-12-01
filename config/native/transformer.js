@@ -21,6 +21,7 @@ const nullthrows = require("nullthrows");
 const replaceEnvExpressionPlugin = require('./babelEnvPlugin');
 
 const { injectGetRender } = require('../utils/injectGetRender');
+const oakPathTsxPlugin = require('../babel-plugin/oakPath');
 
 async function renderToCSS({ src, filename, options = {} }) {
     const { lessOptions = {} } = options;
@@ -50,7 +51,7 @@ function transform({ filename, options, plugins, src }) {
             cwd: options.projectRoot,
             highlightCode: true,
             filename,
-            plugins: plugins.concat(replaceEnvExpressionPlugin),
+            plugins: plugins.concat([replaceEnvExpressionPlugin, oakPathTsxPlugin]),
             sourceType: "module",
             // NOTE(EvanBacon): We split the parse/transform steps up to accommodate
             // Hermes parsing, but this defaults to cloning the AST which increases
