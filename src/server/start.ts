@@ -5,8 +5,8 @@ import PathLib from 'path';
 import Koa from 'koa';
 import KoaRouter from 'koa-router';
 import KoaBody from 'koa-body';
-import { AppLoader } from 'oak-backend-base';
-import { OakException, Connector, EntityDict } from 'oak-domain/lib/types';
+import { AppLoader, getClusterInfo } from 'oak-backend-base';
+import { OakException, Connector, EntityDict, ClusterInfo } from 'oak-domain/lib/types';
 import { EntityDict as BaseEntityDict } from 'oak-domain/lib/base-app-domain';
 import { AsyncRowStore } from 'oak-domain/lib/store/AsyncRowStore';
 import { BackendRuntimeContext } from 'oak-frontend-base';
@@ -18,7 +18,7 @@ import { setupWorker } from "@socket.io/sticky";
 const DATA_SUBSCRIBER_NAMESPACE = '/ds';
 export async function startup<ED extends EntityDict & BaseEntityDict, Cxt extends BackendRuntimeContext<ED>, FrontCxt extends SyncContext<ED>>(
     path: string,
-    contextBuilder: (scene?: string) => (store: AsyncRowStore<ED, Cxt>, header?: IncomingHttpHeaders) => Promise<Cxt>,
+    contextBuilder: (scene?: string) => (store: AsyncRowStore<ED, Cxt>, header?: IncomingHttpHeaders, clusterInfo?: ClusterInfo) => Promise<Cxt>,
     connector: Connector<ED, FrontCxt>,
     omitWatchers?: boolean,
     omitTimers?: boolean,
@@ -35,7 +35,9 @@ export async function startup<ED extends EntityDict & BaseEntityDict, Cxt extend
         allowedHeaders: ["oak-cxt"],
     };
     const io = new Server(httpServer, socketOption);
-    if (process.env.pm_id || process.env.PM_ID) {
+    const clusterInfo = getClusterInfo();
+    if (clusterInfo.usingCluster) {
+        // 目前只有pm2模式
         // pm2环境下要接入clusterAdapter
         // https://socket.io/zh-CN/docs/v4/pm2/
         io.adapter(createAdapter());
@@ -110,7 +112,7 @@ export async function startup<ED extends EntityDict & BaseEntityDict, Cxt extend
     // 外部socket接口
     router.get(connector.getSubscribePointRouter(), async (ctx) => {
         const { response } = ctx;
-        if (process.env.PM2_STATUS) {
+        if (clusterInfo.usingCluster) {
             // 如果使用了pm2，则返回 @socket.io/pm2所监听的PM2_PORT端口
             response.body = {
                 namespace: DATA_SUBSCRIBER_NAMESPACE,
