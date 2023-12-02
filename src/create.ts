@@ -41,6 +41,9 @@ import {
     Warn,
 } from './tip-style';
 import shell from 'shelljs';
+import { renameProject } from './rename';
+const DEFAULT_PROJECT_NAME = 'oak_template';
+const DEFAULT_PROJECT_TITLE = 'oak template project';
 
 const prompt = [
     {
@@ -48,6 +51,11 @@ const prompt = [
         name: 'version',
         message: 'version',
         default: '1.0.0',
+    },
+    {
+        type: 'input',
+        name: 'title',
+        message: 'title of the project shown in App/Html'
     },
     {
         type: 'input',
@@ -105,7 +113,7 @@ async function createWechatMpBoilplate(dir: string, isDev: boolean, isUpdate?: b
     // 获取小程序项目project.config.json内容
     const projectConfigWithWeChatMp = projectConfigContentWithWeChatMp(
         USER_CONFIG_FILE_NAME,
-        'wechatMp',
+        DEFAULT_PROJECT_TITLE,
         miniVersion
     );
     // 获取小程序项目oak.config.json内容
@@ -182,12 +190,12 @@ export async function create(dirName: string, cmd: any) {
     prompt.unshift(nameOption);
     const isDev = cmd.dev ? true : false;
 
-    const { name, version, description }: PromptInput = await inquirer.prompt(
+    const { name, version, title, description }: PromptInput = await inquirer.prompt(
         prompt
     );
     // 获取package.json内容
     const packageJson = packageJsonContent({
-        name,
+        name: DEFAULT_PROJECT_NAME,     // 后面再统一rename
         version,
         description,
         cliVersion: CLI_VERSION,
@@ -287,6 +295,7 @@ export async function create(dirName: string, cmd: any) {
         Success(`${success(`Dependencies are now being installed`)}`);
         shell.cd(dirName).exec('npm install'); */
 
+        renameProject(rootPath, name, title, DEFAULT_PROJECT_NAME, DEFAULT_PROJECT_TITLE);
         Success(
             `${success(
                 `Successfully created project ${primary(
