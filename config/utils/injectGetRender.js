@@ -161,31 +161,36 @@ function injectGetRender(node, projectRoot, filename, env) {
          */
         const arg = node.arguments[0];
         assert(t.isObjectExpression(arg));
-        const propertyRender = t.objectProperty(
-            t.identifier('getRender'),
-            t.functionExpression(null, [], t.blockStatement(
-                [
-                    t.variableDeclaration('var', [
-                        t.variableDeclarator(
-                            t.identifier('oakRenderFn'),
-                            t.memberExpression(
-                                t.callExpression(
-                                    t.identifier('require'),
-                                    [
-                                        t.stringLiteral('./render')
-                                    ]
+        // react-native的编译器会命中两次
+        if (!arg.properties.find(
+            (ele) => t.isObjectProperty(ele) && t.isIdentifier(ele.key) && ele.key.name === 'getRender'
+        )) {
+            const propertyRender = t.objectProperty(
+                t.identifier('getRender'),
+                t.functionExpression(null, [], t.blockStatement(
+                    [
+                        t.variableDeclaration('var', [
+                            t.variableDeclarator(
+                                t.identifier('oakRenderFn'),
+                                t.memberExpression(
+                                    t.callExpression(
+                                        t.identifier('require'),
+                                        [
+                                            t.stringLiteral('./render')
+                                        ]
+                                    ),
+                                    t.identifier('default')
                                 ),
-                                t.identifier('default')
-                            ),
+                            )
+                        ]),
+                        t.returnStatement(
+                            t.identifier('oakRenderFn')
                         )
-                    ]),
-                    t.returnStatement(
-                        t.identifier('oakRenderFn')
-                    )
-                ]
-            ))
-        );
-        arg.properties.unshift(propertyRender);        
+                    ]
+                ))
+            );
+            arg.properties.unshift(propertyRender); 
+        }       
     }
 }
 

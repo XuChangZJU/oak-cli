@@ -31,12 +31,14 @@ module.exports = (babel) => {
                     const pathProperty = properties.find(
                         ele => t.isObjectProperty(ele) && t.isIdentifier(ele.key) && ele.key.name === 'path'
                     );
+                    // console.log(filename, 'oakPath');
                     if (pathProperty) {
-                        console.warn(`${resolvePath}页面的OakPage中还是定义了path，可以删除掉了`);
+                        // react-native的编译器会走两次，这里会被命中
+                        // console.warn(`${resolvePath}页面的OakPage中还是定义了path，可以删除掉了`);
                         pathProperty.value = t.stringLiteral(relativePath);
                     }
                     else {
-                        properties.push(
+                        properties.unshift(
                             t.objectProperty(t.identifier('path'), t.stringLiteral(relativePath))
                         );
                     }

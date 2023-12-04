@@ -22,6 +22,8 @@ const replaceEnvExpressionPlugin = require('./babelEnvPlugin');
 
 const { injectGetRender } = require('../utils/injectGetRender');
 const oakPathTsxPlugin = require('../babel-plugin/oakPath');
+const oakRenderNativePlugin = require('../babel-plugin/oakRenderNative');
+const oakI18nPlugin = require('../babel-plugin/oakI18n');
 
 async function renderToCSS({ src, filename, options = {} }) {
     const { lessOptions = {} } = options;
@@ -51,7 +53,7 @@ function transform({ filename, options, plugins, src }) {
             cwd: options.projectRoot,
             highlightCode: true,
             filename,
-            plugins: plugins.concat([replaceEnvExpressionPlugin, oakPathTsxPlugin]),
+            plugins: plugins.concat([replaceEnvExpressionPlugin, oakPathTsxPlugin, oakRenderNativePlugin, oakI18nPlugin]),
             sourceType: "module",
             // NOTE(EvanBacon): We split the parse/transform steps up to accommodate
             // Hermes parsing, but this defaults to cloning the AST which increases
@@ -71,18 +73,19 @@ function transform({ filename, options, plugins, src }) {
             const transformResult = transformFromAstSync(sourceAst, src, babelConfig);
 
             // 为page和componet下的OakComponent注入getRender函数，去取得同目录下的render.native.tsx
-            const resultAst = transformResult.ast;
-            const { base } = path.parse(filename);
-            if (['index.ts', 'index.js'].includes(base)) {
-                traverse(resultAst, {
-                    CallExpression(path) {
-                        const node = path.node;
-                        if (t.isIdentifier(node.callee) && node.callee.name === 'OakComponent') {
-                            injectGetRender(node, options.projectRoot, filename, 'native');
-                        }
-                    }
-                })
-            }
+            // 改成plugin注入
+            // const resultAst = transformResult.ast;
+            // const { base } = path.parse(filename);
+            // if (['index.ts', 'index.js'].includes(base)) {
+            //     traverse(resultAst, {
+            //         CallExpression(path) {
+            //             const node = path.node;
+            //             if (t.isIdentifier(node.callee) && node.callee.name === 'OakComponent') {
+            //                 injectGetRender(node, options.projectRoot, filename, 'native');
+            //             }
+            //         }
+            //     })
+            // }
             
             return {
                 ast: nullthrows(transformResult.ast),
