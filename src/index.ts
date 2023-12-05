@@ -21,7 +21,7 @@ function enhanceErrorMessages(methodName: string, log: Function) {
         this.outputHelp();
         console.log(`  ` + error(log(...args)));
         console.log();
-        process.exit(1);
+        process.exit(-1);
     };
 }
 
@@ -40,7 +40,7 @@ if (Number(major) < minNodeVersion) {
         ' or higher. \n' +
         'Please update your version of Node.'
     );
-    process.exit(1);
+    process.exit(-1);
 }
 
 program.version(CLI_VERSION, '-v, --version').usage('<command> [options]');
@@ -93,10 +93,11 @@ program
     .action(update);
 program
     .command('run')
-    .option('-i, --initialize', 'true')
-    .option('-m, --mode <mode>', 'mode')
+    .option('-p, --platform <platform>', 'platform')
+    .option('-d, --subDir <subDirName>', 'subDirName')
     .description(`run backend server by ${CLI_NAME}`)
     .action(run);
+
 // output help information on unknown commands
 program.arguments('<command>').action((cmd) => {
     program.outputHelp();

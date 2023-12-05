@@ -137,14 +137,29 @@ function transformCode(text, namespace, moduleName) {
                         const { node } = path;
                         if (t.isIdentifier(node.callee) && node.callee.name === 't') {
                             const { arguments } = node;
-                            // 在t的后面加五个参数（oakLocales, oakLng, oakDefaultLng, oakNamespace, oakModule）
-                            arguments.push(
-                                t.identifier('oakLocales'),
-                                t.identifier('oakLng'),
-                                t.identifier('oakDefaultLng'),
-                                t.stringLiteral(namespace),
-                                t.stringLiteral(moduleName)
-                            );
+                            // 在t的后面加五个参数（oakLocales, oakLng, oakDefaultLng, oakNamespace, 
+                            // 增强能力：如果t后面的第二个参数是字符串，说明想指定oakNamespace，在一些抽象模块中会有此需求
+                            if (arguments[1] && t.isStringLiteral(arguments[1])) {
+                                arguments.splice(
+                                    1,
+                                    0,
+                                    t.identifier('oakLocales'),
+                                    t.identifier('oakLng'),
+                                    t.identifier('oakDefaultLng')
+                                );
+                                arguments.push(
+                                    t.stringLiteral(moduleName)
+                                );
+                            }
+                            else {
+                                arguments.push(
+                                    t.identifier('oakLocales'),
+                                    t.identifier('oakLng'),
+                                    t.identifier('oakDefaultLng'),
+                                    t.stringLiteral(namespace),
+                                    t.stringLiteral(moduleName)
+                                );
+                            }
                             node.callee = t.memberExpression(
                                 t.identifier('i18n'),
                                 t.identifier('t')
@@ -253,7 +268,8 @@ module.exports = async function (content) {
                     x.indexOf('missed quot(")!') === -1 &&
                     x.indexOf('unclosed xml attribute') == -1
                 ) {
-                    console.log(x);
+                    
+                    console.warn(`${filePath}文件出现警告：${x}`);
                 }
             },
         },
@@ -309,7 +325,7 @@ module.exports = async function (content) {
                         const wxIfNode = node.ownerDocument.createElement('block');
                         wxIfNode.setAttribute('wx:if', '{{oakFullpath}}');
                         wxIfNode.setAttribute('oakInjected', 'true');
-    
+
                         node.parentNode.replaceChild(wxIfNode, node);
                         wxIfNode.appendChild(node);
                     }

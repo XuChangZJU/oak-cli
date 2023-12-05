@@ -1,44 +1,45 @@
 import { PackageJsonInput } from './interface'
 export function packageJsonContent({
-  name,
-  version,
-  description,
-  cliVersion,
-  cliName,
-  cliBinName,
-  isDev,
+	name,
+	version,
+	description,
+	cliVersion,
+	cliName,
+	cliBinName,
+	isDev,
 }: PackageJsonInput) {
-  let oakDependencyStr;
-  let oakDevDependencyStr;
-  if (isDev) {
-    oakDependencyStr = `"oak-common-aspect": "file:../oak-common-aspect",
+	let oakDependencyStr;
+	let oakDevDependencyStr;
+	if (isDev) {
+		oakDependencyStr = `"oak-common-aspect": "file:../oak-common-aspect",
         "oak-db": "file:../oak-db",
         "oak-domain": "file:../oak-domain",
         "oak-external-sdk": "file:../oak-external-sdk",
         "oak-frontend-base": "file:../oak-frontend-base",
         "oak-general-business": "file:../oak-general-business",
         "oak-memory-tree-store": "file:../oak-memory-tree-store",`;
-    oakDevDependencyStr = `"${cliName}": "file:../oak-cli",`
-  }
-  else {
-    oakDependencyStr = `"oak-common-aspect": "^2.1.0",
+		oakDevDependencyStr = `"${cliName}": "file:../oak-cli",`
+	}
+	else {
+		// todo，这里从npmjs.org上获取最新版本
+		oakDependencyStr = `"oak-common-aspect": "^2.1.0",
         "oak-db": "^2.1.1",
         "oak-domain": "^2.1.0",
         "oak-external-sdk": "^1.0.5",
         "oak-frontend-base": "^2.1.0",
         "oak-general-business": "^2.1.0",
         "oak-memory-tree-store": "^2.1.0",`;
-    oakDevDependencyStr = `"${cliName}": "^${cliVersion}",`
-  }
+		oakDevDependencyStr = `"${cliName}": "^${cliVersion}",`
+	}
 
-  const serverInitScript = isDev ? "cross-env OAK_PLATFORM=server ts-node scripts/initServer.js" : "cross-env OAK_PLATFORM=server ts-node scripts/initServer.js";
-  const serverStartScript = isDev ? "cross-env NODE_ENV=development cross-env OAK_PLATFORM=server ts-node scripts/startServer.js" : "cross-env OAK_PLATFORM=server ts-node scripts/startServer.js";
-  return `{
+	const serverInitScript = isDev ? "cross-env OAK_PLATFORM=server ts-node scripts/initServer.js" : "cross-env OAK_PLATFORM=server ts-node scripts/initServer.js";
+	const serverStartScript = isDev ? "cross-env NODE_ENV=development cross-env OAK_PLATFORM=server ts-node scripts/startServer.js" : "cross-env OAK_PLATFORM=server ts-node scripts/startServer.js";
+	return `{
     "name": "${name}",
     "version": "${version}",
     "description": "${description}",
     "scripts": {
-       "make:domain": "${cliBinName} make:domain",
+       	"make:domain": "${cliBinName} make:domain",
         "make:locale": "${cliBinName} make:locale",
         "clean:cache": "rimraf node_modules/.cache",
         "copy-config-json": "copyfiles -u 1 src/config/*.json lib/",
@@ -48,10 +49,14 @@ export function packageJsonContent({
         "build-analyze:mp": "${cliBinName} build --target mp --mode production --analyze",
         "start:web": "${cliBinName} start --target web --mode development",
         "start:web:prod": "${cliBinName} start --target web --mode development --prod",
+        "start:native": "${cliBinName} start --target rn --mode development",
+        "start:native:prod": "${cliBinName} start --target rn --mode development --prod",
         "build:web": "${cliBinName} build --target web --mode production",
         "build-analyze:web": "${cliBinName} build --target web --mode production --analyze",
         "build-sourcemap-analyze:web": "${cliBinName} build --target web --mode production --sourcemap --analyze",
         "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json && npm run copy-config-json",
+        "run:ios": "oak-cli run -p ios",
+        "run:android": "oak-cli run -p android",
         "server:init": "${serverInitScript}",
         "server:start": "${serverStartScript}",
         "postinstall": "npm run make:domain"
@@ -61,71 +66,87 @@ export function packageJsonContent({
     "license": "",
     "typings": "typings/index.d.ts",
     "dependencies": {
-      "@ant-design/cssinjs": "^1.16.2",
-      "@ant-design/icons": "^5.2.6",
-      "@wangeditor/basic-modules": "^1.1.3",
-      "@wangeditor/editor": "^5.1.14",
-      "@wangeditor/editor-for-react": "^1.0.4",
-      "antd": "^5.8.3",
-      "antd-mobile": "^5.32.0",
-      "antd-mobile-icons": "^0.3.0",
-      "classnames": "^2.3.1",
-      "crypto-browserify": "^3.12.0",
-      "crypto-js": "^4.1.1",
-      "dayjs": "^1.11.5",
-      "echarts": "^5.3.0",
-      "echarts-for-react": "^3.0.2",
-      "history": "^5.3.0",
-      "hmacsha1": "^1.0.0",
-      "js-base64": "^3.7.2",
-      "lodash": "^4.17.21",
-      "nprogress": "^0.2.0",
-        ${oakDependencyStr}
-        "react": "^18.2.0",
-        "react-dom": "^18.1.0",
-        "react-image-gallery": "^1.2.11",
-        "react-responsive": "^9.0.0-beta.10",
-        "react-router-dom": "^6.4.0",
-        "react-scripts": "5.0.1",
-        "react-slick": "^0.29.0",
-        "rmc-pull-to-refresh": "^1.0.13",
-        "slick-carousel": "^1.8.1",
-        "url": "^0.11.0",
-        "uuid": "^8.3.2"
+		"@ant-design/cssinjs": "^1.16.2",
+		"@ant-design/icons": "^5.2.6",
+        "@react-native-async-storage/async-storage": "^1.19.8",
+        "@react-native-masked-view/masked-view": "^0.3.0",
+        "@react-navigation/bottom-tabs": "^6.5.11",
+        "@react-navigation/native": "^6.1.9",
+        "@react-navigation/stack": "^6.3.20",
+		"@wangeditor/basic-modules": "^1.1.3",
+		"@wangeditor/editor": "^5.1.14",
+		"@wangeditor/editor-for-react": "^1.0.4",
+		"antd": "^5.8.3",
+		"antd-mobile": "^5.32.0",
+		"antd-mobile-icons": "^0.3.0",
+		"classnames": "^2.3.1",
+		"crypto-browserify": "^3.12.0",
+		"crypto-js": "^4.1.1",
+		"dayjs": "^1.11.5",
+		"echarts": "^5.3.0",
+		"echarts-for-react": "^3.0.2",
+		"history": "^5.3.0",
+		"hmacsha1": "^1.0.0",
+		"js-base64": "^3.7.2",
+		"lodash": "^4.17.21",
+		"nprogress": "^0.2.0",
+		${oakDependencyStr}
+		"react": "^18.2.0",		
+		"react-dom": "^18.1.0",
+		"react-image-gallery": "^1.2.11",
+		"react-native": "0.72.7",
+    "react-native-exception-handler": "^2.10.10",
+    "react-native-gesture-handler": "^2.14.0",
+    "react-native-localize": "^3.0.4",
+    "react-native-quick-base64": "^2.0.7",
+    "react-native-quick-crypto": "^0.6.1",
+    "react-native-reanimated": "^3.5.4",
+    "react-native-safe-area-context": "^4.7.4",
+    "react-native-screens": "^3.27.0",
+    "react-native-url-polyfill": "^2.0.0",
+		"react-responsive": "^9.0.0-beta.10",
+		"react-router-dom": "^6.4.0",
+		"react-slick": "^0.29.0",
+		"rmc-pull-to-refresh": "^1.0.13",
+		"slick-carousel": "^1.8.1",
+		"uuid": "^8.3.2"
     },
     "devDependencies": {
-      "@babel/cli": "^7.12.13",
-      "@babel/core": "^7.12.13",
-      "@babel/plugin-proposal-class-properties": "^7.12.13",
-      "@babel/preset-env": "^7.12.13",
-      "@babel/preset-typescript": "^7.12.13",
-      "@pmmmwh/react-refresh-webpack-plugin": "^0.5.3",
-      "@svgr/webpack": "^5.5.0",
-      "@testing-library/jest-dom": "^5.16.4",
-      "@testing-library/react": "^13.3.0",
-      "@testing-library/user-event": "^13.5.0",
-      "@types/assert": "^1.5.6",
-      "@types/crypto-js": "^4.1.1",
-      "@types/fs-extra": "^9.0.13",
-      "@types/isomorphic-fetch": "^0.0.36",
-      "@types/jest": "^27.5.2",
-      "@types/lodash": "^4.14.179",
-      "@types/luxon": "^2.3.2",
-      "@types/mocha": "^8.2.0",
-      "@types/node": "^16.11.38",
-      "@types/nprogress": "^0.2.0",
-      "@types/react": "^18.0.12",
-      "@types/react-dom": "^18.0.5",
-      "@types/react-image-gallery": "^1.2.0",
-      "@types/shelljs": "^0.8.11",
-      "@types/urlsafe-base64": "^1.0.28",
-      "@types/uuid": "^8.3.0",
-      "@types/wechat-miniprogram": "^3.4.0",
+		"@babel/cli": "^7.12.13",
+		"@babel/core": "^7.12.13",
+		"@babel/plugin-proposal-class-properties": "^7.12.13",
+		"@babel/preset-env": "^7.12.13",
+		"@babel/preset-typescript": "^7.12.13",
+		"@pmmmwh/react-refresh-webpack-plugin": "^0.5.3",
+		"@react-native/metro-config": "^0.72.11",
+		"@svgr/webpack": "^5.5.0",
+		"@testing-library/jest-dom": "^5.16.4",
+		"@testing-library/react": "^13.3.0",
+		"@testing-library/user-event": "^13.5.0",
+		"@tsconfig/react-native": "^3.0.0",
+		"@types/assert": "^1.5.6",
+		"@types/crypto-js": "^4.1.1",
+		"@types/fs-extra": "^9.0.13",
+		"@types/isomorphic-fetch": "^0.0.36",
+		"@types/jest": "^27.5.2",
+		"@types/lodash": "^4.14.179",
+		"@types/luxon": "^2.3.2",
+		"@types/mocha": "^8.2.0",
+		"@types/node": "^20.10.2",
+		"@types/nprogress": "^0.2.0",
+		"@types/react": "^18.0.12",
+		"@types/react-dom": "^18.0.5",
+		"@types/react-image-gallery": "^1.2.0",
+		"@types/shelljs": "^0.8.11",
+		"@types/urlsafe-base64": "^1.0.28",
+		"@types/uuid": "^8.3.0",
+		"@types/wechat-miniprogram": "^3.4.0",
         ${oakDevDependencyStr}
         "assert": "^2.0.0",
         "babel-jest": "^27.4.2",
         "babel-loader": "^8.2.3",
         "babel-plugin-named-asset-import": "^0.3.8",
+        "babel-plugin-module-resolver": "^5.0.0",
         "babel-preset-react-app": "^10.0.1",
         "bfj": "^7.0.2",
         "browserify-zlib": "^0.2.0",
@@ -156,6 +177,7 @@ export function packageJsonContent({
         "jest-watch-typeahead": "^1.0.0",
         "less": "^4.1.2",
         "less-loader": "^10.2.0",
+		    "metro-react-native-babel-preset": "0.76.8",
         "mini-css-extract-plugin": "^2.5.3",
         "miniprogram-api-typings": "^3.4.5",
         "mocha": "^8.2.1",
@@ -185,14 +207,14 @@ export function packageJsonContent({
         "tailwindcss": "^3.0.2",
         "terser-webpack-plugin": "^5.2.5",
         "ts-loader": "^9.3.0",
-        "ts-node": "^10.8.1",
+        "ts-node": "^10.9.1",
         "tsc-alias": "^1.8.2",
         "tslib": "^2.4.0",
-        "typescript": "^4.7.3",
+        "typescript": "^5.2.2",
         "ui-extract-webpack-plugin": "^1.0.0",
         "web-vitals": "^2.1.4",
-        "webpack": "^5.69.1",
-        "webpack-dev-server": "^4.6.0",
+        "webpack": "^5.86.0",
+        "webpack-dev-server": "^4.15.1",
         "webpack-manifest-plugin": "^4.0.2",
         "workbox-webpack-plugin": "^6.4.1"
     },
@@ -214,7 +236,7 @@ export function packageJsonContent({
 }
 
 export function tsConfigJsonContent() {
-  return `{
+	return `{
   "extends": "./tsconfig.paths.json",
   "compilerOptions": {
     "jsx": "react-jsx",
@@ -261,7 +283,7 @@ export function tsConfigJsonContent() {
 }
 
 export function tsConfigBuildJsonContent() {
-  return `{
+	return `{
    "extends": "./tsconfig.build.paths.json",
    "compilerOptions": {
      "jsx": "react-jsx",
@@ -301,7 +323,7 @@ export function tsConfigBuildJsonContent() {
 }
 
 export function tsConfigBuildPathsJsonContent() {
-    return `{
+	return `{
     "compilerOptions": {
         "baseUrl": "./",
             "paths": {
@@ -333,7 +355,7 @@ export function tsConfigBuildPathsJsonContent() {
 }
 
 export function tsConfigPathsJsonContent() {
-  return `{
+	return `{
     "compilerOptions": {
         "baseUrl": "./",
          "paths": {
@@ -365,7 +387,7 @@ export function tsConfigPathsJsonContent() {
 }
 
 export function tsConfigMpJsonContent() {
-  return `{
+	return `{
     "extends": "./tsconfig.paths.json",
    "compilerOptions": {
     "module": "ESNext",
@@ -412,7 +434,7 @@ export function tsConfigMpJsonContent() {
 }
 
 export function tsConfigWebJsonContent() {
-  return `{
+	return `{
   "extends": "./tsconfig.paths.json",
    "compilerOptions": {
     "module": "ESNext",
@@ -462,11 +484,11 @@ export function tsConfigWebJsonContent() {
 
 
 export function projectConfigContentWithWeChatMp(
-  oakConfigName: string,
-  projectname: string,
-  miniVersion: string
+	oakConfigName: string,
+	projectname: string,
+	miniVersion: string
 ) {
-  return `{
+	return `{
     "description": "项目配置文件",
     "packOptions": {
         "ignore": [{
@@ -542,12 +564,12 @@ export function projectConfigContentWithWeChatMp(
 }
 
 export function appJsonContentWithWeChatMp(isDev: boolean) {
-  const pages = [
-      '@project/pages/store/list/index',
-      '@project/pages/store/upsert/index',
-      '@project/pages/store/detail/index',
-  ];
-  return `{
+	const pages = [
+		'@project/pages/store/list/index',
+		'@project/pages/store/upsert/index',
+		'@project/pages/store/detail/index',
+	];
+	return `{
   "pages":${JSON.stringify(pages, null, 4)},
   "window":{
     "backgroundTextStyle":"light",
@@ -566,23 +588,23 @@ export function appJsonContentWithWeChatMp(isDev: boolean) {
 }
 
 export function oakConfigContentWithWeChatMp() {
-  return `{
+	return `{
     "theme": {
     }
 }`;
 }
 
 export function appJsonContentWithWeb(isDev: boolean) {
-  const pages = [
-      '@project/pages/login/index',
-  ];
-  return `{
+	const pages = [
+		'@project/pages/login/index',
+	];
+	return `{
     "pages": ${JSON.stringify(pages, null, 4)}
 }`;
 }
 
 export function oakConfigContentWithWeb() {
-  return `{
+	return `{
     "theme": {
     }
 }`;

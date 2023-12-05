@@ -47,6 +47,9 @@ Object.assign(global, {
                 responseType,
                 success: (res) => {
                     const { statusCode, data, header } = res;
+                    header.get = function (key: string) {
+                        return this[key] as any;
+                    };
                     const result = Object.assign({}, res, {
                         status: statusCode,
                         ok: statusCode === 200,

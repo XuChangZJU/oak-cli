@@ -21,6 +21,7 @@ export interface PromptInput {
     name: string;
     version: string;
     description: string;
+    title: string;
 }
 /**
  * @name project.config.json

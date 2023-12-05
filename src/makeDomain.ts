@@ -26,6 +26,6 @@ export default async function make() {
         Success(`${success(`make 执行完成`)}`);
     } else {
         Error(`${error(`make 执行失败`)}`);
-        process.exit(1);
+        process.exit(-1);
     }
 }
