@@ -117,7 +117,8 @@ export async function startup<ED extends EntityDict & BaseEntityDict, Cxt extend
             response.body = {
                 namespace: DATA_SUBSCRIBER_NAMESPACE,
                 path: connector.getSubscribeRouter(),
-                port: process.env.PM2_PORT || 8080,
+                // 如果是开发环境就直连@socket.io/pm2的监听端口
+                port: process.env.NODE_ENV === 'development' ? (process.env.PM2_PORT || 8080) : serverConfig.port,
             };
             // 开发环境socket直接连接
             return;
