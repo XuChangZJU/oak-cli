@@ -11,7 +11,9 @@ export function packageJsonContent({
 	let oakDependencyStr;
 	let oakDevDependencyStr;
 	if (isDev) {
-		oakDependencyStr = `"oak-common-aspect": "file:../oak-common-aspect",
+		oakDependencyStr = `
+        "oak-backend-base": "file:../oak-backend-base",
+        "oak-common-aspect": "file:../oak-common-aspect",
         "oak-db": "file:../oak-db",
         "oak-domain": "file:../oak-domain",
         "oak-external-sdk": "file:../oak-external-sdk",
@@ -22,7 +24,9 @@ export function packageJsonContent({
 	}
 	else {
 		// todo，这里从npmjs.org上获取最新版本
-		oakDependencyStr = `"oak-common-aspect": "^2.1.0",
+		oakDependencyStr = `
+        "oak-backend-base": "^3.2.0",
+        "oak-common-aspect": "^2.1.0",
         "oak-db": "^2.1.1",
         "oak-domain": "^2.1.0",
         "oak-external-sdk": "^1.0.5",

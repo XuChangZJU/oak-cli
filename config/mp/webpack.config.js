@@ -290,6 +290,7 @@ module.exports = function (webpackEnv) {
                 exclude: [
                     '*/weui-miniprogram/*',
                     '**/*.module.less',
+                    '**/*.native.less',
                     '**/web.less',
                     '**/locales/**/*',
                 ],
@@ -384,7 +385,7 @@ module.exports = function (webpackEnv) {
                     // 将在“服务器”模式下使用的主机启动HTTP服务器。
                     analyzerHost: '127.0.0.1',
                     // 将在“服务器”模式下使用的端口启动HTTP服务器。
-                    analyzerPort: 8888,
+                    analyzerPort: 8889,
                     // 路径捆绑，将在`static`模式下生成的报告文件。
                     // 相对于捆绑输出目录。
                     reportFilename: 'report.html',
