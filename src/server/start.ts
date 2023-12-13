@@ -5,7 +5,7 @@ import PathLib from 'path';
 import Koa from 'koa';
 import KoaRouter from 'koa-router';
 import KoaBody from 'koa-body';
-import { AppLoader, getClusterInfo } from 'oak-backend-base';
+import { AppLoader, getClusterInfo, ClusterAppLoader } from 'oak-backend-base';
 import { OakException, Connector, EntityDict, ClusterInfo } from 'oak-domain/lib/types';
 import { EntityDict as BaseEntityDict } from 'oak-domain/lib/base-app-domain';
 import { AsyncRowStore } from 'oak-domain/lib/store/AsyncRowStore';
@@ -37,14 +37,18 @@ export async function startup<ED extends EntityDict & BaseEntityDict, Cxt extend
     const io = new Server(httpServer, socketOption);
     const clusterInfo = getClusterInfo();
     if (clusterInfo.usingCluster) {
-        // 目前只有pm2模式
+        // 目前只支持单物理结点的pm2模式
         // pm2环境下要接入clusterAdapter
         // https://socket.io/zh-CN/docs/v4/pm2/
         io.adapter(createAdapter());
-        setupWorker(io);        
+        setupWorker(io);
+        console.log(`以集群模式启动，实例总数『${clusterInfo.instanceCount}』，当前实例号『${clusterInfo.instanceId}』`);
     }
-
-    const appLoader = new AppLoader(path, contextBuilder, io.of(DATA_SUBSCRIBER_NAMESPACE));
+    else {
+        console.log('以单实例模式启动');
+    }
+    
+    const appLoader =  clusterInfo.usingCluster ? new ClusterAppLoader(path, contextBuilder, io.of(DATA_SUBSCRIBER_NAMESPACE)) : new AppLoader(path, contextBuilder, io.of(DATA_SUBSCRIBER_NAMESPACE));
     await appLoader.mount();
     await appLoader.execStartRoutines();
     if (routine) {
