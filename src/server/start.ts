@@ -16,6 +16,8 @@ import { createAdapter } from "@socket.io/cluster-adapter";
 import { setupWorker } from "@socket.io/sticky";
 
 const DATA_SUBSCRIBER_NAMESPACE = '/ds';
+const SERVER_SUBSCRIBER_NAMESPACE = process.env.OAK_SSUB_NAMESPACE || '/ssub';
+
 export async function startup<ED extends EntityDict & BaseEntityDict, Cxt extends BackendRuntimeContext<ED>, FrontCxt extends SyncContext<ED>>(
     path: string,
     contextBuilder: (scene?: string) => (store: AsyncRowStore<ED, Cxt>, header?: IncomingHttpHeaders, clusterInfo?: ClusterInfo) => Promise<Cxt>,
@@ -48,7 +50,9 @@ export async function startup<ED extends EntityDict & BaseEntityDict, Cxt extend
         console.log('以单实例模式启动');
     }
     
-    const appLoader =  clusterInfo.usingCluster ? new ClusterAppLoader(path, contextBuilder, io.of(DATA_SUBSCRIBER_NAMESPACE)) : new AppLoader(path, contextBuilder, io.of(DATA_SUBSCRIBER_NAMESPACE));
+    const appLoader =  clusterInfo.usingCluster 
+        ? new ClusterAppLoader(path, contextBuilder, io.of(DATA_SUBSCRIBER_NAMESPACE), io.of(SERVER_SUBSCRIBER_NAMESPACE), connector.getSubscribeRouter()) 
+        : new AppLoader(path, contextBuilder);
     await appLoader.mount();
     await appLoader.execStartRoutines();
     if (routine) {
@@ -78,7 +82,7 @@ export async function startup<ED extends EntityDict & BaseEntityDict, Cxt extend
 
     const serverConfig = require(PathLib.join(path, '/configuration/server.json'));
     // 如果是开发环境，允许options
-    if (process.env.NODE_ENV === 'development') {
+    if (['development', 'staging'].includes(process.env.NODE_ENV!)) {
         koa.use(async (ctx, next) => {
             ctx.set('Access-Control-Allow-Origin', '*');
             ctx.set('Access-Control-Allow-Headers', 'Content-Type, Content-Length, Authorization, Accept, X-Requested-With, oak-cxt, oak-aspect');
