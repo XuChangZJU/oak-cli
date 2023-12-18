@@ -25,15 +25,15 @@ export default async function build(cmd: any) {
     makeLocale('', true);
     //ts类型检查 waring 还是error,
     //主要web受影响，error级别的话 控制台和网页都报错，warning级别的话 控制台报错
+    // development/staging/production
     const TSC_COMPILE_ON_ERROR = cmd.check !== 'error';
     Success(
         `${success(
             `build ${cmd.target} environment:${cmd.mode} ${
-                cmd.mode !== 'production'
-                    ? `server:${!!cmd.prod}`
-                    : ''
+                ['development'].includes(cmd.mode) ? `server:${!!cmd.prod}` : ''
             } ${
-                cmd.target !== 'web' && cmd.mode !== 'production'
+                ['mp', 'wechatMp'].includes(cmd.target) &&
+                ['development'].includes(cmd.mode)
                     ? `split:${!!cmd.split}`
                     : ''
             }`
@@ -86,7 +86,7 @@ export default async function build(cmd: any) {
                 !!cmd.memoryLimit && `MEMORY_LIMIT=${cmd.memoryLimit}`,
                 `node`,
                 cmd.memoryLimit && `--max_old_space_size=${cmd.memoryLimit}`,
-                require.resolve(
+                resolve(
                     `../scripts/${
                         cmd.mode === 'production'
                             ? 'build-web.js'
@@ -104,11 +104,13 @@ export default async function build(cmd: any) {
         } else {
             Error(`${error(`执行失败`)}`);
         }
-    }
-    else if (['native', 'rn'].includes(cmd.target)) {
+    } else if (['native', 'rn'].includes(cmd.target)) {
         const prjDir = process.cwd();
         const cwd = resolve(prjDir, cmd.subDir || 'native');
-        copyFileSync(resolve(prjDir, 'package.json'), resolve(cwd, 'package.json'));
+        copyFileSync(
+            resolve(prjDir, 'package.json'),
+            resolve(cwd, 'package.json')
+        );
         // rn不支持注入NODE_ENVIRONMENT这样的环境变量，cross-env没有用
         /* const result = spawn.sync(
             'react-native',
@@ -127,7 +129,7 @@ export default async function build(cmd: any) {
                 `NODE_ENV=${cmd.mode}`,
                 'OAK_PLATFORM=native',
                 'react-native',
-                'start'
+                'start',
             ].filter(Boolean),
             {
                 cwd,
@@ -140,12 +142,9 @@ export default async function build(cmd: any) {
         } else {
             Error(`${error(`执行失败`)}`);
         }
-    }
-    else {
+    } else {
         Error(
-            `${error(
-                `target could only be web or mp(wechatMp) or rn(native)`
-            )}`
+            `${error(`target could only be web or mp(wechatMp) or rn(native)`)}`
         );
     }
 }
