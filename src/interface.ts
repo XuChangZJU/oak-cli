@@ -9,7 +9,6 @@ export interface PackageJsonInput {
     name: string;
     version?: string;
     description?: string;
-    cliVersion: string;
     cliName: string;
     cliBinName: string;
     isDev?: boolean;

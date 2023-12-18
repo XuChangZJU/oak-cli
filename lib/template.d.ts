@@ -1,5 +1,5 @@
 import { PackageJsonInput } from './interface';
-export declare function packageJsonContent({ name, version, description, cliVersion, cliName, cliBinName, isDev, }: PackageJsonInput): string;
+export declare function packageJsonContent({ name, version, description, cliName, cliBinName, isDev, }: PackageJsonInput): string;
 export declare function tsConfigJsonContent(): string;
 export declare function tsConfigBuildJsonContent(): string;
 export declare function tsConfigBuildPathsJsonContent(): string;

@@ -15,7 +15,7 @@ import zhCN from 'antd/locale/zh_CN';
 import {
     ResponsiveProvider,
     FeaturesProvider,
-} from '@oak-frontend-base/platforms/web';
+} from 'oak-frontend-base/es/platforms/web';
 import './index.less';
 import App from './App';
 import reportWebVitals from './reportWebVitals';

@@ -1,9 +1,22 @@
-import { PackageJsonInput } from './interface'
+import { execSync } from 'child_process';
+import { PackageJsonInput } from './interface';
+
+/**
+ * 利用npm info获得相应库的最新版本
+ * @param name 
+ * @returns 
+ */
+function getPackageLatestVersion(name: string) {
+	const result = execSync(`npm info ${name}`).toString('utf-8');
+	const data = result.match(/latest: \d\.\d\.\d\s*published/g);
+	return data![0].slice(8, 13);
+}
+
+
 export function packageJsonContent({
 	name,
 	version,
 	description,
-	cliVersion,
 	cliName,
 	cliBinName,
 	isDev,
@@ -25,19 +38,19 @@ export function packageJsonContent({
 	else {
 		// todo，这里从npmjs.org上获取最新版本
 		oakDependencyStr = `
-        "oak-backend-base": "^3.2.0",
-        "oak-common-aspect": "^2.1.0",
-        "oak-db": "^2.1.1",
-        "oak-domain": "^2.1.0",
-        "oak-external-sdk": "^1.0.5",
-        "oak-frontend-base": "^2.1.0",
-        "oak-general-business": "^2.1.0",
-        "oak-memory-tree-store": "^2.1.0",`;
-		oakDevDependencyStr = `"${cliName}": "^${cliVersion}",`
+        "oak-backend-base": "^${getPackageLatestVersion('oak-backend-base')}",
+        "oak-common-aspect": "^${getPackageLatestVersion('oak-common-aspect')}",
+        "oak-db": "^${getPackageLatestVersion('oak-db')}",
+        "oak-domain": "^${getPackageLatestVersion('oak-domain')}",
+        "oak-external-sdk": "^${getPackageLatestVersion('oak-external-sdk')}",
+        "oak-frontend-base": "^${getPackageLatestVersion('oak-frontend-base')}",
+        "oak-general-business": "^${getPackageLatestVersion('oak-general-business')}",
+        "oak-memory-tree-store": "^${getPackageLatestVersion('oak-memory-tree-store')}",`;
+		oakDevDependencyStr = `"${cliName}": "^${getPackageLatestVersion(cliName)}",`
 	}
 
-	const serverInitScript = isDev ? "cross-env OAK_PLATFORM=server ts-node scripts/initServer.js" : "cross-env OAK_PLATFORM=server ts-node scripts/initServer.js";
-	const serverStartScript = isDev ? "cross-env NODE_ENV=development cross-env OAK_PLATFORM=server ts-node scripts/startServer.js" : "cross-env OAK_PLATFORM=server ts-node scripts/startServer.js";
+	const serverInitScript = isDev ? "cross-env NODE_ENV=development cross-env OAK_PLATFORM=server node scripts/initServer.js" : "cross-env OAK_PLATFORM=server node scripts/initServer.js";
+	const serverStartScript = isDev ? "cross-env NODE_ENV=development cross-env OAK_PLATFORM=server node scripts/startServer.js" : "cross-env OAK_PLATFORM=server node scripts/startServer.js";
 	return `{
     "name": "${name}",
     "version": "${version}",
@@ -72,11 +85,11 @@ export function packageJsonContent({
     "dependencies": {
 		"@ant-design/cssinjs": "^1.16.2",
 		"@ant-design/icons": "^5.2.6",
-        "@react-native-async-storage/async-storage": "^1.19.8",
-        "@react-native-masked-view/masked-view": "^0.3.0",
-        "@react-navigation/bottom-tabs": "^6.5.11",
-        "@react-navigation/native": "^6.1.9",
-        "@react-navigation/stack": "^6.3.20",
+    "@react-native-async-storage/async-storage": "^1.19.8",
+    "@react-native-masked-view/masked-view": "^0.3.0",
+    "@react-navigation/bottom-tabs": "^6.5.11",
+    "@react-navigation/native": "^6.1.9",
+    "@react-navigation/stack": "^6.3.20",
 		"@wangeditor/basic-modules": "^1.1.3",
 		"@wangeditor/editor": "^5.1.14",
 		"@wangeditor/editor-for-react": "^1.0.4",

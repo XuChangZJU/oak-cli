@@ -1,7 +1,7 @@
 import { EntityDict } from '@oak-app-domain';
 import { BasicFeatures } from 'oak-frontend-base';
 import { GeneralFeatures, GeneralAspectDict } from 'oak-general-business';
-import { CommonAspectDict } from 'oak-common-aspect';
+import { CommonAspectDict } from 'oak-common-aspect/lib/AspectDict';
 import { AspectDict } from '../aspects/AspectDict';
 import { BackendRuntimeContext } from '../context/BackendRuntimeContext';
 import { FrontendRuntimeContext } from '../context/FrontendRuntimeContext';

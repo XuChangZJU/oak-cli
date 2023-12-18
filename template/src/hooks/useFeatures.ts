@@ -1,4 +1,4 @@
-import { useFeatures as useCommonFeatures } from '@oak-frontend-base/platforms/web';
+import { useFeatures as useCommonFeatures } from 'oak-frontend-base/es/platforms/web';
 import { AFD } from '@project/types/RuntimeCxt';
 
 // react 独有

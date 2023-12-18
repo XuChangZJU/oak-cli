@@ -8,9 +8,9 @@ import {
     OakServerProxyException,
 } from 'oak-domain/lib/types/Exception';
 import { OakTokenExpiredException } from 'oak-general-business';
-import { ECode } from '@oak-general-business/types/ErrorPage';
+import { ECode } from 'oak-general-business/es/types/ErrorPage';
 const ErrorPage = lazy(
-    () => import('@oak-general-business/components/common/errorPage')
+    () => import('oak-general-business/es/components/common/errorPage')
 );
 
 interface ErrorProps {

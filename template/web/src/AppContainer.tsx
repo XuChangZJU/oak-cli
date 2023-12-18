@@ -1,7 +1,7 @@
 import React, { lazy } from 'react';
-const Message = lazy(() => import('@oak-general-business/components/message'));
+const Message = lazy(() => import('oak-general-business/es/components/message'));
 const DebugPanel = lazy(
-    () => import('@oak-general-business/components/func/debugPanel')
+    () => import('oak-general-business/es/components/func/debugPanel')
 );
 
 type AppContainerProps = {

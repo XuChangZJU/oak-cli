@@ -198,7 +198,6 @@ export async function create(dirName: string, cmd: any) {
         name: DEFAULT_PROJECT_NAME,     // 后面再统一rename
         version,
         description,
-        cliVersion: CLI_VERSION,
         cliName: CLI_NAME,
         cliBinName: CLI_BIN_NAME,
         isDev,
