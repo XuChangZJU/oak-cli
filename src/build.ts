@@ -128,6 +128,7 @@ export default async function build(cmd: any) {
             [
                 `NODE_ENV=${cmd.mode}`,
                 'OAK_PLATFORM=native',
+                `PROD=${!!cmd.prod}`,
                 'react-native',
                 'start',
             ].filter(Boolean),
