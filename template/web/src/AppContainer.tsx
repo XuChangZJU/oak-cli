@@ -1,5 +1,5 @@
 import React, { lazy } from 'react';
-const Message = lazy(() => import('oak-general-business/es/components/message'));
+const Message = lazy(() => import('oak-frontend-base/es/components/message'));
 const DebugPanel = lazy(
     () => import('oak-general-business/es/components/func/debugPanel')
 );
