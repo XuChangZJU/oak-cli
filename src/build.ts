@@ -10,6 +10,7 @@ import {
 import spawn from 'cross-spawn';
 import { resolve } from 'path';
 import makeLocale from './makeLocale';
+import makeRouter from './makeRouter';
 import { copyFileSync } from 'fs';
 
 export default async function build(cmd: any) {
@@ -21,8 +22,16 @@ export default async function build(cmd: any) {
         );
         return;
     }
+    let subdir = cmd.subDir;
+    if (!subdir) {
+        subdir = ['mp', 'wechatMp'].includes(cmd.target) ? 'wechatMp' : (
+            ['native', 'rn'].includes(cmd.target) ? 'native' : 'web'
+        );
+    }
     // 先makeLocale
-    makeLocale('', true);
+    makeLocale('', cmd.mode === 'development');
+    // 再尝试makeRouter
+    makeRouter({ subdir }, cmd.mode === 'development');
     //ts类型检查 waring 还是error,
     //主要web受影响，error级别的话 控制台和网页都报错，warning级别的话 控制台报错
     // development/staging/production
@@ -45,7 +54,7 @@ export default async function build(cmd: any) {
             [
                 `NODE_ENV=${cmd.mode}`,
                 `NODE_TARGET=${cmd.target}`,
-                `SUB_DIR_NAME=${cmd.subDir || 'wechatMp'}`,
+                `SUB_DIR_NAME=${subdir}`,
                 `TSC_COMPILE_ON_ERROR=${TSC_COMPILE_ON_ERROR}`,
                 `COMPILE_ANALYZE=${!!cmd.analyze}`,
                 `GENERATE_SOURCEMAP=${!!cmd.sourcemap}`,
@@ -78,7 +87,7 @@ export default async function build(cmd: any) {
             [
                 `NODE_ENV=${cmd.mode}`,
                 `NODE_TARGET=${cmd.target}`,
-                `SUB_DIR_NAME=${cmd.subDir || 'web'}`,
+                `SUB_DIR_NAME=${subdir}`,
                 `TSC_COMPILE_ON_ERROR=${TSC_COMPILE_ON_ERROR}`,
                 `COMPILE_ANALYZE=${!!cmd.analyze}`,
                 `GENERATE_SOURCEMAP=${!!cmd.sourcemap}`,
@@ -86,7 +95,7 @@ export default async function build(cmd: any) {
                 !!cmd.memoryLimit && `MEMORY_LIMIT=${cmd.memoryLimit}`,
                 `node`,
                 cmd.memoryLimit && `--max_old_space_size=${cmd.memoryLimit}`,
-                resolve(
+                require.resolve(
                     `../scripts/${
                         cmd.mode === 'production'
                             ? 'build-web.js'
@@ -106,7 +115,7 @@ export default async function build(cmd: any) {
         }
     } else if (['native', 'rn'].includes(cmd.target)) {
         const prjDir = process.cwd();
-        const cwd = resolve(prjDir, cmd.subDir || 'native');
+        const cwd = resolve(prjDir, subdir);
         copyFileSync(
             resolve(prjDir, 'package.json'),
             resolve(cwd, 'package.json')
