@@ -3,7 +3,7 @@ import {
     FrontendRuntimeContext as GeneralFrontendRuntimeContext,
     GeneralAspectDict,
 } from 'oak-general-business';
-import { CommonAspectDict } from 'oak-common-aspect';
+import { CommonAspectDict } from 'oak-common-aspect/lib/AspectDict';
 import { RuntimeContext } from './RuntimeContext';
 import { AspectDict } from '../aspects/AspectDict';
 import { BackendRuntimeContext } from './BackendRuntimeContext';

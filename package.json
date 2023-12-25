@@ -1,12 +1,12 @@
 {
     "name": "@xuchangzju/oak-cli",
-    "version": "3.1.1",
+    "version": "3.2.0",
     "description": "client for oak framework",
     "main": "lib/index.js",
     "scripts": {
         "build": "tsc",
         "dev": "tsc --watch",
-        "test": "node test.js"
+        "test": "ts-node test.ts"
     },
     "bin": {
         "oak-cli": "lib/index.js"
@@ -34,8 +34,6 @@
         "@types/uuid": "^8.3.4",
         "babel-plugin-module-resolver": "^5.0.0",
         "fork-ts-checker-webpack-plugin": "^8.0.0",
-        "node-watch": "^0.7.4",
-        "querystring-es3": "^0.2.1",
         "ts-node": "^10.9.1",
         "typescript": "^5.2.2"
     },
@@ -95,8 +93,9 @@
         "loader-utils": "^3.2.0",
         "lodash": "^4.17.21",
         "mini-css-extract-plugin": "^2.5.3",
+        "node-watch": "^0.7.4",
         "oak-backend-base": "^3.2.2",
-        "oak-domain": "^4.0.1",
+        "oak-domain": "^4.0.2",
         "oak-frontend-base": "^4.0.2",
         "postcss": "^8.4.4",
         "postcss-flexbugs-fixes": "^5.0.2",
@@ -106,9 +105,12 @@
         "postcss-preset-env": "^7.0.1",
         "progress-bar-webpack-plugin": "^2.1.0",
         "prompts": "^2.4.2",
+        "querystring-es3": "^0.2.1",
         "react-app-polyfill": "^3.0.0",
         "react-dev-utils": "^12.0.1",
         "react-native": "^0.72.7",
+        "react-native-less-transformer": "^1.4.1",
+        "react-native-svg-transformer": "^1.2.0",
         "react-refresh": "^0.11.0",
         "required-path": "^1.0.1",
         "resolve": "^1.20.0",

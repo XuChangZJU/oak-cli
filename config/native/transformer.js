@@ -15,6 +15,9 @@ const traverse = require('@babel/traverse').default;
 const t = require('@babel/types');
 const path = require('path');
 const less = require('less');
+const svgTransformer = require('react-native-svg-transformer');
+const lessTransformer = require('react-native-less-transformer');
+
 const css2rn = require("css-to-react-native-transform").default;
 const { parseSync, transformFromAstSync, transformSync: babelTransform } = require("@babel/core");
 const nullthrows = require("nullthrows");
@@ -94,12 +97,16 @@ function transform({ filename, options, plugins, src }) {
         };
 
         if (filename.endsWith('less')) {
-            return renderToCSS({ src, filename, options }).then((css) => {
-                const cssObject = renderCSSToReactNative(css);
-                const newSrc = `module.exports = ${JSON.stringify(cssObject)}`;
-                return transInner(newSrc);
-            });
+            // return renderToCSS({ src, filename, options }).then((css) => {
+            //     const cssObject = renderCSSToReactNative(css);
+            //     const newSrc = `module.exports = ${JSON.stringify(cssObject)}`;
+            //     return transInner(newSrc);
+            // });
+            return lessTransformer.transform({ src, filename, options });
         }
+        else if (filename.endsWith('.svg')) {
+            return svgTransformer.transform({ src, filename, options });
+        } 
         
         return transInner(src);
     } finally {

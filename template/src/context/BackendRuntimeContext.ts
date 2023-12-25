@@ -12,10 +12,9 @@ export class BackendRuntimeContext
         const data = str && JSON.parse(str);
 
         return async (
-            store: AsyncRowStore<EntityDict, BackendRuntimeContext>,
-            headers?: IncomingHttpHeaders
+            store: AsyncRowStore<EntityDict, BackendRuntimeContext>
         ) => {
-            const context = new BackendRuntimeContext(store, headers);
+            const context = new BackendRuntimeContext(store);
             await context.initialize(data);
             return context;
         };

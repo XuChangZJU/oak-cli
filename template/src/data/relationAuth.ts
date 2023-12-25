@@ -1,8 +1,8 @@
 import { CreateOperationData as RelationAuth } from '@oak-app-domain/RelationAuth/Schema';
 
 
-const relationAuth: RelationAuth[] = [
+const relationAuths: RelationAuth[] = [
 
 ]
 
-export { relationAuth };
+export default relationAuths;

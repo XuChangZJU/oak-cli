@@ -6,8 +6,8 @@ const watchFolders = process.env.NODE_ENV === 'production' ? ['../src', '../node
 ];
 
 const sourceExts = (process.env.NODE_ENV === 'production' || process.env.PROD === 'true') ?
-    ['prod.ts', 'ts', 'tsx', 'prod.js', 'js', 'jsx', 'less', 'json'] :
-    ['dev.ts', 'ts', 'tsx', 'dev.js', 'js', 'jsx', 'less', 'json'];
+    ['prod.ts', 'ts', 'tsx', 'prod.js', 'js', 'jsx', 'less', 'json', 'svg'] :
+    ['dev.ts', 'ts', 'tsx', 'dev.js', 'js', 'jsx', 'less', 'json', 'svg'];
 
 const NullModules = ['fs', 'url'];
 /**

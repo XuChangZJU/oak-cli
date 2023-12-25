@@ -10,6 +10,7 @@ import {
 import spawn from 'cross-spawn';
 import { resolve } from 'path';
 import makeLocale from './makeLocale';
+import makeRouter from './makeRouter';
 import { copyFileSync } from 'fs';
 
 export default async function build(cmd: any) {
@@ -21,19 +22,27 @@ export default async function build(cmd: any) {
         );
         return;
     }
+    let subdir = cmd.subDir;
+    if (!subdir) {
+        subdir = ['mp', 'wechatMp'].includes(cmd.target) ? 'wechatMp' : (
+            ['native', 'rn'].includes(cmd.target) ? 'native' : 'web'
+        );
+    }
     // 先makeLocale
-    makeLocale('', true);
+    makeLocale('', cmd.mode === 'development');
+    // 再尝试makeRouter
+    makeRouter({ subdir }, cmd.mode === 'development');
     //ts类型检查 waring 还是error,
     //主要web受影响，error级别的话 控制台和网页都报错，warning级别的话 控制台报错
+    // development/staging/production
     const TSC_COMPILE_ON_ERROR = cmd.check !== 'error';
     Success(
         `${success(
             `build ${cmd.target} environment:${cmd.mode} ${
-                cmd.mode !== 'production'
-                    ? `server:${!!cmd.prod}`
-                    : ''
+                ['development'].includes(cmd.mode) ? `server:${!!cmd.prod}` : ''
             } ${
-                cmd.target !== 'web' && cmd.mode !== 'production'
+                ['mp', 'wechatMp'].includes(cmd.target) &&
+                ['development'].includes(cmd.mode)
                     ? `split:${!!cmd.split}`
                     : ''
             }`
@@ -45,7 +54,7 @@ export default async function build(cmd: any) {
             [
                 `NODE_ENV=${cmd.mode}`,
                 `NODE_TARGET=${cmd.target}`,
-                `SUB_DIR_NAME=${cmd.subDir || 'wechatMp'}`,
+                `SUB_DIR_NAME=${subdir}`,
                 `TSC_COMPILE_ON_ERROR=${TSC_COMPILE_ON_ERROR}`,
                 `COMPILE_ANALYZE=${!!cmd.analyze}`,
                 `GENERATE_SOURCEMAP=${!!cmd.sourcemap}`,
@@ -78,7 +87,7 @@ export default async function build(cmd: any) {
             [
                 `NODE_ENV=${cmd.mode}`,
                 `NODE_TARGET=${cmd.target}`,
-                `SUB_DIR_NAME=${cmd.subDir || 'web'}`,
+                `SUB_DIR_NAME=${subdir}`,
                 `TSC_COMPILE_ON_ERROR=${TSC_COMPILE_ON_ERROR}`,
                 `COMPILE_ANALYZE=${!!cmd.analyze}`,
                 `GENERATE_SOURCEMAP=${!!cmd.sourcemap}`,
@@ -104,11 +113,13 @@ export default async function build(cmd: any) {
         } else {
             Error(`${error(`执行失败`)}`);
         }
-    }
-    else if (['native', 'rn'].includes(cmd.target)) {
+    } else if (['native', 'rn'].includes(cmd.target)) {
         const prjDir = process.cwd();
-        const cwd = resolve(prjDir, cmd.subDir || 'native');
-        copyFileSync(resolve(prjDir, 'package.json'), resolve(cwd, 'package.json'));
+        const cwd = resolve(prjDir, subdir);
+        copyFileSync(
+            resolve(prjDir, 'package.json'),
+            resolve(cwd, 'package.json')
+        );
         // rn不支持注入NODE_ENVIRONMENT这样的环境变量，cross-env没有用
         /* const result = spawn.sync(
             'react-native',
@@ -126,8 +137,9 @@ export default async function build(cmd: any) {
             [
                 `NODE_ENV=${cmd.mode}`,
                 'OAK_PLATFORM=native',
+                `PROD=${!!cmd.prod}`,
                 'react-native',
-                'start'
+                'start',
             ].filter(Boolean),
             {
                 cwd,
@@ -140,12 +152,9 @@ export default async function build(cmd: any) {
         } else {
             Error(`${error(`执行失败`)}`);
         }
-    }
-    else {
+    } else {
         Error(
-            `${error(
-                `target could only be web or mp(wechatMp) or rn(native)`
-            )}`
+            `${error(`target could only be web or mp(wechatMp) or rn(native)`)}`
         );
     }
 }

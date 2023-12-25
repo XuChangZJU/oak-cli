@@ -33,7 +33,7 @@ const createEnvironmentHash = require('./webpack/persistentCache/createEnvironme
 
 const oakPathTsxPlugin = require('../babel-plugin/oakPath');
 const oakRenderTsxPlugin = require('../babel-plugin/oakRender');
-const oakRouterPlugin = require('../babel-plugin/oakRouter2');
+// const oakRouterPlugin = require('../babel-plugin/oakRouter2');
 const oakI18nPlugin = require('../babel-plugin/oakI18n');
 const oakStylePlugin = require('../babel-plugin/oakStyle');
 const oakRpxToPxPlugin = require('../postcss-plugin/oakRpxToPx');
@@ -547,7 +547,7 @@ module.exports = function (webpackEnv) {
                                                 ),
                                             oakPathTsxPlugin,
                                             oakRenderTsxPlugin,
-                                            oakRouterPlugin,
+                                            // oakRouterPlugin,
                                             oakI18nPlugin,
                                             // [
                                             //     'import',
