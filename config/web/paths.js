@@ -40,23 +40,31 @@ let moduleFileExtensions = [
     'pc.jsx',
     'jsx',
 ];
-if (process.env.NODE_ENV !== 'production' && process.env.PROD !== 'true') {
-    moduleFileExtensions = [
-        'dev.web.js',
-        'dev.web.ts',
-        'dev.web.tsx',
-        'dev.js',
-        'dev.ts',
-        'dev.tsx',
-    ].concat(moduleFileExtensions);
-} else {
+if (
+    process.env.NODE_ENV === 'production' ||
+    process.env.NODE_ENV === 'staging' ||
+    process.env.PROD === 'true'
+) {
     moduleFileExtensions = [
         'prod.web.js',
         'prod.web.ts',
+        'prod.web.jsx',
         'prod.web.tsx',
         'prod.js',
         'prod.ts',
+        'prod.jsx',
         'prod.tsx',
+    ].concat(moduleFileExtensions);
+} else {
+    moduleFileExtensions = [
+        'dev.web.js',
+        'dev.web.ts',
+        'dev.web.jsx',
+        'dev.web.tsx',
+        'dev.js',
+        'dev.ts',
+        'dev.jsx',
+        'dev.tsx',
     ].concat(moduleFileExtensions);
 }
 

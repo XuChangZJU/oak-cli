@@ -8,13 +8,14 @@ import {
     Warn,
 } from './tip-style';
 import spawn from 'cross-spawn';
+import { resolve } from 'path';
 
 export default async function make() {
     Success(`${success(`make oak-app-domain`)}`);
     // ts-node scripts/build-app-domain & npm link ./app-domain
     const result = spawn.sync(
         'ts-node',
-        [require.resolve('../scripts/' + 'make-app-domain.js')],
+        [resolve(__dirname, '../scripts/' + 'make-app-domain.js')],
         {
             stdio: 'inherit',
             shell: true,
