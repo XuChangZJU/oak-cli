@@ -13,7 +13,7 @@ import { resolve } from 'path';
 export default async function make(cmd: any, watch?: boolean) {
     Success(`${success(`make router`)}`);
     // node scripts/make-router.js subdir watch
-    const args = [resolve(__dirname, '../scripts/' + 'make-router.js'), cmd.subdir];
+    const args = [resolve(__dirname, '../scripts/make-router.js'), cmd.subdir];
     if (watch) {
         args.push('true');
         const result = spawn(

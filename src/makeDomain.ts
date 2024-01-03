@@ -15,7 +15,7 @@ export default async function make() {
     // ts-node scripts/build-app-domain & npm link ./app-domain
     const result = spawn.sync(
         'ts-node',
-        [resolve(__dirname, '../scripts/' + 'make-app-domain.js')],
+        [resolve(__dirname, '../scripts/make-app-domain.js')],
         {
             stdio: 'inherit',
             shell: true,

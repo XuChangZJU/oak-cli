@@ -75,7 +75,7 @@ export default async function build(cmd: any) {
                 !!cmd.memoryLimit && `MEMORY_LIMIT=${cmd.memoryLimit}`,
                 `node`,
                 cmd.memoryLimit && `--max_old_space_size=${cmd.memoryLimit}`,
-                resolve(`../scripts/${mpFileMap[mode]}`),
+                resolve(__dirname, `../scripts/${mpFileMap[mode]}`),
             ].filter(Boolean),
             {
                 stdio: 'inherit',
@@ -106,7 +106,7 @@ export default async function build(cmd: any) {
                 !!cmd.memoryLimit && `MEMORY_LIMIT=${cmd.memoryLimit}`,
                 `node`,
                 cmd.memoryLimit && `--max_old_space_size=${cmd.memoryLimit}`,
-                resolve(`../scripts/${webFileMap[mode]}`),
+                resolve(__dirname, `../scripts/${webFileMap[mode]}`),
             ].filter(Boolean),
             {
                 stdio: 'inherit',
