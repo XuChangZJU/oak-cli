@@ -5,6 +5,7 @@ import build from './build';
 import makeDomain from './makeDomain';
 import makeLocale from './makeLocale';
 import run from './run';
+import clean from './clean';
 import { CLI_VERSION, CLI_NAME } from './config';
 import { error, warn } from './tip-style';
 
@@ -77,6 +78,7 @@ program
     .option('-m, --mode <mode>', 'mode')
     .option('-d, --subDir <subDirName>', 'subDirName')
     .option('-c, --check <level>', 'level')
+    .option('-p, --platform <platform>', 'platform')
     .description('build project of build on demand')
     .action(build);
 program
@@ -95,8 +97,15 @@ program
     .command('run')
     .option('-p, --platform <platform>', 'platform')
     .option('-d, --subDir <subDirName>', 'subDirName')
+    .option('-m, --mode <mode>', 'mode')
     .description(`run backend server by ${CLI_NAME}`)
     .action(run);
+program
+    .command('clean')
+    .option('-p, --platform <platform>', 'platform')
+    .option('-d, --subDir <subDirName>', 'subDirName')
+    .description(`clean rn build by ${CLI_NAME}`)
+    .action(clean);
 
 // output help information on unknown commands
 program.arguments('<command>').action((cmd) => {

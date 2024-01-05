@@ -36,14 +36,14 @@ export default async function run(options: any): Promise<void> {
     }
     else if (options.platform === 'android') {
         Success(`${primary('run react-native run-android')}`);
-        copyFileSync(resolve(prjDir, 'package.json'), resolve(cwd, 'package.json'));
+        copyFileSync(
+            resolve(prjDir, 'package.json'),
+            resolve(cwd, 'package.json')
+        );
         const result = spawn.sync(
-            'cross-env',
+            'cd android',
             [
-                `NODE_ENV=${mode}`,
-                'react-native',
-                'run-android',
-                mode === 'production' ? '--variant=release' : '',
+                '&& ./gradlew clean',
             ].filter(Boolean),
             {
                 cwd,
@@ -51,7 +51,7 @@ export default async function run(options: any): Promise<void> {
                 shell: true,
             }
         );
-        
+
         if (result.status === 0) {
             Success(`${success(`react-native run-android success`)}`);
         } else {

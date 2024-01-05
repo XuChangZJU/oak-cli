@@ -17,19 +17,23 @@ let moduleFileExtensions = [
   'mp.ts',
   'ts',
 ];
-if (process.env.NODE_ENV !== 'production' && process.env.PROD !== 'true') {
-    moduleFileExtensions = [
-        'dev.mp.js',
-        'dev.mp.ts',
-        'dev.js',
-        'dev.ts',
-    ].concat(moduleFileExtensions);
-} else {
+if (
+    process.env.NODE_ENV === 'production' ||
+    process.env.NODE_ENV === 'staging' ||
+    process.env.PROD === 'true'
+) {
     moduleFileExtensions = [
         'prod.mp.js',
         'prod.mp.ts',
         'prod.js',
         'prod.ts',
+    ].concat(moduleFileExtensions);
+} else {
+    moduleFileExtensions = [
+        'dev.mp.js',
+        'dev.mp.ts',
+        'dev.js',
+        'dev.ts',
     ].concat(moduleFileExtensions);
 }
 

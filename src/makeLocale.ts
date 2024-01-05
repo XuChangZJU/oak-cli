@@ -8,11 +8,12 @@ import {
     Warn,
 } from './tip-style';
 import spawn from 'cross-spawn';
+import { resolve } from 'path';
 
 export default async function make(cmd: any, watch?: boolean) {
     Success(`${success(`make locales`)}`);
     // ts-node scripts/build-app-domain & npm link ./app-domain
-    const args = [require.resolve('../scripts/' + 'make-locale.js')];
+    const args = [resolve(__dirname, '../scripts/make-locale.js')];
     if (watch) {
         args.push('true');
     }

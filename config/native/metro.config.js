@@ -1,13 +1,48 @@
 
 const { resolve } = require('path');
-const watchFolders = process.env.NODE_ENV === 'production' ? ['../src', '../node_modules'] : [
+const watchFolders = [
     '../src', '../node_modules', '../../oak-domain', '../../oak-common-aspect', '../../oak-external-sdk',
     '../../oak-frontend-base', '../../oak-general-business', '../../oak-memory-tree-store'
 ];
 
-const sourceExts = (process.env.NODE_ENV === 'production' || process.env.PROD === 'true') ?
-    ['prod.ts', 'ts', 'tsx', 'prod.js', 'js', 'jsx', 'less', 'json', 'svg'] :
-    ['dev.ts', 'ts', 'tsx', 'dev.js', 'js', 'jsx', 'less', 'json', 'svg'];
+const sourceExts =
+    process.env.NODE_ENV === 'production' ||
+    process.env.NODE_ENV === 'staging' ||
+    process.env.PROD === 'true'
+        ? [
+              'prod.native.js',
+              'prod.native.ts',
+              'prod.native.jsx',
+              'prod.native.tsx',
+              'prod.js',
+              'prod.ts',
+              'prod.jsx',
+              'prod.tsx',
+              'js',
+              'ts',
+              'jsx',
+              'tsx',
+              'less',
+              'json',
+              'svg',
+          ]
+        : [
+              'dev.native.js',
+              'dev.native.ts',
+              'dev.native.jsx',
+              'dev.native.tsx',
+              'dev.js',
+              'dev.ts',
+              'dev.jsx',
+              'dev.tsx',
+              'js',
+              'ts',
+              'jsx',
+              'tsx',
+              'less',
+              'json',
+              'svg',
+          ];
 
 const NullModules = ['fs', 'url'];
 /**
