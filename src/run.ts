@@ -13,7 +13,7 @@ import { copyFileSync, unlinkSync } from 'fs';
 export default async function run(options: any): Promise<void> {
     const prjDir = process.cwd();
     const cwd = resolve(process.cwd(), options.subDir || 'native');
-    const mode = options.mode || 'development'; //development/staging/production
+    const mode = (options.mode || 'development') as 'development' | 'staging' |'production';
     if (options.platform === 'ios') {
         copyFileSync(resolve(prjDir, 'package.json'), resolve(cwd, 'package.json'));
         Success(`${primary('run react-native run-ios')}`);
@@ -37,13 +37,19 @@ export default async function run(options: any): Promise<void> {
     else if (options.platform === 'android') {
         Success(`${primary('run react-native run-android')}`);
         copyFileSync(resolve(prjDir, 'package.json'), resolve(cwd, 'package.json'));
+        const variantMap = {
+            development: 'debug',
+            staging: 'staging',
+            production: 'release',
+        };
+        const variant = variantMap[mode];
         const result = spawn.sync(
             'cross-env',
             [
                 `NODE_ENV=${mode}`,
                 'react-native',
                 'run-android',
-                mode === 'production' ? '--variant=release' : '',
+                `--variant=${variant}`,
             ].filter(Boolean),
             {
                 cwd,
