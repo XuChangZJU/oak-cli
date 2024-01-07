@@ -98,7 +98,8 @@ program
     .option('-p, --platform <platform>', 'platform')
     .option('-d, --subDir <subDirName>', 'subDirName')
     .option('-m, --mode <mode>', 'mode')
-    .description(`run backend server by ${CLI_NAME}`)
+    .option('-suffix, --appIdSuffix <appIdSuffix>', 'appIdSuffix')
+    .description(`run rn by ${CLI_NAME}`)
     .action(run);
 program
     .command('clean')
