@@ -11,6 +11,8 @@ const Regex =
 const ModuleDict = {};
 const ReactNativeProjectDict = {};
 
+const ProcessRecord = {};
+
 function parseFileModuleAndNs(cwd, filename) {
     let cwd2 = cwd;
     if (cwd.endsWith('native')) {
@@ -144,57 +146,57 @@ module.exports = (babel) => {
                     ) {
                         const { moduleName, ns } = parseFileModuleAndNs(cwd, filename);
                         const arguments = node.arguments;
-                        if (arguments.length < 2) {
-                            // react-native会调用两次，这里要保护一下
-                            const [arg0, arg1] = arguments;
-                            assert(arg0);
-    
-                            if (arg1) {
-                                // 一般是对象，也可能是变量，表达式不予考虑
-                                if (t.isObjectExpression(arg1)) {
-                                    const { properties } = arg1;
-                                    const oakNsProp = properties.find(
-                                        ele => t.isStringLiteral(ele.key) && ele.key.value === oakNsPropName
+
+                        // react-native会调用两次，这里要保护一下
+                        // 代码看上去可以避免被调用两次，rn待测试  by Xc 20240108
+                        const [arg0, arg1] = arguments;
+                        assert(arg0);
+
+                        if (arg1) {
+                            // 一般是对象，也可能是变量，表达式不予考虑
+                            if (t.isObjectExpression(arg1)) {
+                                const { properties } = arg1;
+                                const oakNsProp = properties.find(
+                                    ele => t.isStringLiteral(ele.key) && ele.key.value === oakNsPropName
+                                );
+                                if (!oakNsProp) {
+                                    properties.push(
+                                        t.objectProperty(t.stringLiteral(oakNsPropName), t.stringLiteral(ns)),
+                                        t.objectProperty(t.stringLiteral(oakModulePropName), t.stringLiteral(moduleName))
                                     );
-                                    if (!oakNsProp) {
-                                        properties.push(
-                                            t.objectProperty(t.stringLiteral(oakNsPropName), t.stringLiteral(ns)),
-                                            t.objectProperty(t.stringLiteral(oakModulePropName), t.stringLiteral(moduleName))
-                                        );
-                                    }
                                 }
-                                else if (t.isIdentifier(arg1)) {
-                                    arguments.splice(1, 1, t.callExpression(
-                                        t.memberExpression(
-                                            t.identifier('Object'),
-                                            t.identifier('assign')
-                                        ),
-                                        [
-                                            arg1,
-                                            t.objectExpression(
-                                                [
-                                                    t.objectProperty(t.stringLiteral(oakNsPropName), t.stringLiteral(ns)),
-                                                    t.objectProperty(t.stringLiteral(oakModulePropName), t.stringLiteral(moduleName))                                                
-                                                ]
-                                            )
-                                        ]
-                                    ));
-                                }
-                                else {
-                                    // 不处理，这里似乎会反复调用，不知道为什么
-                                }
+                            }
+                            else if (t.isIdentifier(arg1)) {
+                                arguments.splice(1, 1, t.callExpression(
+                                    t.memberExpression(
+                                        t.identifier('Object'),
+                                        t.identifier('assign')
+                                    ),
+                                    [
+                                        arg1,
+                                        t.objectExpression(
+                                            [
+                                                t.objectProperty(t.stringLiteral(oakNsPropName), t.stringLiteral(ns)),
+                                                t.objectProperty(t.stringLiteral(oakModulePropName), t.stringLiteral(moduleName))                                                
+                                            ]
+                                        )
+                                    ]
+                                ));
                             }
                             else {
-                                // 如果无参数就构造一个对象传入
-                                arguments.push(
-                                    t.objectExpression(
-                                        [
-                                            t.objectProperty(t.stringLiteral(oakNsPropName), t.stringLiteral(ns)),
-                                            t.objectProperty(t.stringLiteral(oakModulePropName), t.stringLiteral(moduleName))                                                
-                                        ]
-                                    )
-                                )                            
+                                // 不处理，这里似乎会反复调用，不知道为什么
                             }
+                        }
+                        else {
+                            // 如果无参数就构造一个对象传入
+                            arguments.push(
+                                t.objectExpression(
+                                    [
+                                        t.objectProperty(t.stringLiteral(oakNsPropName), t.stringLiteral(ns)),
+                                        t.objectProperty(t.stringLiteral(oakModulePropName), t.stringLiteral(moduleName))                                                
+                                    ]
+                                )
+                            );
                         }
                     }
                 }
