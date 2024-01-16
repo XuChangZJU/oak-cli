@@ -24,7 +24,6 @@ import {
     appJsonContentWithWeChatMp,
     projectConfigContentWithWeChatMp,
     oakConfigContentWithWeChatMp,
-    appJsonContentWithWeb,
     oakConfigContentWithWeb,
 } from './template';
 import { PromptInput } from './interface';
@@ -153,24 +152,12 @@ async function createWebBoilplate(
     isDev: boolean,
     isUpdate?: boolean
 ) {
-    // 获取web项目app.json内容
-    const appJsonWithWeb = appJsonContentWithWeb(isDev);
-
     // 获取web项目oak.config.json内容
     const oakConfigWithWeb = oakConfigContentWithWeb();
-
-    const appJsonPathWithWeb = join(dir, 'src', 'app.json');
 
     // web项目oak.config.json路径
     const oakConfigPathWithWeb = join(dir, 'src', USER_CONFIG_FILE_NAME);
 
-    // 创建web项目app.json
-    // checkFileExistsAndCreate(
-    //     appJsonPathWithWeb,
-    //     appJsonWithWeb,
-    //     checkFileExistsAndCreateType.FILE,
-    //     isUpdate
-    // );
     // 创建web项目oak.config.json
     checkFileExistsAndCreate(
         oakConfigPathWithWeb,

@@ -601,7 +601,7 @@ export function appJsonContentWithWeChatMp(isDev: boolean) {
   },
   "usingComponents": {
     "oak-message": "@oak-frontend-base/components/message/index",
-    "oak-debugPanel": "@oak-general-business/components/func/debugPanel/index"
+    "oak-debugPanel": "@oak-frontend-base/components/func/debugPanel/index"
   },
   "style": "v2",
   "sitemapLocation": "sitemap.json"
@@ -615,14 +615,6 @@ export function oakConfigContentWithWeChatMp() {
 }`;
 }
 
-export function appJsonContentWithWeb(isDev: boolean) {
-	const pages = [
-		'@project/pages/login/index',
-	];
-	return `{
-    "pages": ${JSON.stringify(pages, null, 4)}
-}`;
-}
 
 export function oakConfigContentWithWeb() {
 	return `{
