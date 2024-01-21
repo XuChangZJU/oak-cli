@@ -89,3 +89,5 @@ build
 package-lock.json
 oak-app-domain
 */public/locales
+# 如果不自动生成allRouters，这里要注释掉
+web/src/**/allRouters.ts

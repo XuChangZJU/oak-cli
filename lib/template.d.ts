@@ -9,5 +9,4 @@ export declare function tsConfigWebJsonContent(): string;
 export declare function projectConfigContentWithWeChatMp(oakConfigName: string, projectname: string, miniVersion: string): string;
 export declare function appJsonContentWithWeChatMp(isDev: boolean): string;
 export declare function oakConfigContentWithWeChatMp(): string;
-export declare function appJsonContentWithWeb(isDev: boolean): string;
 export declare function oakConfigContentWithWeb(): string;

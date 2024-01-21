@@ -13,8 +13,7 @@ import { copyFileSync, unlinkSync } from 'fs';
 export default async function run(options: any): Promise<void> {
     const prjDir = process.cwd();
     const cwd = resolve(process.cwd(), options.subDir || 'native');
-    const mode = (options.mode || 'development') as 'development' | 'staging' |'production';
-    const appIdSuffix = options.appIdSuffix;
+    const mode = options.mode || 'development'; //development/staging/production
     if (options.platform === 'ios') {
         copyFileSync(resolve(prjDir, 'package.json'), resolve(cwd, 'package.json'));
         Success(`${primary('run react-native run-ios')}`);
@@ -37,21 +36,14 @@ export default async function run(options: any): Promise<void> {
     }
     else if (options.platform === 'android') {
         Success(`${primary('run react-native run-android')}`);
-        copyFileSync(resolve(prjDir, 'package.json'), resolve(cwd, 'package.json'));
-        const variantMap = {
-            development: 'debug',
-            staging: 'staging',
-            production: 'release',
-        };
-        const variant = variantMap[mode];
+        copyFileSync(
+            resolve(prjDir, 'package.json'),
+            resolve(cwd, 'package.json')
+        );
         const result = spawn.sync(
-            'cross-env',
+            'cd android',
             [
-                `NODE_ENV=${mode}`,
-                'react-native',
-                'run-android',
-                `--variant=${variant}`,
-                appIdSuffix ? `--appIdSuffix=${appIdSuffix}` : '',
+                '&& ./gradlew clean',
             ].filter(Boolean),
             {
                 cwd,
@@ -59,7 +51,7 @@ export default async function run(options: any): Promise<void> {
                 shell: true,
             }
         );
-        
+
         if (result.status === 0) {
             Success(`${success(`react-native run-android success`)}`);
         } else {

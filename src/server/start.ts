@@ -52,7 +52,7 @@ export async function startup<ED extends EntityDict & BaseEntityDict, Cxt extend
     
     const appLoader =  clusterInfo.usingCluster 
         ? new ClusterAppLoader(path, contextBuilder, io.of(DATA_SUBSCRIBER_NAMESPACE), io.of(SERVER_SUBSCRIBER_NAMESPACE), connector.getSubscribeRouter()) 
-        : new AppLoader(path, contextBuilder);
+        : new AppLoader(path, contextBuilder, io.of(DATA_SUBSCRIBER_NAMESPACE));
     await appLoader.mount();
     await appLoader.execStartRoutines();
     if (routine) {
