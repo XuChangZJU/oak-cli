@@ -449,7 +449,8 @@ export function tsConfigMpJsonContent() {
     "**/*.spec.ts",
     "**/*.test.ts",
     "**/*.test.tsx",
-    "./web"
+    "./web",
+    "./native"
   ]
 }`;
 }
@@ -498,7 +499,8 @@ export function tsConfigWebJsonContent() {
     "**/*.spec.ts",
     "**/*.test.ts",
     "**/*.test.tsx",
-    "./wechatMp"
+    "./wechatMp",
+    "./native"
   ]
 }`;
 }
