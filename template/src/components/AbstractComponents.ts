@@ -14,106 +14,24 @@ import AbsListPro from 'oak-frontend-base/es/components/listPro';
 import AbsDetail from 'oak-frontend-base/es/components/detail';
 import AbsUpsert from 'oak-frontend-base/es/components/upsert';
 
-const FilterPanel = AbsFilterPanel as <T extends keyof EntityDict>(
-    props: ReactComponentProps<
-        EntityDict,
-        T,
-        false,
-        {
-            entity: T;
-            columns: ColumnProps<EntityDict, T>[];
-        }
-    >
+const FilterPanel = AbsFilterPanel as (
+    ...props: Parameters<typeof AbsFilterPanel<EntityDict, keyof EntityDict>>
 ) => React.ReactElement;
 
-const List = AbsList as <T extends keyof EntityDict>(
-    props: ReactComponentProps<
-        EntityDict,
-        T,
-        false,
-        {
-            entity: T;
-            extraActions: OakExtraActionProps[];
-            onAction: onActionFnDef;
-            disabledOp: boolean;
-            attributes: OakAbsAttrDef[];
-            data: RowWithActions<EntityDict, T>[];
-            loading: boolean;
-            tablePagination?: TableProps<
-                RowWithActions<EntityDict, T>[]
-            >['pagination'];
-            rowSelection?: {
-                type: 'checkbox' | 'radio';
-                selectedRowKeys?: string[];
-                onChange: (
-                    selectedRowKeys: string[],
-                    row: RowWithActions<EntityDict, T>[],
-                    info?: { type: 'single' | 'multiple' | 'none' }
-                ) => void;
-            };
-            hideHeader: boolean;
-        }
-    >
+const List = AbsList as (
+    ...props: Parameters<typeof AbsList<EntityDict, keyof EntityDict>>
 ) => React.ReactElement;
 
-const ListPro = AbsListPro as <T extends keyof EntityDict>(
-    props: {
-        title?: string;
-        buttonGroup?: ListButtonProps[];
-        onReload?: () => void;
-        entity: T;
-        extraActions?: OakExtraActionProps[];
-        onAction?: onActionFnDef;
-        disabledOp?: boolean;
-        attributes: OakAbsAttrDef[];
-        data: RowWithActions<EntityDict, T>[];
-        loading?: boolean;
-        tablePagination?: TableProps<
-            RowWithActions<EntityDict, T>[]
-        >['pagination'];
-        rowSelection?: {
-            type: 'checkbox' | 'radio';
-            selectedRowKeys?: string[];
-            onChange: (
-                selectedRowKeys: string[],
-                row: RowWithActions<EntityDict, T>[],
-                info?: { type: 'single' | 'multiple' | 'none' }
-            ) => void;
-        };
-    }
+const ListPro = AbsListPro as (
+    ...props: Parameters<typeof AbsListPro<EntityDict, keyof EntityDict>>
 ) => React.ReactElement;
 
-const Detail = AbsDetail as <T extends keyof EntityDict>(
-    props: ReactComponentProps<
-        EntityDict,
-        T,
-        false,
-        {
-            column?: ColumnMapType;
-            entity: T;
-            attributes: OakAbsAttrDef[];
-            data: Partial<EntityDict[T]['Schema']>;
-            title?: string;
-            bordered?: boolean;
-            layout?: 'horizontal' | 'vertical',
-        }
-    >
+const Detail = AbsDetail as (
+    ...props: Parameters<typeof AbsDetail<EntityDict, keyof EntityDict>>
 ) => React.ReactElement;
 
-const Upsert = AbsUpsert as <T extends keyof EntityDict, T2 extends keyof EntityDict = keyof EntityDict>(
-    props: ReactComponentProps<
-        EntityDict,
-        T,
-        false,
-        {
-            helps: Record<string, string>;
-            entity: T;
-            attributes: OakAbsAttrUpsertDef<EntityDict, T, T2>[];
-            data: EntityDict[T]['Schema'];
-            layout: 'horizontal' | 'vertical';
-            mode: 'default' | 'card';
-        }
-    >
+const Upsert = AbsUpsert as (
+    ...props: Parameters<typeof AbsUpsert<EntityDict, keyof EntityDict>>
 ) => React.ReactElement;
 
 export {
