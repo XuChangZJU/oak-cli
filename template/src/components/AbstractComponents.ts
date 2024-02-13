@@ -14,24 +14,24 @@ import AbsListPro from 'oak-frontend-base/es/components/listPro';
 import AbsDetail from 'oak-frontend-base/es/components/detail';
 import AbsUpsert from 'oak-frontend-base/es/components/upsert';
 
-const FilterPanel = AbsFilterPanel as (
-    ...props: Parameters<typeof AbsFilterPanel<EntityDict, keyof EntityDict>>
+const FilterPanel = AbsFilterPanel as <T extends keyof EntityDict>(
+    ...props: Parameters<typeof AbsFilterPanel<EntityDict, T>>
 ) => React.ReactElement;
 
-const List = AbsList as (
-    ...props: Parameters<typeof AbsList<EntityDict, keyof EntityDict>>
+const List = AbsList as <T extends keyof EntityDict>(
+    ...props: Parameters<typeof AbsList<EntityDict, T>>
 ) => React.ReactElement;
 
-const ListPro = AbsListPro as (
-    ...props: Parameters<typeof AbsListPro<EntityDict, keyof EntityDict>>
+const ListPro = AbsListPro as <T extends keyof EntityDict>(
+    ...props: Parameters<typeof AbsListPro<EntityDict, T>>
 ) => React.ReactElement;
 
-const Detail = AbsDetail as (
-    ...props: Parameters<typeof AbsDetail<EntityDict, keyof EntityDict>>
+const Detail = AbsDetail as <T extends keyof EntityDict>(
+    ...props: Parameters<typeof AbsDetail<EntityDict, T>>
 ) => React.ReactElement;
 
-const Upsert = AbsUpsert as (
-    ...props: Parameters<typeof AbsUpsert<EntityDict, keyof EntityDict>>
+const Upsert = AbsUpsert as <T extends keyof EntityDict>(
+    ...props: Parameters<typeof AbsUpsert<EntityDict, T>>
 ) => React.ReactElement;
 
 export {

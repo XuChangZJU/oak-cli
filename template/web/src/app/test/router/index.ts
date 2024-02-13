@@ -1,4 +1,3 @@
-import { IRouter } from '../../../types/router';
-let allRouters: IRouter[] = [];
+import allRouters from "./allRouters";
 
 export default allRouters;
