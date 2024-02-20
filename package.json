@@ -1,6 +1,6 @@
 {
     "name": "@xuchangzju/oak-cli",
-    "version": "3.2.2",
+    "version": "3.3.0",
     "description": "client for oak framework",
     "main": "lib/index.js",
     "scripts": {
@@ -94,9 +94,9 @@
         "lodash": "^4.17.21",
         "mini-css-extract-plugin": "^2.5.3",
         "node-watch": "^0.7.4",
-        "oak-backend-base": "file:../oak-backend-base",
-        "oak-domain": "file:../oak-domain",
-        "oak-frontend-base": "file:../oak-frontend-base",
+        "oak-backend-base": "^3.3.0",
+        "oak-domain": "^4.2.0",
+        "oak-frontend-base": "^4.2.0",
         "postcss": "^8.4.4",
         "postcss-flexbugs-fixes": "^5.0.2",
         "postcss-less": "^6.0.0",
