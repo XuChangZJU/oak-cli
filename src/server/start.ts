@@ -9,7 +9,7 @@ import { AppLoader, getClusterInfo, ClusterAppLoader } from 'oak-backend-base';
 import { OakException, Connector, EntityDict, ClusterInfo } from 'oak-domain/lib/types';
 import { EntityDict as BaseEntityDict } from 'oak-domain/lib/base-app-domain';
 import { AsyncRowStore } from 'oak-domain/lib/store/AsyncRowStore';
-import { BackendRuntimeContext } from 'oak-frontend-base';
+import { BackendRuntimeContext } from 'oak-frontend-base/lib/context/BackendRuntimeContext';
 import { SyncContext } from 'oak-domain/lib/store/SyncRowStore';
 import { Server } from "socket.io";
 import { createAdapter } from "@socket.io/cluster-adapter";

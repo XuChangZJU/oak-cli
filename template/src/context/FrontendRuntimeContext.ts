@@ -21,8 +21,8 @@ export class FrontendRuntimeContext
     >
     implements RuntimeContext
 {
-    toString(): string {
-        const data = this.getSerializedData();
+    async toString(): Promise<string> {
+        const data = await this.getSerializedData();
         return JSON.stringify(data);
     }
 }

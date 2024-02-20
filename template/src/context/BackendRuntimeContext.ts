@@ -20,8 +20,8 @@ export class BackendRuntimeContext
         };
     }
 
-    toString(): string {
-        const data = this.getSerializedData();
+    async toString(): Promise<string> {
+        const data = await this.getSerializedData();
         return JSON.stringify(data);
     }
 }
