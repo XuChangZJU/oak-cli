@@ -64,15 +64,27 @@ module.exports = function (webpackEnv) {
         };
     };
 
+    // 读取编译配置
+    const compilerConfigurationFile = path.join(
+        paths.appRootPath,
+        'configuration',
+        'compiler.js'
+    );
+    const projectConfiguration =
+        fs.existsSync(compilerConfigurationFile) &&
+        require(compilerConfigurationFile).webpack;
+
     const getOakInclude = () => {
-        return [
-            /oak-domain/,
-            /oak-external-sdk/,
+        const result = [
             /oak-frontend-base/,
-            /oak-general-business/,
-            /oak-memory-tree-store/,
-            /oak-common-aspect/,
+            /oak-general-business/
         ];
+
+        if (projectConfiguration && projectConfiguration.extraOakModules) {
+            result.push(...projectConfiguration.extraOakModules);
+        }
+
+        return result;
     };
 
     return {
@@ -99,29 +111,51 @@ module.exports = function (webpackEnv) {
             globalObject: 'global',
         },
         resolve: {
-            alias: {
-                '@': paths.appSrc,
-                '@project': paths.appRootSrc,
-                '@oak-general-business': paths.oakGeneralBusinessPath,
-                '@oak-frontend-base': paths.oakFrontendBasePath,
-                '@oak-app-domain': paths.oakAppDomainPath,
-                'bn.js': require.resolve('bn.js'),
-            },
+            alias: (() => {
+                const defaultAlias = {
+                    'bn.js': require.resolve('bn.js'),
+                    assert: require.resolve('browser-assert'),
+                };
+                if (
+                    projectConfiguration &&
+                    projectConfiguration.resolve &&
+                    projectConfiguration.resolve.alias
+                ) {
+                    Object.assign(
+                        defaultAlias,
+                        projectConfiguration.resolve.alias
+                    );
+                }
+                return defaultAlias;
+            })(),
             extensions: paths.moduleFileExtensions.map((ext) => `.${ext}`),
             symlinks: true,
-            fallback: {
-                crypto: require.resolve('crypto-browserify'),
-                buffer: require.resolve('safe-buffer'),
-                stream: require.resolve('stream-browserify'),
-                zlib: require.resolve('browserify-zlib'),
-                events: require.resolve('events/'),
-                querystring: require.resolve('querystring-es3'),
-                url: false,
-                path: false,
-                fs: false,
-                net: false,
-                tls: false,
-            },
+            fallback: (() => {
+                const defaultFb = {
+                    crypto: require.resolve('crypto-browserify'),
+                    buffer: require.resolve('safe-buffer'),
+                    stream: require.resolve('stream-browserify'),
+                    zlib: require.resolve('browserify-zlib'),
+                    events: require.resolve('events/'),
+                    querystring: require.resolve('querystring-es3'),
+                    url: false,
+                    path: false,
+                    fs: false,
+                    net: false,
+                    tls: false,
+                };
+                if (
+                    projectConfiguration &&
+                    projectConfiguration.resolve &&
+                    projectConfiguration.resolve.fallback
+                ) {
+                    Object.assign(
+                        defaultFb,
+                        projectConfiguration.resolve.fallback
+                    );
+                }
+                return defaultFb;
+            })(),
         },
         resolveLoader: {
             // 第一种方式选查找自己的loaders文件中有没有这个loader再查找node_modules文件
@@ -132,7 +166,6 @@ module.exports = function (webpackEnv) {
                     __dirname,
                     '../loaders/wxml-loader.js'
                 ),
-                assert: require.resolve('browser-assert'),
             },
         },
         cache: {
@@ -166,29 +199,33 @@ module.exports = function (webpackEnv) {
             rules: [
                 {
                     test: /\.wxs$/,
-                    include: oakRegex,
-                    exclude: /node_modules/,
+                    include: [paths.appSrc, paths.appRootSrc].concat(
+                        getOakInclude()
+                    ),
                     type: 'javascript/auto',
                     use: [oakFileLoader('wxs')],
                 },
                 {
                     test: /\.(png|jpg|gif|svg)$/,
-                    include: oakRegex,
-                    exclude: /node_modules/,
+                    include: [paths.appSrc, paths.appRootSrc].concat(
+                        getOakInclude()
+                    ),
                     type: 'javascript/auto',
                     use: oakFileLoader(),
                 },
                 {
                     test: /\.wxss$/,
-                    include: oakRegex,
-                    exclude: /node_modules/,
+                    include: [paths.appSrc, paths.appRootSrc].concat(
+                        getOakInclude()
+                    ),
                     type: 'javascript/auto',
                     use: [oakFileLoader('wxss')],
                 },
                 {
                     test: /\.less$/,
-                    include: oakRegex,
-                    exclude: /node_modules/,
+                    include: [paths.appSrc, paths.appRootSrc].concat(
+                        getOakInclude()
+                    ),
                     type: 'javascript/auto',
                     use: [
                         oakFileLoader('wxss'),
@@ -211,7 +248,6 @@ module.exports = function (webpackEnv) {
                     include: [paths.appSrc, paths.appRootSrc].concat(
                         getOakInclude()
                     ),
-                    exclude: /node_modules/,
                     loader: 'babel-loader',
                     options: {
                         plugins: [oakI18nPlugin, oakPathPlugin],
@@ -224,7 +260,6 @@ module.exports = function (webpackEnv) {
                     include: [paths.appSrc, paths.appRootSrc].concat(
                         getOakInclude()
                     ),
-                    exclude: /node_modules/,
                     use: [
                         {
                             loader: 'babel-loader',
@@ -244,21 +279,11 @@ module.exports = function (webpackEnv) {
                         },
                     ],
                 },
-                // {
-                //     test: /\.json$/,
-                //     include: paths.appSrc,
-                //     exclude: /node_modules/,
-                //     type: 'asset/resource',
-                //     generator: {
-                //         filename: `[path][name].[ext]`,
-                //     },
-                //     // type: 'javascript/auto',
-                //     // use: [relativeFileLoader('json')],
-                // },
                 {
                     test: /\.xml$/,
-                    include: oakRegex,
-                    exclude: /node_modules/,
+                    include: [paths.appSrc, paths.appRootSrc].concat(
+                        getOakInclude()
+                    ),
                     type: 'javascript/auto',
                     use: [
                         oakFileLoader('wxml'),
@@ -275,8 +300,9 @@ module.exports = function (webpackEnv) {
                 },
                 {
                     test: /\.wxml$/,
-                    include: oakRegex,
-                    exclude: /node_modules/,
+                    include: [paths.appSrc, paths.appRootSrc].concat(
+                        getOakInclude()
+                    ),
                     type: 'javascript/auto',
                     use: [oakFileLoader('wxml')],
                 },
