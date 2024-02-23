@@ -207,15 +207,15 @@ module.exports = function (webpackEnv) {
 
     // 读取编译配置
     const compilerConfigurationFile = path.join(paths.appRootPath, 'configuration', 'compiler.js');
-    const projectConfigration = fs.existsSync(compilerConfigurationFile) && require(compilerConfigurationFile).webpack;
+    const projectConfiguration = fs.existsSync(compilerConfigurationFile) && require(compilerConfigurationFile).webpack;
 
     const getOakInclude = () => {
         const result = [
             /oak-frontend-base/,
             /oak-general-business/,
         ];
-        if (projectConfigration && projectConfigration.extraOakModules) {
-            result.push(...projectConfigration.extraOakModules);
+        if (projectConfiguration && projectConfiguration.extraOakModules) {
+            result.push(...projectConfiguration.extraOakModules);
         }
 
         return result;
@@ -387,8 +387,15 @@ module.exports = function (webpackEnv) {
                     net: false,
                     tls: false,
                 }
-                if (projectConfigration && projectConfigration.resolve && projectConfigration.resolve.fallback) {
-                    Object.assign(defaultFb, projectConfigration.resolve.fallback);
+                if (
+                    projectConfiguration &&
+                    projectConfiguration.resolve &&
+                    projectConfiguration.resolve.fallback
+                ) {
+                    Object.assign(
+                        defaultFb,
+                        projectConfiguration.resolve.fallback
+                    );
                 }
                 return defaultFb;
             })(),
@@ -422,8 +429,15 @@ module.exports = function (webpackEnv) {
                     'bn.js': require.resolve('bn.js'),
                     assert: require.resolve('browser-assert'),
                 };
-                if (projectConfigration && projectConfigration.resolve && projectConfigration.resolve.alias) {
-                    Object.assign(defaultAlias, projectConfigration.resolve.alias);
+                if (
+                    projectConfiguration &&
+                    projectConfiguration.resolve &&
+                    projectConfiguration.resolve.alias
+                ) {
+                    Object.assign(
+                        defaultAlias,
+                        projectConfiguration.resolve.alias
+                    );
                 }
                 return defaultAlias;
             })(),
