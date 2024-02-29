@@ -1,5 +1,5 @@
 const fs = require('fs');
-const { relative, resolve, join } = require('path');
+const { relative, resolve, join, dirname } = require('path');
 const t = require('@babel/types');
 const assert = require('assert');
 const { fork } = require('child_process');
@@ -35,34 +35,47 @@ function parseFileModuleAndNs(cwd, filename) {
         }
     }
     const relativePath = relative(cwd2, filename);
-
     if (relativePath.startsWith('node_modules') || relativePath.startsWith('..')) { // 在测试环境下是相对路径
-        const moduleRelativePath = relativePath
-            .replace(/\\/g, '/')
-            .split('/')
-            .slice(0, 2);
-        const modulePath = join(cwd2, ...moduleRelativePath);
-        const moduleDir = moduleRelativePath[1];
+        // 寻找离filename最近层的package.json，看作项目名称
+        // 用relativePath来递进查找在操作系统层面更安全
+        const fileDirPaths = relativePath.replace(/\\/g, '/').split('/');
 
-        let moduleName = ModuleDict[moduleDir];
-        if (!moduleName) {
-            const { name } = require(join(modulePath, 'package.json'));
-            ModuleDict[moduleDir] = name;
-            moduleName = name;
-        }
-        const rel2paths = relative(modulePath, filename)
-            .replace(/\\/g, '/')
-            .split('/');
+        let iter = fileDirPaths.length;
+        let filePrjRootPath = '';
+        let moduleName = '';
+        do {
+            filePrjRootPath = join(cwd2, ...fileDirPaths.slice(0, iter));
+            const pkgJsonPath = join(filePrjRootPath, 'package.json');
 
+            if (fs.existsSync(pkgJsonPath)) {
+                moduleName = ModuleDict[filePrjRootPath];
+                if (!moduleName) {
+                    const { name } = require(pkgJsonPath);
+                    moduleName = name;
+                    ModuleDict[filePrjRootPath] = name;
+                }
+                break;
+            }
+            else {
+                assert(iter > 0);
+                iter--;
+            }
+        } while (true);
+
+        // 引用的第三方项目目前合法的只有components下的组件，pages是容一些较早的遗留代码
+        const fileRelPathInPrj = relative(filePrjRootPath, filename).replace(/\\/g, '/').split('/');;
         let ns;
-        switch (rel2paths[1]) {
+        switch (fileRelPathInPrj[1]) {
             case 'pages': {
-                ns = `${moduleName}-p-${rel2paths.slice(2, rel2paths.length - 1).join('-')}`;
+                ns = `${moduleName}-p-${fileRelPathInPrj.slice(2, fileRelPathInPrj.length - 1).join('-')}`;
                 break;
             }
             default: {
-                assert(rel2paths[1] === 'components', rel2paths.join('//'));
-                ns = `${moduleName}-c-${rel2paths.slice(2, rel2paths.length - 1).join('-')}`;
+                if (fileRelPathInPrj[1] !== 'components') {
+                    assert(false);
+                }
+                assert(fileRelPathInPrj[1] === 'components', fileRelPathInPrj.join('//'));
+                ns = `${moduleName}-c-${fileRelPathInPrj.slice(2, fileRelPathInPrj.length - 1).join('-')}`;
                 break;
             }
         }
