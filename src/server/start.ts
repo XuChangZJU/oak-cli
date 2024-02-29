@@ -97,8 +97,7 @@ export async function startup<ED extends EntityDict & BaseEntityDict, Cxt extend
 
     router.post(connector.getRouter(), async (ctx) => {
         const { request } = ctx;
-        const data = request.files ? Object.assign({}, request.body, request.files) : request.body;     // 这里处理multiPart的文件，不是太好
-        const { contextString, aspectName } = connector.parseRequestHeaders(request.headers);
+        const { contextString, aspectName, data } = connector.parseRequest(request.headers, request.body, request.files);
         
         const { result, opRecords, message } = await appLoader.execAspect(aspectName, request.headers, contextString, data);
         const { body, headers } = await connector.serializeResult(result, opRecords, request.headers, request.body, message);
