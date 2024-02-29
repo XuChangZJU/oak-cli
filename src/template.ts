@@ -136,6 +136,7 @@ export function packageJsonContent({
 		"@babel/cli": "^7.12.13",
 		"@babel/core": "^7.12.13",
 		"@babel/plugin-proposal-class-properties": "^7.12.13",
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
 		"@babel/preset-env": "^7.12.13",
 		"@babel/preset-typescript": "^7.12.13",
 		"@pmmmwh/react-refresh-webpack-plugin": "^0.5.3",
