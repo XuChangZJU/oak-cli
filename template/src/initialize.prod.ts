@@ -20,39 +20,21 @@ import { selectFreeEntities, updateFreeDict, authDeduceRelationMap } from './con
 import { AppType } from '@oak-app-domain/Application/Schema';
 import { AFD } from '@project/types/RuntimeCxt';
 
+const NGINX_PROXY_PATH = '/oak-api';    // nginx反射代理到系统的映射
+
 export default function initialize(
     type: AppType,
     hostname: string,
-    protocolInput?: 'http:' | 'https:',
-    apiPathInput?: string,
-    portInput?: number
+    protocol?: 'http:' | 'https:',
+    apiPath?: string,
+    port?: number
 ) {
-    let protocol = protocolInput!,
-        apiPath = apiPathInput,
-        port = portInput;
-    if (!protocol) {
-        if (type === 'wechatMp') {
-            protocol = process.env.NODE_ENV === 'development' ? 'http:' : 'https:';
-        } else if (type === 'web') {
-            protocol = window.location.protocol as 'http:';
-        } else {
-            protocol = 'http:';
-        }
-    }
-
-    if (!port) {
-        port = process.env.NODE_ENV === 'development' ? 3001 : undefined;   // 此处dev环境默认不经过nginx映射，与configuration/server.json中一致。prod环境与线上映射一致（默认为不设置）
-    }
-    if (!apiPath) {
-        apiPath = process.env.NODE_ENV === 'development' ? undefined : '/oak-api';  // 此处dev环境默认不经过nginx映射（为空），prod环境设置与nginx中的路径映射对应
-    }
-
     const connector = new SimpleConnector<EntityDict, FrontendRuntimeContext>(
         {
-            protocol,
+            protocol: protocol || 'http:',
             hostname,
             port,
-            apiPath,
+            apiPath: typeof apiPath === 'string' ? apiPath : NGINX_PROXY_PATH,
         },
         makeException
     );
