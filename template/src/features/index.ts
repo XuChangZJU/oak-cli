@@ -7,6 +7,8 @@ import { BackendRuntimeContext } from '../context/BackendRuntimeContext';
 import { FrontendRuntimeContext } from '../context/FrontendRuntimeContext';
 import { AAD, AFD } from '@project/types/RuntimeCxt';
 import Sample from './Sample';
+import Console from './Console';
+import Menu from './Menu';
 
 export function initialize(
     generalFeatures: BasicFeatures<
@@ -36,9 +38,13 @@ export function initialize(
     } = generalFeatures;
 
     const sample = new Sample(cache);
+    const console = new Console(cache);
+    const menu = new Menu(contextMenuFactory, console);
 
     return {
         sample,
+        console,
+        menu,
     };
 }
 

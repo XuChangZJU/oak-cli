@@ -84,7 +84,7 @@ export default class Menu extends Feature {
     }
 
     refreshMenus() {
-        const roomId = this.console.getRoomId();
+        /* const roomId = this.console.getRoomId();
         const menus = this.contextMenuFactory.getMenusByContext<IMenu<keyof EntityDict>>('room', roomId);
         const menuGroup = groupBy(menus, 'parent');
         this.menus = (menus as any[]).filter(ele => !ele.parent).concat(
@@ -98,7 +98,7 @@ export default class Menu extends Feature {
                 };
             }).filter((ele) => !!ele.children)
         );
-        this.publish();
+        this.publish(); */
     }
 
     getMenus() {
