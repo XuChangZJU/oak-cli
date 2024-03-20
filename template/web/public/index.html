@@ -19,8 +19,6 @@
             rel="stylesheet"
             href="//g.alicdn.com/de/prismplayer/2.11.0/skins/default/aliplayer-min.css"
         />
-        <!-- <link rel="stylesheet" type="text/css" charset="UTF-8" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.6.0/slick.min.css" /> 
-  <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.6.0/slick-theme.min.css" /> -->
         <script
             charset="utf-8"
             type="text/javascript"
@@ -74,9 +72,6 @@
         <script>
             window.BN || document.write('<script src="//unpkg.com/bn.js@5.2.1/lib/bn.js"><\/script>')
         </script>
-        <!-- <script src="https://cdn.staticfile.org/dayjs/1.11.7/dayjs.min.js"></script> -->
-        <!-- <script src="//cdn.bootcdn.net/ajax/libs/antd/5.2.0/antd.min.js"></script> -->
-        <!-- <link href="//cdn.bootcdn.net/ajax/libs/antd/5.2.0/reset.min.css" rel="stylesheet"> -->
         <!--
       Notice the use of %PUBLIC_URL% in the tags above.
       It will be replaced with the URL of the `public` folder during the build.
@@ -87,15 +82,9 @@
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
         <title>oak template project</title>
-        <!-- <script>window.antd || document.write('<script src="https://cdn.staticfile.org/antd/5.2.0/antd.min.js"><\/script>')</script> -->
-        <!-- <script>window.antd || document.write('<link href="https://cdn.staticfile.org/antd/5.2.0/reset.min.css" rel="stylesheet"><\/link>')</script> -->
-
-        <script>
-        </script>
     </head>
 
     <body>
-        <noscript>You need to enable JavaScript to run this app.</noscript>
         <div id="root"></div>
         <!--
       This HTML file is a template.
@@ -131,8 +120,6 @@
             var closeBtn = document.createElement('img');
             var contentHTML =
                 '您当前使用的浏览器可能会出现界面显示异常或功能无法正常使用等问题，建议下载使用最新的 360 极速浏览器并切换到极速模式。';
-            // var endHTML =
-            //     '&nbsp;&nbsp;&nbsp;&nbsp;<a href="../assets/360cse_13.0.2216.0.exe" target="_blank" style="cursor: pointer; color: red; font-weight: bold;">下载浏览器点我</a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="../../views/speed-mode-tutorial.html" target="_blank" style="cursor: pointer; color: red; font-weight: bold;">不会切换到极速模式点我</a>';
             var handleClickClose = function (event) {
                 document.body.removeChild(tip);
             };
@@ -169,12 +156,12 @@
 
             if (sys.ie) {
                 browser = 'IE';
-                tip.innerHTML = contentHTML + endHTML;
+                tip.innerHTML = contentHTML;
                 startAppend();
             }
             if (sys.firefox) {
                 browser = 'Firefox';
-                tip.innerHTML = contentHTML + endHTML;
+                tip.innerHTML = contentHTML;
                 startAppend();
             }
             if (sys.chrome) {
@@ -200,15 +187,14 @@
                     // 如果 360 极速浏览器并切换到极速模式低于86版本
                     if (version < 87) {
                         tip.innerHTML =
-                            '您当前使用的浏览器版本过低，使用可能会出现界面显示异常或功能无法正常使用等问题，建议下载使用谷歌，火狐，edge等新版本浏览器。' +
-                            endHTML;
+                            '您当前使用的浏览器版本过低，使用可能会出现界面显示异常或功能无法正常使用等问题，建议下载使用谷歌，火狐，edge等新版本浏览器。';
                         startAppend();
                     }
                 }
             }
             if (sys.opera) {
                 browser = 'Opera';
-                tip.innerHTML = contentHTML + endHTML;
+                tip.innerHTML = contentHTML;
                 startAppend();
             }
             if (sys.safari) {

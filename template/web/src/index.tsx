@@ -51,8 +51,6 @@ const init = async () => {
         error = err;
     }
 
-    // 这个操作要在初始化完成后异步调用
-    features.token.loadTokenInfo();
     const application = features.application.getApplication();
     const folder = application?.system?.folder;
 
